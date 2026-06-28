@@ -1,0 +1,38 @@
+# ============================================================
+#  projectTP (HD-2D PvP ATB) — .gitignore
+#  Repo root = D:\unreal  (workspace: engine + project + resources)
+# ============================================================
+
+# ===== Unreal Engine build (~31 GB) — NEVER commit =====
+/UE_5.8/
+
+# ===== Unreal project: generated / transient =====
+/projectTP/Binaries/
+/projectTP/Build/
+/projectTP/DerivedDataCache/
+/projectTP/Intermediate/
+/projectTP/Saved/
+/projectTP/.vs/
+/projectTP/*.sln
+/projectTP/*.VC.db
+/projectTP/*.VC.opendb
+/projectTP/*.opensdf
+/projectTP/*.sdf
+/projectTP/*.suo
+
+# ===== heroes99 PAID asset pack — redistribution prohibited =====
+# Raw pack (originals + zip) must never be published, even in a private repo.
+/Resource/_RawAssets/
+/Resource/*.zip
+
+# ===== Local tooling / editor state =====
+**/.claude/settings.local.json
+/Resource/docs/.obsidian/workspace.json
+/Resource/docs/.obsidian/workspace-mobile.json
+/Resource/docs/.obsidian/cache
+
+# ===== OS junk =====
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.tmp
