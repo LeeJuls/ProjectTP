@@ -44,7 +44,9 @@
 - **Sonnet**(근육 = 중간80%): gameplay-engineer, scene-builder, art-pipeline, hd2d(적용), cpp — 모든 구현·실행.
 - **Haiku**: verifier (테스트 실행).
 - **철칙**: Fable은 노동하지 않는다. 방향을 정하고, 결과가 그 방향에 맞는지 판단할 뿐. 중간 실행에 Fable 쓰면 낭비.
+- **저비용 룰**: 문서 탐색·조회, 검증된 결과물의 반복 적용, 커밋·푸시 등 기계적 작업은 **sonnet/haiku**로(서브에이전트 위임 포함). Fable/Opus 금지.
 - Director가 **명확한 지시서**를 줄수록 하위 토큰이 준다. frontmatter model은 기본값 — 필요시 Agent 호출 시 `model`로 오버라이드.
+- 작업 중간 산출물도 **전부 Obsidian wiki에 기록**: `docs/문서화_규칙.md` 준수.
 
 ## 상속 규칙 (전역 CLAUDE.md 준수)
 
