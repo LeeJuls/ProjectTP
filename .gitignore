@@ -25,6 +25,18 @@
 /Resource/_RawAssets/
 /Resource/*.zip
 
+# ===== UE Content — imported assets (incl. paid Fab packs) + heavy; reproduce via docs/scripts =====
+/projectTP/Content/
+
+# ===== Blend / large source files =====
+/Resource/*.blend
+
+# ===== Playwright temp snapshots =====
+/Resource/.playwright-mcp/
+
+# ===== UE auto-generated project copies (e.g. "projectTP 5.8") =====
+/projectTP */
+
 # ===== Local tooling / editor state =====
 **/.claude/settings.local.json
 /Resource/docs/.obsidian/workspace.json

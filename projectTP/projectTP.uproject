@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "",
+	"EngineAssociation": "5.8",
 	"Category": "Game",
 	"Description": "HD-2D front-view battle - Art validation MVP (UE 5.8, Blueprint-only).",
 	"Plugins": [
