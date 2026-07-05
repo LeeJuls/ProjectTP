@@ -14,8 +14,8 @@ updated: 2026-07-05
 ## 단계 분해
 | 단계 | 내용 | 담당 | 모델 | 상태 |
 |---|---|---|---|---|
-| S1 | 캐릭터 8종 합성(compose_party.py) | art-pipeline | sonnet | 대기 |
-| S2 | UE 임포트 + 플립북 머티리얼 | art-pipeline | sonnet | 대기 |
+| S1 | 캐릭터 8종 합성(compose_party.py) | art-pipeline | sonnet | 완료 |
+| S2 | UE 임포트 + 플립북 머티리얼 | art-pipeline | sonnet | 완료 |
 | S3 | 무대 복제 + 4v4 배치 + 카메라 | scene-builder | sonnet | 대기 |
 | S4 | idle 모션(SubUV) 활성화 | art-pipeline | sonnet | 대기 |
 | S5 | 룩 패스(라이팅/PP) | hd2d-art-director | sonnet | 대기 |
@@ -67,8 +67,8 @@ updated: 2026-07-05
 | Enemy_B1~B4 | 150, 300, 450, 600 | -6600 | 486 |
 
 - **스케일**(Director 결정): 셀 비율 **2.5:1(X:Z) 유지**가 원칙. 시작값 X≈6.48·Z≈2.59(성인 체구 가정) — **절대 크기는 S3 스크린샷 보고 오너 확정**. (미적/가시성 사안, balance 소관 아님)
-- **쿼드 yaw**: 전원 **카메라 정면 응시**(heroes99 정면 스프라이트, 전제결정).
-- 메시: `SM_SpriteQuad` 재사용. 아웃라이너: `BattleStage/Party`, `BattleStage/Enemy`, `BattleStage/Camera`.
+- **쿼드 회전**(⚠ S2 발견): `SM_SpriteQuad`는 XY평면(두께0)에 누워있음 → **roll=90 필수**(정면 기립). rotation=(0,0,0)이면 카메라 정면에서 얇은 선. yaw는 카메라 정면 응시 유지.
+- 메시: `SM_SpriteQuad` 재사용. **⚠ 머티리얼은 컴포넌트 `overrideMaterials`로만 적용** — `StaticMeshTools.set_material`은 메시 에셋을 영구변경하므로 금지(S2 원복 이력). 아웃라이너: `BattleStage/Party`, `BattleStage/Enemy`, `BattleStage/Camera`.
 
 ## 6. 카메라 (안1, 실증 완료)
 - location (0, -7550, 750), rotation (pitch=-6, yaw=90, roll=0).
@@ -98,62 +98,67 @@ updated: 2026-07-05
 - Med [S1][07] RGBA·여백 A=0·반투명 잔여 없음 | PASS
 - Med [S1][08] 원본 `_RawAssets` 무오염 | PASS
 
-### S2 — 임포트·머티리얼
-- Crit [S2][01] `T_Party_A1..B4` 8종 존재 | 대기
-- Crit [S2][02] Nearest/NoMipmaps/TC_EditorIcon 전부 | 대기
-- Crit [S2][03] 소스 800×680 유지(POT 패딩 없음) | 대기
-- Crit [S2][04] `M_Sprite_Flipbook_Lit` → Masked/TwoSided/Lit, RGB→BaseColor, A→OpacityMask | 대기
-- Crit [S2][05] SubUV 파라미터 → GridX8/GridY17/RowIndex0/**FrameCount6**/FPS8 | 대기
-- Crit [S2][06] MI 8개 `MI_Party_A1..4`/`MI_Enemy_B1..4`, 부모=마스터 | 대기
-- High [S2][07] MI↔Texture 1:1(오프바이원 없음) | 대기
-- High [S2][08] frame0 도트 무손상(번짐 없음) | 대기
-- High [S2][09] Masked 경계(반투명/사각배경 없음) | 대기
-- Med [S2][10] frame0 종횡비(눌림/늘어남 없음) | 대기
+### S2 — 임포트·머티리얼 ✅ PASS (verifier 독립검증 10/10, FrameCount=6 확정)
+- Crit [S2][01] `T_Party_A1..B4` 8종 존재 | PASS
+- Crit [S2][02] Nearest/NoMipmaps/TC_EditorIcon 전부 | PASS
+- Crit [S2][03] 소스 800×680 유지(POT 패딩 없음) | PASS
+- Crit [S2][04] `M_Sprite_Flipbook_Lit` → Masked/TwoSided/Lit, RGB→BaseColor, A→OpacityMask | PASS
+- Crit [S2][05] SubUV 파라미터 → GridX8/GridY17/RowIndex0/**FrameCount6**/FPS8 | PASS
+- Crit [S2][06] MI 8개 `MI_Party_A1..4`/`MI_Enemy_B1..4`, 부모=마스터 | PASS
+- High [S2][07] MI↔Texture 1:1(오프바이원 없음) | PASS
+- High [S2][08] frame0 도트 무손상(번짐 없음) | PASS
+- High [S2][09] Masked 경계(반투명/사각배경 없음) | PASS
+- Med [S2][10] frame0 종횡비(눌림/늘어남 없음) | PASS(육안, 절대스케일은 S3서 확정)
 
-### S3 — 무대·배치·카메라
-- Crit [S3][01] 복제 존재 + 원본 무오염 | 대기
-- Crit [S3][02] 8기 존재(Party4+Enemy4, MI 매핑) | 대기
-- Crit [S3][03] 좌표 X -600..-150 / 150..600, Y=-6600 | 대기
-- Crit [S3][04] snap_to_ground → A2·A4 부양/매몰 없음 | 대기
-- Crit [S3][05] 카메라 8기 전원 화면 안, 0.19/0.81 대칭 | 대기
-- High [S3][06] yaw 정면 응시(뒤집힘/마주보기 없음) | 대기
-- High [S3][07] 캐스트 섀도우 8개 | 대기
-- High [S3][08] 스케일 2.5:1(눌림/늘어남 없음) | 대기
-- High [S3][09] 좌우 미겹침·대칭 | 대기 (절대스케일 확정 후 재검 — 이월)
-- Med [S3][10] 아웃라이너 Party/Enemy/Camera | 대기
-- Med [S3][11] 구조물 간섭 없음 | 대기
-- Med [S3][12] 워시아웃 사전 점검(라이팅 전) | 대기
+### S3 — 무대·배치·카메라 ✅ PASS (Director 실증: 스크린샷 2장 육안 + scene-builder 실측)
+> 수정: 회전 버그(yaw90 측면화) → `(0,0,90)`, 스케일 `(6.48,2.59,1.0)`, A2 둔덕 회피로 8기 Y=-6700. **크기 6.48배 오너 확정.**
+- Crit [S3][01] 복제 존재 + 원본 무오염 | PASS
+- Crit [S3][02] 8기 존재(Party4+Enemy4, MI 매핑) | PASS
+- Crit [S3][03] 좌표 X -600..-150 / 150..600, Y=-6700 | PASS
+- Crit [S3][04] snap_to_ground → A2·A4 부양/매몰 없음 | PASS (둔덕 회피 후퇴)
+- Crit [S3][05] 카메라 8기 전원 화면 안 | PASS (전원 y 0.46~0.69)
+- High [S3][06] roll=90 + yaw 정면 응시 | PASS
+- High [S3][07] 캐스트 섀도우 8개 | PASS
+- High [S3][08] 스케일 비율(눌림/늘어남 없음) | PASS (회전 버그 수정 후)
+- High [S3][09] 좌우 미겹침·대칭 | PASS (겹침 없음, 대칭 원근차 근사)
+- Med [S3][10] 아웃라이너 Party/Enemy/Camera | PASS
+- Med [S3][11] 구조물 간섭 없음 | PASS
+- Med [S3][12] 워시아웃 사전 점검(라이팅 전) | PASS 예비 (S5 재확인)
+- ⚠ 신규 이월 [S3][G] 캐릭터 스미어 글리치(SubUV UV이동 × 모션블러/velocity, AA 무관 판명) → **S5 해결**
 
-### S4 — idle SubUV
-- Crit [S4][01] 8기 프레임 순환 재생 | 대기
-- Crit [S4][02] 6프레임만·**col6·7 빈 프레임 미표시** | 대기
-- Crit [S4][03] 순방향·wrap 매끄러움(역방향/스킵 없음) | 대기
-- High [S4][04] 애니 중 도트 무손상(크로스페이드 없음) | 대기
-- High [S4][05] col 0~5로만 한정(수식 검증) | 대기
-- High [S4][06] 8기 독립 재생(스터터 없음) | 대기
-- Med [S4][07] FPS8 속도 적정 | 대기
-- Med [S4][08] RowIndex Row0 고정 | 대기
+### S4 — idle SubUV ✅ PASS (art-pipeline 3회 캡처 + Director 스택 실증)
+- Crit [S4][01] 8기 프레임 순환 재생 | PASS (실루엣 각도 변화)
+- Crit [S4][02] 6프레임만·**col6·7 빈 프레임 미표시** | PASS (3회 캡처 깜빡임 없음=FrameCount6 실효)
+- Crit [S4][03] 순방향·wrap 매끄러움(역방향/스킵 없음) | PASS (이상 없음)
+- High [S4][04] 애니 중 도트 무손상(크로스페이드 없음) | 이월 → S5 (글리치 해결 후 판단)
+- High [S4][05] col 0~5로만 한정(수식 검증) | PASS (깜빡임 없음으로 간접)
+- High [S4][06] 8기 독립 재생(스터터 없음) | PASS (좌/우 패턴 상이)
+- Med [S4][07] FPS8 속도 적정 | PASS (유지)
+- Med [S4][08] RowIndex Row0 고정 | PASS
 
-### S5 — 룩 패스
-- Crit [S5][01] 워시아웃 없음 | 대기
-- Crit [S5][02] AutoExposure Min=Max=1.0 고정 | 대기
-- High [S5][03] Bloom ≈0.45(글로벌 번짐 없음) | 대기
-- High [S5][04] 캐스트 섀도우 유지 | 대기
-- High [S5][05] before/after 동일 구도 2장 | 대기
-- Med [S5][06] Saturation1.15/Contrast1.08/Vignette0.45 | 대기
-- Med [S5][07] 원본맵 무오염 | 대기
-- Med [S5][08] 8기 균일 조명 | 대기
+### S5 — 룩 패스 + 글리치 해결 ✅ PASS (Director/Fable 직접 실증 + 오너 육안 승인)
+> **글리치 근본원인 확정·완치**: 공면 쿼드 z-fight → Y 3cm 스태거. 오너: "완벽함". Lit 복원 후에도 무재발.
+- Crit [S5][01] 워시아웃 없음 | PASS (Lit 최종 스크린샷)
+- Crit [S5][02] AutoExposure Min=Max=1.0 고정 | PASS (hd2d 적용)
+- High [S5][03] Bloom 0.45 | PASS (hd2d 적용, 4.0→0.45)
+- High [S5][04] 캐스트 섀도우 유지 | PASS (Lit 복원 후 발밑 그림자 확인)
+- High [S5][05] before/after 스크린샷 | PASS (raw/ 다수: S5_look_*, S5_글리치해결_최종, S5_Lit최종)
+- Med [S5][06] Sat/Contrast/Vignette | PASS (오너 B안: 1.0/1.03/0.45 — 맵 팔레트 과포화 회피)
+- Med [S5][07] 원본맵 무오염 | PASS (map_village_day 무변경 — 복제본만 편집)
+- Med [S5][08] 8기 균일 조명 | PASS
+- 신규 [S5][G] 공면 z-fight 해결·무재발 | **PASS** (Unlit·Lit 양쪽 실증, 오너 육안)
 
 ## 이월(deferred) TC
 | TC | 검증 예정 단계 | Director 승인 |
 |---|---|---|
-| [S2][05] FrameCount 실효(빈프레임) | S4[02]에서 발현 검증 | 사전 인지 ✅ |
-| [S3][09] 절대스케일 겹침 확정 | 오너 스케일 확정 후 S3 재검 | 대기 |
-| [S3][05] 카메라 재실측 | FOV 안2 채택 시에만 | 조건부 |
+| [S2][05] FrameCount 실효(빈프레임) | S4[02] 발현 검증 완료(깜빡임 없음) | 해소 ✅ |
+| [S3][09] 절대스케일 겹침 확정 | 오너 6.48배 확정 → 겹침 없음 | 해소 ✅ |
+| [S3][G] 캐릭터 스미어 글리치 | **S5 해결: 공면 z-fight → 3cm 스태거** (모션블러 가설은 오진이었음) | 해소 ✅ |
+| [S4][04] 애니 중 도트 무손상 | 글리치 해소로 F(풀테스트)에서 최종 확인 | F로 이월 |
 
 ## 진행 체크리스트
-- [ ] S1 개발 → 게이트
-- [ ] S2 개발 → 게이트
+- [x] S1 개발 → 게이트
+- [x] S2 개발 → 게이트
 - [ ] S3 개발 → 게이트
 - [ ] S4 개발 → 게이트
 - [ ] S5 개발 → 게이트
