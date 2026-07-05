@@ -1,7 +1,7 @@
 ---
 type: moc
 project: projectTP
-updated: 2026-06-28
+updated: 2026-07-05
 ---
 
 # 🏠 projectTP 문서 허브
@@ -13,7 +13,9 @@ updated: 2026-06-28
 
 ## 📌 현재 상태 (한눈에)
 
-- **✅ S0 아트 선검증 성공!** heroes99 32px 도트 → UE5.8 HD-2D 렌더 확인.
+- **✅ 팀·프로세스 구축 완료** — Director+9 멀티에이전트([[에이전트팀_설계]]) + 단계별 게이트 워크플로우([[개발_워크플로우]]). **Fable=두뇌(계획·방향 + 최종 방향검수)** 원칙 확립.
+- **✅ S0 아트 선검증 성공** — heroes99 32px 도트 → UE5.8 HD-2D 렌더 확인.
+- **▶ 다음** — 이 워크플로우로 **첫 기능(기본 전투) 청사진** 착수 대기.
 
 ![[HD2D_validation_hero.png]]
 
@@ -48,6 +50,7 @@ updated: 2026-06-28
 | [[셋업가이드_새PC환경구축]] | **새 PC 세팅** — 클론·에셋·엔진·MCP 전체 절차 | 셋업 |
 | [[에이전트팀_설계]] | **★ 멀티에이전트 팀** — Director+9, 역할·워크플로우·모델배분 | 팀 |
 | [[개발_워크플로우]] | **★ 개발 프로세스** — 단계별 게이트·TC·기능폴더 구조 | 프로세스 |
+| [[HD2D_기법_지식베이스]] | HD-2D 룩 기법·UE 파라미터·실측 세팅 (art-director 참조) | 레퍼런스 |
 | [[HD2D_PvP_ATB_설계]] | 전체 그림 — 실시간 ATB PvP, 서버 권위 네트워킹 | 본설계 |
 
 > 의존 관계: [[ArtMVP_아트선검증_계획]] 통과(Go) → [[HD2D_PvP_ATB_설계]]의 무거운 작업(PvP·네트워킹) 착수.
@@ -74,6 +77,7 @@ D:\unreal\                     ← 워크스페이스 루트
 - 엔진: `D:\unreal\UE_5.8` (Paper2D ✅ / GameplayAbilities ✅ / Unreal MCP·Toolset Registry 내장)
 - MCP: UE 5.8 공식 Experimental. HTTP `http://127.0.0.1:8000/mcp` (loopback, 무인증). 에디터 안에서 기동.
 - 에셋: heroes99 (au-pixel) — $18.75, 상업·수정 가능, 32px 도트 정면. 무료 데모 없음.
+- 배경: **FANTASTIC Village Pack** (Fab 무료) — `/Game/Fantastic_Village_Pack/`, 완성맵 3종(day/night/overview) 포함. UE Content는 git 제외(재현 방식).
 - 병행: 오너가 별도 Unity 프로젝트 작업 중 — 충돌 없음(별 엔진/포트). RAM만 주의.
 
 ---
@@ -85,6 +89,10 @@ D:\unreal\                     ← 워크스페이스 루트
 - 서버 권위·네트워킹은 후순위(사람이 풀 수 있는 영역으로 판단).
 - 프로젝트명 = `projectTP` (※ 임시명 여부 미확정 — 확정 시 폴더/.uproject 동시 변경 필요).
 - 문서 관리 = Obsidian 볼트 `Resource\docs`. 엔진 폴더엔 문서 금지.
+- 팀 = **Director(메인) + 9 전문 에이전트**. 개발 = **단계별 게이트**(qa=TC설계, verifier=실행, Director=판정).
+- **Fable=두뇌**: 작업 100 중 앞10(계획·방향)+뒤10(방향검수)만 Fable, 중간80(실행)은 Sonnet/Haiku. 노동에 Fable 금지.
+- MVP = Blueprint-only. C++(cpp-engineer)는 MVP 이후 코어 이관 시 활성화(VS2022 필요).
+- 배경 = Fab 무료 Village Pack 채택. UE Content·유료원본·프로젝트 사본은 git 제외.
 
 ---
 

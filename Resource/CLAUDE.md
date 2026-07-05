@@ -36,13 +36,15 @@
 - 미적 "멋짐"과 push는 **오너 최종 판단**.
 - 상세 절차·템플릿: `docs/개발_워크플로우.md` / 기능은 `docs/features/<기능>/`에.
 
-## 모델 배분 (Fable 토큰 절약)
+## 모델 배분 (Fable = 두뇌, 양 끝단만)
 
-- **Fable/Opus**(머리): Director, 두 designer, qa-critic, hd2d-art-director(룩설계)
-- **Sonnet**(손): gameplay-engineer, scene-builder, art-pipeline, cpp-engineer
-- **Haiku**: verifier
-- Director가 **명확한 지시서**를 줄수록 실행 에이전트 토큰이 준다. Fable은 "무엇을·왜"에만 쓴다.
-- 에이전트 frontmatter의 model은 기본값. 특정 작업에 Fable이 필요하면 Agent 호출 시 `model` 파라미터로 오버라이드.
+작업 100 = **10 계획·방향 → 80 실행 → 10 방향부합 검수**. **Fable은 맨 앞·맨 뒤만.**
+
+- **Fable/Opus**(두뇌 = 앞10%+뒤10%): Director의 계획·방향·작업분해, 설계자(system-ui·balance)의 설계, 최종 결과의 방향부합 판단(designer·qa-critic).
+- **Sonnet**(근육 = 중간80%): gameplay-engineer, scene-builder, art-pipeline, hd2d(적용), cpp — 모든 구현·실행.
+- **Haiku**: verifier (테스트 실행).
+- **철칙**: Fable은 노동하지 않는다. 방향을 정하고, 결과가 그 방향에 맞는지 판단할 뿐. 중간 실행에 Fable 쓰면 낭비.
+- Director가 **명확한 지시서**를 줄수록 하위 토큰이 준다. frontmatter model은 기본값 — 필요시 Agent 호출 시 `model`로 오버라이드.
 
 ## 상속 규칙 (전역 CLAUDE.md 준수)
 
