@@ -57,7 +57,7 @@ ATK 시작 t=0(0.70s 타이머) / **임팩트 t=0.25s에 TakeHit**(공격 중반
 |---|---|---|---|---|
 | E0 | **파일럿 프로브**: ①Function Graph+add_object_function_param+compile(GE-C2 — 실패 시 즉시 중단·Director 보고) ②배열 원소 1~2개 인덱스별 세팅 ③byte 변수. + 기능폴더 `docs/features/턴제전투MVP/` 생성(청사진·설계·TC 전사) | 프로브 3종 성공 | ge(sonnet) | **완료** — 프로브 3종 모두 성공(원소 세팅 문법은 실측과 상이, [[raw/E0_프로브]] 참고) |
 | E1 | 유닛 확장(TakeHit·마커·하이라이트·ClickBox·bIsParty·register) | TC-01~10: TakeHit 0.45s·IsValid 가드·양 RetrigDelay 무충돌·마커 팀색·아군클릭 무시·**village/배치도구 회귀** | ge(sonnet)→verifier(haiku) | **구현 완료(자가검증 부분적)** — BeginPlay 확장(마커 트랜스폼·팀색·ClickBox) 배선·컴파일 0, 손상 인스턴스 오버라이드 8기 전량 복구, bAbsolute* 플래그로 비균등스케일 전단 해결. 스캐폴드 제거·저장 완료. **PIE CaptureViewport 캡처 신뢰성 미해결로 verifier 정밀 재검증 필요**([[raw/E1_유닛확장]] 참고) — TC-01~08은 verifier가 PIE get_properties 직접 재조회로, 시각 확인은 에디터 레벨 우회 캡처 또는 오너 육안 권장 |
-| E2 | Manager 상태머신+큐+버튼 재배선 E2E | TC-11~19: 등록 8/8 게이트·1턴 흐름 타임스탬프·**최속 8턴 무충돌**·마커 1개 불변·modulo 실길이·null skip | ge(sonnet)→verifier(haiku) | 대기 |
+| E2 | Manager 상태머신+큐+버튼 재배선 E2E | TC-11~19: 등록 8/8 게이트·1턴 흐름 타임스탬프·**최속 8턴 무충돌**·마커 1개 불변·modulo 실길이·null skip | ge(sonnet)→verifier(haiku) | **구현 완료(자가검증 부분적)** — InitBattle·5개 상태 진입 함수/이벤트·NotifyUnitClicked·NotifyAttackButtonClicked·BP_AttackButton 3함수 전부 배선·컴파일 0. 스캐폴드 2턴 자동진행 PIE 검증: TC-11·12·19·무효입력 PASS. **TC-13(타이밍) 재현성 있는 편차(Executing+0.25s·TurnEnd+0.317s) 원인 미규명으로 보류. TakeHit 재측정 중 SpriteMID 런타임 무효화라는 신규 회귀 발견(BP_BattleSpawnPoint 소관, PlayAttack 애니메이션도 영향받을 가능성) — verifier 정밀 재검증 및 F단계 전 재조사 필수**([[raw/E2_상태머신]] 참고) |
 | E3 | 폴리시·엣지(잠금 순서·취소 발광 OFF·숨김 콜리전·재시작 리셋)+풀 회귀 | TC-20~35: 이중진입 방지·잠금 순서 정적 확인·상태누수·**공격버튼데모 회귀·배치_1 회귀·village 최종** | ge→verifier | 대기 |
 | F | **오너 라이브 확인**(PIE 직접 핫시트 플레이 — 스크린샷 없음) + 방향부합 판정 → 이후 "구조 재정비 vs 진행" 논의 | TC-M-방향부합 | 오너+Director | 대기 |
 
@@ -76,8 +76,8 @@ ATK 시작 t=0(0.70s 타이머) / **임팩트 t=0.25s에 TakeHit**(공격 중반
 - [x] E0 파일럿 프로브 3종 + 기능폴더 문서 생성
 - [x] E1 개발 (마커/클릭박스 배선·손상복구·bAbsolute* 해결 — [[raw/E1_유닛확장]])
 - [ ] E1 게이트 통과 (verifier 실증 → Director 판정 — PIE 캡처 신뢰성 이슈 감안 필요)
-- [ ] E2 개발
-- [ ] E2 게이트 통과
+- [x] E2 개발 (Manager 상태머신 전체 구현·자가검증 — [[raw/E2_상태머신]])
+- [ ] E2 게이트 통과 (verifier 실증 → Director 판정 — SpriteMID 회귀 이슈 감안 필요)
 - [ ] E3 개발
 - [ ] E3 게이트 통과
 - [ ] F 오너 라이브 확인 + 방향부합 판정

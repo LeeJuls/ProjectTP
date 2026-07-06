@@ -155,3 +155,42 @@ updated: 2026-07-06
 
 ### 미해결 이월 — `CaptureViewport`가 PIE 게임 월드가 아니라 에디터 레벨(원본)을 캡처하는 것으로 보이는 정황
 PIE 세션 중 `get_current_level`이 빈 문자열을 반환하는 현상과 함께, PIE 인스턴스(`UEDPIE_0_...`)에서 `get_properties`로 트랜스폼이 완전히 정확함을 확인해도 그 시점의 `CaptureViewport` 스크린샷에는 반영되지 않는 사례가 재현됐다(`playMode: PlayMode_InViewPort`로 실행해도 동일). 반면 **PIE를 끄고 에디터 레벨(비-PIE) 인스턴스에 직접 동일 값을 세팅**하면 캡처에 정확히 반영된다. 즉 이 MCP 조합에서 PIE 중 스크린샷 자가검증은 **신뢰할 수 없을 가능성**이 있다 — 근본 메커니즘은 미규명. **런타임 로직(BeginPlay 등) 자체의 정확성은 `get_properties`로 PIE 인스턴스를 직접 재조회해 검증**하고, **시각적(픽셀) 확인이 꼭 필요하면 PIE를 끄고 에디터 레벨에 같은 값을 세팅한 뒤 캡처**하는 우회가 이번엔 유효했다(단, 인라인 구조체는 함정③에 걸리므로 병용 주의).
+
+---
+
+## 8. 턴제전투MVP E2에서 추가 검증된 노하우 (2026-07-07)
+
+### 함정 ④ latent 노드(Delay 계열)는 Function Graph에서 사용 불가 — Custom Event(EventGraph)로 우회해야 함
+UE 표준 제약: **Delay/RetriggerableDelay 같은 latent 노드는 Blueprint Function Graph에서 호출할 수 없다**(함수는 동기 실행이 전제). `find_node_types`로 함수 그래프 컨텍스트에서 `유틸리티|플로컨트롤|Delay`를 검색하면 결과가 항상 빈 배열이고, **같은 Blueprint의 EventGraph 컨텍스트로 검색하면 정상 발견**된다 — 이 차이 자체가 latent 노드 사용 가능 여부의 실측 판별법이다. 설계 단계에서 "함수 그래프"로 명시된 상태 진입 로직 중 Delay가 필요한 것이 있다면, 실제로는 **Custom Event(EventGraph)로 구현**하고 다른 곳에서는 `함수호출|<이벤트명>` 형태로 그대로 호출하면 된다(커스텀 이벤트도 CallFunction 노드처럼 호출 가능해 설계 의도인 "이름 붙은 진입점"은 그대로 유지됨).
+
+### 함정 ⑤ `add_event`를 병렬(동시) 호출하면 `event_name`이 무시되고 기본 이름으로 생성될 수 있음
+서로 다른 두 Custom Event를 **같은 메시지 안에서 병렬로** `add_event` 호출하면, 그중 하나가 실제로는 지정한 이름이 아니라 기본 이름(`커스텀이벤트`)으로 생성되는 경우가 재현됐다. 엔진 로그에 `LogBlueprint: Warning: User provided name was invalid 이미 사용 중인 이름입니다. - node named 커스텀이벤트`가 남는다 — 두 호출이 동시에 "이름 미지정 상태"로 처리되며 이름 충돌이 발생하는 것으로 추정. **탐지**: `add_event` 호출 후 `get_node_infos`로 생성된 노드의 `type_id`(예: `AddEvent|Custom|EnterExecuting`)가 지정한 이름과 일치하는지 반드시 재확인할 것 — `AddEvent|Custom|커스텀이벤트`로 나오면 실패다. **해법**: 같은 이름으로 `add_event`를 (단독으로) 재호출하면 이번엔 정확한 이름의 새 노드가 생성된다(리네임이 아니라 별도 신규 노드 생성) → 기존 배선을 새 노드로 옮기고 잘못된 이름의 노드를 `delete_node`로 제거. **예방**: 여러 Custom Event를 만들 땐 반드시 순차(1개씩) 호출하거나, 병렬 호출 후 전수 이름 검증을 습관화할 것.
+
+### `set_pin_value`로 함수 호출 노드의 오브젝트 파라미터에 리터럴 레퍼런스를 직접 지정 가능
+`NotifyUnitClicked(ClickedUnit)`처럼 오브젝트 타입 파라미터 핀에 `set_pin_value`로 레벨 인스턴스의 소프트 경로 문자열(예: `/Game/Stages/map_battle_octopath.map_battle_octopath:PersistentLevel.BP_BattleSpawnPoint_C_4`)을 직접 주면 정확히 반영된다(`get_node_infos` 재조회로 확인). 스캐폴드에서 특정 유닛을 하드참조로 지정할 때 별도의 "리터럴 오브젝트 레퍼런스" 노드를 만들 필요 없이 이 방법으로 충분하다.
+
+### 프로모터블 오퍼레이터(Equal/NotEqual/+)는 미연결 상태에서 엉뚱한 오버로드로 생성되지만 데이터 연결 후 자동 재해석됨
+`유틸리티|연산자|같음(==)` 같은 프로모터블 노드를 `create_node`로 막 생성하면 초기 표시가 `게임플레이태그|Equal(GameplayTagContainer)`처럼 전혀 의도하지 않은 타입으로 나온다(오브젝트/이넘 문맥 등 첫 번째로 매치된 오버로드로 추정). **당황하지 말 것** — 실제 데이터 핀(Bool/Int/Byte 등)을 연결하고 나서 `get_node_infos`로 재조회하면 `수학|부울|NotEqual(Boolean)`, `수학|인티저|Equal(Integer)`, `수학|바이트|Equal(Byte)` 등으로 정확히 자동 승격되어 있다. 연결 직후 반드시 재조회해 타입이 의도대로 승격됐는지 확인하는 습관이 필요하다.
+
+### `find_node_types`의 latent 노드 검색은 그래프 컨텍스트(Function vs EventGraph)에 따라 결과가 달라진다 — 사전 점검 도구로 활용 가능
+위 함정④의 실측 방법 자체가 하나의 진단 기법이 된다: 특정 노드 타입이 어떤 그래프 종류에서 쓸 수 있는지 확신이 없으면, **Function Graph와 EventGraph 양쪽에서 `find_node_types`를 같은 검색어로 호출해 결과를 비교**하라 — 한쪽에서만 나오면 그 노드는 해당 그래프 종류 전용이다.
+
+---
+
+## 9. 턴제전투MVP E2-후속 SpriteMID 재수사에서 확정된 노하우 (2026-07-07)
+
+### 함정 ⑥ `set_pin_value`로 세팅한 리터럴 오브젝트 레퍼런스는 PIE 세션 중에도 PIE 인스턴스로 리매핑되지 않고 에디터 원본("그림자") 액터를 계속 가리킨다 — BeginPlay 상태 의존 로직 검증 시 가짜 회귀를 낳는 최우선 용의점
+§7/§8에서 "성공 실증"으로 기록한 패턴(`set_pin_value`로 함수 호출 노드의 오브젝트 파라미터에 레벨 인스턴스 소프트 경로 문자열을 직접 지정)에는 중대한 함정이 있다: **이 리터럴은 PIE 접두사(`UEDPIE_0_`)가 없는 에디터 원본 레벨 경로**(예: `/Game/Stages/map_battle_octopath.map_battle_octopath:PersistentLevel.BP_BattleSpawnPoint_C_4`)이고, **PIE를 시작해도 이 하드코딩된 레퍼런스는 자동으로 PIE 카피로 리다이렉트되지 않는다** — 즉 그래프 안에서 이 값을 self로 쓰면, 실제로는 **BeginPlay가 한 번도 실행되지 않은 에디터 원본 액터**(런타임 상태가 전부 기본값/None인 "그림자" 액터)를 계속 참조하게 된다.
+
+**증상**: 이 그림자 액터의 `self`로 커스텀 이벤트(예: `TakeHit`)를 호출하면 이벤트 자체는 정상 진입(`DIAG_D: TakeHit ENTERED` 같은 로그가 정확한 액터 이름으로 찍힘)하지만, BeginPlay가 채웠어야 할 멤버 변수(예: `SpriteMID`)는 전부 `None`이라 그 이후의 `IsValid` 가드가 항상 실패한다. 이때 로그의 액터 이름 prefix(`[BP_BattleSpawnPoint_C_4]`, `GetName()` 결과)는 PIE/에디터 구분 접두사를 표시하지 않으므로 **"진짜 그 액터에서 실행됐다"는 착시**가 발생하고, 조사자는 BeginPlay 로직 자체를 의심하게 되는 함정에 빠진다.
+
+**결정적 판별법(반증 실험)**: 의심스러운 상황에서 `ObjectTools.get_properties`로 **PIE 인스턴스**(`find_actors`로 얻은 `UEDPIE_0_...` 접두사 경로)와 **에디터 원본**(접두사 없는 경로) 양쪽의 같은 프로퍼티를 동시에 조회해 비교하라 — PIE 인스턴스는 유효한데 에디터 원본이 `None`이면서 그래프 내부 로직은 여전히 `None`으로 판정한다면, **그래프가 참조하는 `self`가 에디터 원본(그림자)임이 100% 확정**된다.
+
+**해법**: 리터럴 오브젝트 레퍼런스로 self를 지정하지 말고, **PIE 런타임에 실제로 채워지는 배열/변수를 경유**해 액터를 획득할 것 — 예: `GetTurnQueue()`(BeginPlay 시점에 8/8 유닛이 실제로 self-register한 배열) → `Utilities|Array|Get(사본)`으로 인덱스 접근. 이렇게 하면 그 값은 항상 **현재 PIE 월드의 실제 인스턴스**이므로 리매핑 문제 자체가 발생하지 않는다. **실제 게임플레이 경로(마우스 클릭 → `NotifyUnitClicked(ClickedUnit)` 같은 함수 파라미터로 액터가 전달되는 경우)는 이 함정과 원천적으로 무관** — 함정은 오직 MCP가 그래프에 **정적으로 미리 박아넣는 리터럴** 레퍼런스에서만 발생한다.
+
+**이 함정과 E1 이슈 D(CaptureViewport의 PIE/에디터 레벨 캡처 대상 불일치)는 근본적으로 같은 계열**이다: 이 MCP 서버 조합에서 "에디터가 알고 있는 액터 경로"와 "PIE가 실제로 실행 중인 액터 인스턴스"가 명확히 분리되어 있고, 도구별로 어느 쪽을 대상으로 삼는지가 다르다(`get_properties`/`find_actors`는 인자로 준 경로 그대로 조회하지만 PIE 시작 후엔 반드시 `UEDPIE_0_` 접두사 경로를 별도로 얻어야 하고, 그래프에 미리 박아넣은 리터럴은 이 갱신이 일어나지 않는다). **PIE 상태 의존 로직을 자가검증할 때는 리터럴 대신 항상 런타임 조회 경로를 쓸 것.**
+
+### 함정 ⑦ `EditorPerformanceSettings.bThrottleCPUWhenNotForeground=true`(기본값)이면 MCP가 에디터와 통신하는 동안 PIE 게임 틱이 사실상 정지할 수 있다
+MCP 클라이언트가 에디터와 반복 통신하는 동안 에디터 창(PIE 포함)이 실질적으로 "백그라운드"로 취급되는 것으로 보인다. 이 설정이 `true`(프로젝트 기본값)인 상태에서 BeginPlay→`Delay(4.0)`→커스텀이벤트 호출 형태의 진단 스캐폴드를 심으면, **30초 이상 대기해도 Delay가 전혀 발화하지 않는** 현상이 재현됐다(게임 시간 자체가 사실상 멈춤). `ConfigSettingsToolset`으로 `Editor`/`General`/`EditorPerformanceSettings` 섹션의 이 프로퍼티를 `false`로 끄면 즉시 정상 발화한다.
+**주의**: 껐다고 편차가 완전히 사라지는 것은 아니다 — 실측 재현에서 설정 4.0초짜리 Delay가 **약 3.37초**(-16%, 오히려 더 빠르게)에 발화했다. E1/E2가 별도로 보고한 "+0.25~0.32초 느려짐" 편차와는 부호·크기가 다르므로, **스로틀링은 "PIE 자가검증 세션에서 반드시 꺼야 하는 전제조건"이지 타이밍 편차의 유일한 원인은 아니다** — PIE 게임시간 계산 자체에 별도 오차 요인이 있을 가능성이 남아있다(후속 조사 필요).
+**절차**: `GetSectionPropertyValues`로 현재값 확인 → 필요시 `SetSectionProperties`로 `false` 설정 → 진단 종료 후 **원래 값으로 복원**(에디터 로컬 설정 변경은 허용되나, 진단 목적 임시 변경이면 되돌리는 게 안전).
