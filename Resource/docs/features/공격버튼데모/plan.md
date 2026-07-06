@@ -14,13 +14,19 @@ updated: 2026-07-06
 PIE에서 화면 하단 "Attack" 버튼 클릭 → **A1이 ATTACK1(Row5, 실측 6프레임) frame0부터 1회(0.70s) 재생 후 idle 복귀**. 아군 1기만, 빠른 데모 성격(오너 확정).
 > ⚠ 핫픽스(오너 깜빡임 리포트): 팩 가이드의 "ATTACK1=8프레임"은 오표기 — **시트 알파 실측 = ATK1 6f / ATK2 6f / ATK3 4f (8종 공통)**. FrameCount 8→6, 타이머 0.95→0.70s로 수정(투명 셀 렌더 제거).
 
-## 핵심 설계 (검수 실증 완료)
-- 텍스처는 이미 17행 전체 시트 — **ATTACK1=Row5, 8f**. 합성 불필요.
+## 핵심 설계 (검수 실증 완료, 핫픽스 반영)
+- 텍스처는 이미 17행 전체 시트 — **ATTACK1=Row5, 실측 6f**(가이드 표기 8f는 오류 — 아래 핫픽스 참조). 합성 불필요.
 - 마스터에 `TimeOffset`(기본 0) 추가: `floor((Time−TimeOffset)×FPS) mod FrameCount` — Time_0 유일 소비처=Multiply_0.A 실증, 삽입 1곳.
 - 파라미터 실명: `RowIndex, FrameCount, FPS, TimeOffset, FlipX` — SetScalarParameterValue는 오철자 **무음 무시** 함정.
 - UMG Designer MCP 불가 → **월드공간 버튼 액터**(BP_AttackButton: Plane+TextRender+Box클릭). 카메라는 `autoActivateForPlayer=Player0`.
-- BP_BattleSpawnPoint는 **CS 무변경**, BeginPlay에서 MID 생성 + `PlayAttack`/`RevertToIdle` 이벤트. 리스타트=**Retriggerable Delay 0.95s**(1안).
+- BP_BattleSpawnPoint는 **CS 무변경**, BeginPlay에서 MID 생성 + `PlayAttack`/`RevertToIdle` 이벤트. 리스타트=**Retriggerable Delay 0.70s**(핫픽스 반영, 원래 0.95s).
 - SetScalar 순서 고정: TimeOffset → FrameCount → RowIndex(마지막). 복귀 위상 점프 1회는 **수용 명세**.
+
+## 핫픽스 — 공격 후 캐릭터 깜빡임 (오너 실사용 리포트, 2026-07-06)
+- **증상**: 공격 버튼 클릭 → 내려침 → 짧게 깜빡 → 다시 들어올림.
+- **원인**: 팩 가이드가 ATTACK1=8프레임이라 표기했으나 시트 알파 실측 결과 **실제 6프레임**(마지막 2셀 완전 투명, 8종 공통). FrameCount=8로 재생하니 존재하지 않는 프레임(완전 투명)이 그려져 캐릭터가 순간 사라짐.
+- **진단**: Director가 직접 Bash로 Pillow 스크립트를 실행해 8종 시트 알파채널을 셀 단위로 실측 — 1회 실행으로 원인 확정(이전 조사의 "약 8프레임"이라는 hedge된 결론을 무너뜨림). 이 판단 과정(왜 재위임 대신 직접 진단했는지)은 [[../../언리얼_MCP_실전노하우|실전노하우]] §4-2에 상세 기록.
+- **수정**: FrameCount 8→6, RetriggerableDelay 0.95→0.70s. 컴파일 0·저장 완료·오너 재확인 대기.
 
 ## 단계
 | 단계 | 내용 | 담당 | 모델 | 상태 |
