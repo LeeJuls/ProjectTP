@@ -83,3 +83,5 @@ ATK 시작 t=0(0.70s 타이머) / **임팩트 t=0.25s에 TakeHit**(공격 중반
 - [x] F 라이브 결함 핫픽스 5건+보너스 1건 (클릭방패·LabelCancel·마커확대·하이라이트강화·프린트정리 — [[raw/F_라이브결함]])
 - [x] 전투 로그 파일 기록 (화면표시 없음, BattleLog| 라인+추출스크립트, TurnCounter 변수 신규 — [[raw/전투로그]])
 - [ ] F 오너 라이브 확인 + 방향부합 판정
+- [x] VFX 임시통합 1단계: Smear/Hit 텍스처·MI 임포트 (오너 방침 "눈 구별만" — [[raw/VFX_임시통합_방침]])
+- [x] VFX 임시통합 2단계: BP_BattleSpawnPoint EffectQuad+MID 배선, PlayAttack/TakeHit Sequence 분기 재생, 임시 스캐폴드 2턴 검증 후 제거 — [[raw/VFX_임시통합_방침]] "2단계 배선 완료" 참고. VFX 시각 판정(눈 구별 수준 충족 여부)은 오너 육안 이월
