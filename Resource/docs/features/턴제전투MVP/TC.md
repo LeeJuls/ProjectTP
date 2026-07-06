@@ -1,7 +1,7 @@
 ---
 type: tc
 feature: 턴제전투MVP
-status: 초안
+status: E3 자가검증 완료 (verifier 실증 대기)
 updated: 2026-07-07
 ---
 
@@ -46,24 +46,24 @@ updated: 2026-07-07
 | TC-19 | High | 공격→피격 싱크(t=0.25), 타겟이 상대팀 | 육안+PrintString |
 
 ## E3 (폴리시·엣지+풀 회귀 — TC-20~35)
-| TC | 우선순위 | 조건 → 기대결과 | 판정수단 |
-|---|---|---|---|
-| TC-20 | Crit | 타겟 초고속 연타 2회 → Executing 1회만·이중발화 없음 | PrintString 카운트+육안 |
-| TC-21 | Crit | 클릭핸들러 bInputLocked=true가 상태전이보다 먼저(노드 순서) | get_connected_subgraph(정적) |
-| TC-22 | Med | 버튼 연타=AwaitCommand↔AwaitTarget 왕복만 | PrintString+육안 |
-| TC-23 | High | Executing 중 전 클릭 무시 | PrintString+육안 |
-| TC-24 | Med | 취소 경로 발광 전체 OFF 잔류 없음 | 육안+정적 교차 |
-| TC-25 | Med | 숨김 버튼 콜리전 동반 OFF 이행 | PrintString(숨김상태 OnClicked 발화 여부) |
-| TC-26 | High | 1바퀴+ 순환 후 AwaitCommand 도달·잠금 영구 ON 없음 | PrintString |
-| TC-27 | High | 8턴 완주+취소 5회 후 잔여 발광·마커 0 | 육안+PrintString |
-| TC-28 | High | 모드 구분 2중 신호(라벨+발광) 오인 없음 | 오너 육안 |
-| TC-29 | Med·이월 | 10분+ 순환 float 안정성 | 오너 육안 관찰 |
-| TC-30 | Low | Battle.Attack+Battle.Cancel 키 존재, 하드코딩 없음 | 정적 조회 |
-| TC-31 | High | PIE 재시작 Init 능동 리셋, 잔류 없음 | 육안+PrintString |
-| TC-32 | High | 공격버튼데모 기능이 Manager 통합 후 동작 or 명시적 대체 | 육안+PrintString |
-| TC-33 | Crit | village 최종 회귀 완전 불변 | 육안+is_dirty |
-| TC-34 | High | 배치_1 회귀: 8기 좌표·FaceLeft 불일치 없음 | get_actor_transform+get_properties(정적) |
-| TC-35 | Low | 버튼·유닛 ClickBox 화면 비중첩/채널 분리 | 육안+정적 |
+| TC | 우선순위 | 조건 → 기대결과 | 판정수단 | 상태 |
+|---|---|---|---|---|
+| TC-20 | Crit | 타겟 초고속 연타 2회 → Executing 1회만·이중발화 없음 | PrintString 카운트+육안 | **PASS**(gameplay-engineer 자가검증) |
+| TC-21 | Crit | 클릭핸들러 bInputLocked=true가 상태전이보다 먼저(노드 순서) | get_connected_subgraph(정적) | **PASS** |
+| TC-22 | Med | 버튼 연타=AwaitCommand↔AwaitTarget 왕복만 | PrintString+육안 | **PASS**(4연타로 검증) |
+| TC-23 | High | Executing 중 전 클릭 무시 | PrintString+육안 | **PASS** |
+| TC-24 | Med | 취소 경로 발광 전체 OFF 잔류 없음 | 육안+정적 교차 | **PASS**(정적) |
+| TC-25 | Med | 숨김 버튼 콜리전 동반 OFF 이행 | PrintString(숨김상태 OnClicked 발화 여부) | **PASS**(정적) |
+| TC-26 | High | 1바퀴+ 순환 후 AwaitCommand 도달·잠금 영구 ON 없음 | PrintString | **PASS**(TC-14 8턴 완주로 간접 검증) |
+| TC-27 | High | 8턴 완주+취소 5회 후 잔여 발광·마커 0 | 육안+PrintString | 이월(F단계 오너 육안 권장) |
+| TC-28 | High | 모드 구분 2중 신호(라벨+발광) 오인 없음 | 오너 육안 | 이월(F단계) |
+| TC-29 | Med·이월 | 10분+ 순환 float 안정성 | 오너 육안 관찰 | 이월(F단계) |
+| TC-30 | Low | Battle.Attack+Battle.Cancel 키 존재, 하드코딩 없음 | 정적 조회 | **PASS** |
+| TC-31 | High | PIE 재시작 Init 능동 리셋, 잔류 없음 | 육안+PrintString | **PASS**(4회 재시작 확인) |
+| TC-32 | High | 공격버튼데모 기능이 Manager 통합 후 동작 or 명시적 대체 | 육안+PrintString | **PASS**(정적) |
+| TC-33 | Crit | village 최종 회귀 완전 불변 | 육안+is_dirty | **PASS** |
+| TC-34 | High | 배치_1 회귀: 8기 좌표·FaceLeft 불일치 없음 | get_actor_transform+get_properties(정적) | **PASS** |
+| TC-35 | Low | 버튼·유닛 ClickBox 화면 비중첩/채널 분리 | 육안+정적 | 이월(F단계 육안 권장) |
 
 ## 진행 상태 표기 규칙
 각 게이트(E1/E2/E3) 실행 시 verifier가 TC별 PASS/FAIL/이월을 [[진행로그]]에 append하고, 이 표의 상태는 게이트 통과 후 일괄 갱신한다.
