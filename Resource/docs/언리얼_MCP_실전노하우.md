@@ -87,3 +87,32 @@ updated: 2026-07-06
 - 카메라(4v4 정면): location (0, -7850, 750), rotation (pitch -6, yaw 90, roll 0)
 - 스프라이트 쿼드: SM_SpriteQuad, rotation (0, 0, 90), scale (6.48, 2.59, 1.0) — 셀 100×40 비율 2.5:1
 - 배치: X 간격 150, 중앙갭 300, **Y는 3cm씩 스태거**, snap_to_ground 후 z=지면+129.5
+
+---
+
+## 6. 공격버튼데모에서 추가 검증된 노하우 (2026-07-06)
+
+### 스프라이트 애니 검증의 함정 — idle 기준 오판 (Director 실사례)
+**포즈로 애니 상태를 판정할 땐 반드시 그 캐릭터의 idle 레퍼런스 캡처와 대조하라.** 캐릭터마다 idle 스탠스가 다르다(예: A1 idle=웅크리고 검 낮게 — "공격 자세처럼" 보임). 실사례: 공격 후 "웅크린 자세"를 보고 복귀 실패로 오판 → 정적 그래프 분석(정상)과 모순 발생 → idle 레퍼런스(D1_octopath_idle.png)와 대조로 오판 확정. **판독 전 순수 idle 캡처 1장을 기준으로 확보하는 게 정석.** 공격 판정의 가장 확실한 시그널은 포즈가 아니라 **검격 이펙트(흰 스윙 궤적) 프레임**.
+
+### TextRenderComponent 3종 함정
+- **단면(one-sided) 렌더**: 회전이 부모 상속으로 법선이 하늘/반대편을 향하면 아예 안 보임 → "에디터가 TextRender를 안 그린다"는 오진을 유발했다. 실원인은 항상 회전부터 확인.
+- WorldSize는 거리 스케일 필수(500cm 거리면 ~50).
+- 화면상 위치 조정: 원근 카메라(pitch≠0)에선 **z(수직)보다 x(카메라 이격)가 화면 위치에 지배적**일 수 있음 — x 우선 조정, z는 미세조정용.
+- **런타임 `SetText`(BP)가 렌더에 무반영**인 특이 사례 발생(5가지 재배선 무효) → **에디터 프로퍼티로 Text를 직접 설정**해 우회. 원인 미규명(후속 과제).
+
+### FText 스트링테이블 참조를 MCP로 설정
+`set_properties`의 값으로 **`LOCTABLE("/Game/UI/ST_UI", "Battle.Attack")`** 임포트 문자열을 주면 스트링테이블 참조 FText가 설정된다(성공 실증). 재조회 시 해석된 문자열("Attack")로 보이므로 참조 유지 여부는 이 API만으론 구분 불가.
+
+### BP 그래프 배선 (D2/D3 실증 추가분)
+- **exec 출력 핀은 fan-out 불가**(하나의 exec 출력 → 여러 입력 연결 안 됨). 데이터 핀만 fan-out 가능.
+- `SetScalarParameterValue` 노드는 `declaring_class=/Script/Engine.MaterialInstanceDynamic` 명시 필수 — 안 하면 MPC용 오버로드가 생성돼 무음 실패.
+- **재클릭 리스타트 패턴 = RetriggerableDelay**(재발화 시 대기 리셋). TimerHandle 변수는 `add_variable` 지원 목록 밖이라 이 패턴이 더 단순.
+- `find_node_types`는 context_pins에 따라 존재하지 않는 type_id를 반환할 수 있음 → 실패 시 다른 context 조합으로 재검색.
+- MCP엔 **PIE 콘솔 명령 주입 수단 없음** → 런타임 이벤트의 결정적 트리거가 필요하면 **임시 스캐폴드(BeginPlay+Delay→이벤트 호출) 심고 검증 후 제거**가 정석.
+
+### 데스크톱 자동화로 PIE 실클릭 검증 (Director 전용)
+- Windows-MCP `Click`의 `loc` 파라미터가 문자열화 결함으로 사용 불가 → **PowerShell user32(SetCursorPos+mouse_event) 우회**.
+- 반드시 `SetProcessDPIAware()` 선행(150% DPI에서 물리↔논리 좌표 불일치 방지). 창 전환은 EnumWindows로 실제 창 제목 확인 후 ShowWindow(9)+SetForegroundWindow.
+- 클릭 직후 고속 연사 캡처는 .NET `Graphics.CopyFromScreen`으로 같은 스크립트 안에서(Windows-MCP 스크린샷 왕복은 느려서 1초 애니 창을 놓침). 캡처 간 sleep에 **캡처 자체 소요(~0.3s)를 가산**해 실시각 계산.
+- 작업 후 오너 화면 원상복구(창 최소화·원래 앱 전면) 매너.

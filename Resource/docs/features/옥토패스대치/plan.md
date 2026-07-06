@@ -23,7 +23,7 @@ updated: 2026-07-06
 | S3 | 룩: KeySun 정면-상단(C2)·PPV·진영 명암대조 | hd2d | sonnet | 완료(KeySun pitch-60/yaw90, DoF는 오너 A안=off 확정) |
 | **S2'** | **오너 직접 배치 도구**(BP_BattleSpawnPoint) — S2 좌표는 "초기 배치"로 유지, 최종 배치는 오너 | gameplay-engineer | sonnet | **도구 완료·G게이트 8/8 PASS → 오너 배치 진행 중** |
 | T4 | 오너 배치 후 검증(z-fight·프레임·접지) | verifier | haiku | 대기 |
-| F | 풀테스트+오너 방향부합 — ⚠ TC-12 좌표 기대값=오너 최종 배치 실측으로 대체, TC-15/23/29 판정=FaceLeft+컴포넌트 상태 기준(BP 전환 반영). P2 문서의 옛 좌표는 Y스왑 이전 값 | qa·verifier·Director | opus·haiku | 대기 |
+| F | 풀테스트+오너 방향부합 — ⚠ TC-12 좌표 기대값=오너 최종 배치 실측으로 대체, TC-15/23/29 판정=FaceLeft+컴포넌트 상태 기준(BP 전환 반영). P2 문서의 옛 좌표는 Y스왑 이전 값. ⚠ 공격버튼데모 산출물(UI_AttackButton·마스터 TimeOffset·카메라 autoActivate) 존재 인지 후 TC-29 판정 | qa·verifier·Director | opus·haiku | 대기 |
 
 ## 1. 방향 규칙 (확정)
 - 적 4기(화면 좌측 = 월드 +X): **원본 MI**(우향 그대로) — `MI_Enemy_B1..B4`
