@@ -137,3 +137,21 @@ updated: 2026-07-06
 - 반드시 `SetProcessDPIAware()` 선행(150% DPI에서 물리↔논리 좌표 불일치 방지). 창 전환은 EnumWindows로 실제 창 제목 확인 후 ShowWindow(9)+SetForegroundWindow.
 - 클릭 직후 고속 연사 캡처는 .NET `Graphics.CopyFromScreen`으로 같은 스크립트 안에서(Windows-MCP 스크린샷 왕복은 느려서 1초 애니 창을 놓침). 캡처 간 sleep에 **캡처 자체 소요(~0.3s)를 가산**해 실시각 계산.
 - 작업 후 오너 화면 원상복구(창 최소화·원래 앱 전면) 매너.
+
+---
+
+## 7. 턴제전투MVP E1에서 추가 검증된 노하우 (2026-07-07)
+
+### 함정 ① `find_node_types`/`get_node_type_pins`가 그래프에 dangling 노드를 실제로 생성함
+`find_node_types`(단순 타입 검색)는 안전하지만, **`get_node_type_pins`는 그래프에 임시 노드를 실제로 만들었다가 나중에 조용히 GC되는 경우가 있다** — 그 사이 `refPath`(예: `K2Node_CallFunction_45`)를 저장해뒀다가 이후 `connect_pins`에 쓰면 `"is not valid EdGraphNode"` 에러로 실패한다(실전 재현: GetActorLocation 핀 조회 후 그 노드로 connect 시도 → 실패, 재확인하니 그래프에서 사라져 있었음). **대응**: 노드 타입만 알고 싶을 땐 `get_node_type_pins`를 쓰되, 실제로 그래프에 심을 노드는 **반드시 `create_node`로 별도 재생성**하고 그 반환 refPath만 신뢰할 것. `find_node_types`(타입 문자열만 반환)는 이 함정이 없음.
+
+### 함정 ② 비균등 스케일(non-uniform scale)+회전을 동시에 가진 부모의 자식에 `SetWorldRotation`/`SetWorldScale3D`를 쓰면 전단(shear)으로 왜곡됨
+스프라이트 쿼드처럼 `relativeScale3D`가 (6.48, 2.59, 1) 같은 비균등값이면서 `relativeRotation.roll=90`도 있는 부모 컴포넌트에, 자식 컴포넌트(마커·클릭박스 등 UI 오버레이)를 붙이고 `SetWorldRotation`/`SetWorldScale3D`로 "정확한 월드 트랜스폼"을 세팅해도, **relative* 값 자체는 수치상 정확히 역산되지만 실제 렌더 지오메트리는 전단(shear)되어 거대하고 뒤틀린 평면처럼 보인다**(원판이 카메라를 향한 정상 형태가 아니라 옆으로 늘어진 벽처럼 보임). 이는 Unreal 컴포넌트 트랜스폼 조합의 근본 한계(회전+비균등스케일 조합에서 "월드 스케일"은 well-defined 개념이 아님)다.
+**해법**: 자식 컴포넌트에 **`bAbsoluteLocation`·`bAbsoluteRotation`·`bAbsoluteScale`를 전부 `true`**로 설정(엔진이 정확히 이 상황을 위해 제공하는 플래그) — 부모의 회전·스케일 상속을 원천 차단하고 `relative*` 값이 곧 월드값으로 취급된다. 이후 `SetWorldRotation`/`SetWorldLocation`/`SetWorldScale3D` 호출 결과가 `relativeLocation`/`relativeRotation`/`relativeScale3D`에 **그대로(전단 없이) 정확히** 반영됨(실측: `SetWorldScale3D(2.5,1.75,1)` 호출 후 `relativeScale3D`가 정확히 `(2.5,1.75,1)`로 나옴 — bAbsolute 없이는 부모 스케일로 나눈 이상한 값이 나왔었음). **비균등 스케일 부모에 UI 오버레이성 자식을 붙이는 모든 경우에 우선 점검할 것.**
+
+### 함정 ③ `ObjectTools.set_properties`로 Vector/Rotator 같은 인라인 구조체 프로퍼티를 세팅하면 매번 정확히 1개 필드만 반영됨(어느 필드인지는 비결정적)
+기존 §2/§6 서술("Vector의 첫 필드만 반영")은 **부정확했다** — 실측 재현 결과, `{"relativeScale3D": {"x":0.8,"y":0.8,"z":0.8}}` 같은 호출을 반복해도 **매 호출마다 정확히 1개 필드만 실제로 바뀌고 나머지 2개는 직전 값을 유지**하며, 어느 필드가 반영되는지는 키 순서 등으로 결정되지 않는 것으로 관찰됨(같은 페이로드를 다른 키 순서로 여러 번 호출하면 결국 다른 필드가 반영되기도 함). 다만 **배열 프로퍼티**(`overrideMaterials` 등)는 전체를 리스트로 재할당하면 항상 정확히 반영됨 — 이 버그는 **인라인 구조체(Vector/Rotator/LinearColor 등)에만 국한**된다.
+**해법**: 목표 값이 전 필드 동일(예: 균등 스케일 0.8,0.8,0.8)이면 문제가 드러나지 않을 수 있으니 반드시 **세팅 후 `get_properties`로 재조회해 전 필드 일치를 확인**하고, 불일치 시 **동일 페이로드를 키 순서만 바꿔 2~4회 반복 호출** — 매 호출 후 재확인해 전 필드가 목표값과 일치할 때까지 반복하는 것이 유일하게 검증된 해법. **그래프 노드(SetWorldLocation 등 BP 함수 호출)는 이 버그와 무관**(MakeVector로 개별 float를 조합해 넘기므로 정상 동작) — 이 버그는 오직 MCP `set_properties`로 인스턴스 프로퍼티를 "직접" 세팅할 때만 해당.
+
+### 미해결 이월 — `CaptureViewport`가 PIE 게임 월드가 아니라 에디터 레벨(원본)을 캡처하는 것으로 보이는 정황
+PIE 세션 중 `get_current_level`이 빈 문자열을 반환하는 현상과 함께, PIE 인스턴스(`UEDPIE_0_...`)에서 `get_properties`로 트랜스폼이 완전히 정확함을 확인해도 그 시점의 `CaptureViewport` 스크린샷에는 반영되지 않는 사례가 재현됐다(`playMode: PlayMode_InViewPort`로 실행해도 동일). 반면 **PIE를 끄고 에디터 레벨(비-PIE) 인스턴스에 직접 동일 값을 세팅**하면 캡처에 정확히 반영된다. 즉 이 MCP 조합에서 PIE 중 스크린샷 자가검증은 **신뢰할 수 없을 가능성**이 있다 — 근본 메커니즘은 미규명. **런타임 로직(BeginPlay 등) 자체의 정확성은 `get_properties`로 PIE 인스턴스를 직접 재조회해 검증**하고, **시각적(픽셀) 확인이 꼭 필요하면 PIE를 끄고 에디터 레벨에 같은 값을 세팅한 뒤 캡처**하는 우회가 이번엔 유효했다(단, 인라인 구조체는 함정③에 걸리므로 병용 주의).
