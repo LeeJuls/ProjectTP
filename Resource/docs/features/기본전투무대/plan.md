@@ -71,6 +71,7 @@ updated: 2026-07-05
 - 메시: `SM_SpriteQuad` 재사용. **⚠ 머티리얼은 컴포넌트 `overrideMaterials`로만 적용** — `StaticMeshTools.set_material`은 메시 에셋을 영구변경하므로 금지(S2 원복 이력). 아웃라이너: `BattleStage/Party`, `BattleStage/Enemy`, `BattleStage/Camera`.
 
 ## 6. 카메라 (안1, 실증 완료)
+> ⚠ 정정(2026-07-06): S5 글리치 수사 중 전장을 Y=-7000으로 이동하며 **최종 카메라 = (0, -7850, 750)**이 됨(레벨에 저장된 현행값). 아래 -7550은 S3 당시 초기값.
 - location (0, -7550, 750), rotation (pitch=-6, yaw=90, roll=0).
 - 검증: 배치 라인 양 끝 화면 0.191/0.809 대칭, 중앙 0.500. 즉시 사용 가능.
 - FOV 미세조정(HD-2D 좁은 원근)은 S5에서 CameraActor FieldOfView로.

@@ -45,6 +45,7 @@ updated: 2026-07-05
 ### 라이팅
 - **KeySun**: Directional Light (주광, 각도로 그림자 방향)
 - **FillSky**: Sky/앰비언트 (그림자 안 죽게 채움)
+- **측면광 vs 정면-상단광 판단(S3 실측, octopath)**: UE Rotator(Pitch,Yaw,Roll)의 forward vector는 `x=cos(pitch)cos(yaw), y=cos(pitch)sin(yaw), z=sin(pitch)`(Roll 무관). 카메라가 거의 순수 Y축을 보는 구도(예: yaw≈90)라면, **광원 Yaw도 90 근처로 맞추면 X성분이 0이 되어 "정면"광**이 된다(측면 명암 베이크와 충돌 안 함). Pitch는 태양 고도(그림자 길이) 담당 — 급하게(-60 근처) 줄수록 캐릭터 발밑 그림자가 짧아지고 정면-상단 느낌이 강해짐. 좌우 flip된 스프라이트가 섞인 씬(예: 진영별 좌/우 반전)에서는 이 X성분 최소화가 "어느 진영 베이크와도 심하게 충돌하지 않는" 안전한 기본값.
 
 ### 포스트프로세스 볼륨 (PPV)
 - **AutoExposure 고정**: min = max = 1.0 (노출 흔들림 제거 — 중요)
@@ -67,6 +68,8 @@ updated: 2026-07-05
 | ★★★ **여러 스프라이트 배치 시 가로 줄무늬/찢김**(위치·높이에 민감, 어두운 캐릭터 심함, 단일 배치에선 재현 불가, **머티리얼·AA·모션블러·포그·라이팅·VRS 등 모든 렌더 설정에 면역** — hd2d 16종 배제실험 전부 무효였던 그 증상) | **공면(coplanar) 쿼드 간 Z-파이팅 (S5 확정·해결).** 파티를 한 줄(동일 깊이 평면)에 배치하면 폭 648cm 쿼드가 이웃과 77%(498cm) 겹침 — 몸통 불투명 픽셀끼리도 겹쳐(간격 150 < 몸폭 ~250) 동일 깊이 픽셀이 행 단위로 깊이판정 요동. **단일 쿼드 테스트(S0·S2)에선 절대 재현 안 되고 다수 배치(S3)에서만 발생**해 원인이 은폐됨 | **깊이축으로 2~3cm 계단 배치**(예: Y=-7000, -7003, …) — 육안 식별 불가, 공면성 파괴로 즉시 완치. **HD-2D 일렬 배치의 근본 함정 — 전투 스폰 로직에 스태거를 기본 내장할 것.** 진단 팁: **MI 스왑 테스트**(문제가 자리에 붙나/머티리얼에 붙나)와 **단독 배치 테스트**(이웃 제거)가 가장 싸고 결정적인 판별 |
 | 화면 전체 도트 미세 빗질(comb) — 위 z-fight와 **중첩 발생**했던 원인 #1 | **에디터 자동 스크린퍼센티지**(`ScreenPercentageMode=BasedOnDisplayResolution`)가 내부 저해상도 렌더→업스케일. PIE도 상속(`OverridePIEScreenPercentage=1`) | EditorPerformanceSettings **Manual + 100%** 고정 (`realtimeScreenPercentageMode=Manual, bOverrideManualScreenPercentage=true, manualScreenPercentage=100`) |
 | (예방) 픽셀아트 VRS 셰이딩률 저하 | HW VRS(8x8/16x16타일)+Nanite Software VRS(2x2)가 저대비 영역 셰이딩을 뭉갤 수 있음 | `DefaultEngine.ini [SystemSettings]`: `r.VRS.Enable=0`, `r.VRS.EnableSoftware=0`, `r.Nanite.SoftwareVRS=0` (재시작 필요). 이번 주범은 아니었으나 픽셀아트 보호로 유지 |
+| ★ `set_actor_transform`에 `rotation`만 넘기고 `location`을 생략하면 **Location이 (0,0,0)으로 리셋**됨(S3 실측) | 스키마 설명("설정 안 된 필드=변경 안 함")과 실제 동작 불일치로 추정 | DirectionalLight 등 방향만 바꾸고 싶어도 **location/rotation/scale 전부 명시**해서 호출. 변경 직후 반드시 재조회로 Location 원값 유지 확인 |
+| 8기 정면대치 스프라이트가 대부분 뒷모습/측면 포즈라 3D 라이팅에 의한 좌우 하이라이트 대비가 캡처 육안으로는 잘 안 보임(S3) | 스프라이트 자체 언리트 베이크 명암이 지배적, 라이팅은 캐스트섀도우 방향·길이에 더 크게 기여 | 광원 방향 검증은 **캐릭터 발밑 캐스트섀도우 방향/길이**로 판단하는 게 가장 확실. 좌/우 절반 휘도(luminance) 평균 diff를 before/after로 비교하면 "부호가 안 바뀌었다(=베이크가 지배적, 광원 조정이 진영 역전 안 시킴)"까지는 정량 확인 가능하나, "육안상 확실한 대비"는 오너 판단 필요 |
 
 ### ⚠ 도구 제약: CaptureViewport 결과가 큰 경우 base64→PNG 디코딩 불가
 `hd2d-art-director` 서브에이전트 세션에는 Bash/코드실행 도구가 제공되지 않아, `CaptureViewport` 결과(base64 PNG, 통상 400만자 이상)가 tool-results txt 파일로 저장돼도 이를 디코딩해 PNG로 볼 방법이 없었다(Read/Grep은 텍스트 처리만 가능, `ProgrammaticToolset`의 sandboxed python은 `base64`/파일 I/O 모듈 미지원). 이 글리치 작업(S3)에서 실제로 겪음 — **스크린샷 확보가 필요한 hd2d-art-director 작업은 Bash 도구가 있는 세션(art-pipeline 등)에서 대신 캡처하거나, Director가 이 에이전트에 Bash 권한을 부여해야 함**. → **S5에서 Bash 권한 부여받아 해결**: `python decode_capture.py <tool-results.txt> <out.png>` 후 Read로 확인 가능(스크립트: `docs/scripts/decode_capture.py`).
@@ -88,5 +91,6 @@ updated: 2026-07-05
 ## 참고 (스타일 레퍼런스, 복제 금지)
 
 - 옥토패스 트래블러 / 트라이앵글 스트래티지 — 라이팅·틸트시프트·컬러그레이딩 방향성 참조용.
+- **옥토패스 스프라이트 공식 규격**(CGWORLD 2019 기사): 기본 18×32px(체형별 수px 차), 애니 프레임 최대 128×128 — heroes99(실루엣 ~25×35)와 유사 밀도. 원근 축소 허용치 판단 기준. 전투배치/렌더 기법은 해당 기사에 없음(서적 완전판 참조).
 - 기법·원리·파라미터는 자유 활용. 게임 에셋·튜토리얼 텍스트/이미지 **통째 복제 금지**.
 - 새 기법 조사가 필요하면 WebSearch로 최신 UE HD-2D 튜토리얼 참조(필요시에만 — 토큰 절약).
