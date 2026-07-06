@@ -59,7 +59,7 @@ ATK 시작 t=0(0.70s 타이머) / **임팩트 t=0.25s에 TakeHit**(공격 중반
 | E1 | 유닛 확장(TakeHit·마커·하이라이트·ClickBox·bIsParty·register) | TC-01~10: TakeHit 0.45s·IsValid 가드·양 RetrigDelay 무충돌·마커 팀색·아군클릭 무시·**village/배치도구 회귀** | ge(sonnet)→verifier(haiku) | **구현 완료(자가검증 부분적)** — BeginPlay 확장(마커 트랜스폼·팀색·ClickBox) 배선·컴파일 0, 손상 인스턴스 오버라이드 8기 전량 복구, bAbsolute* 플래그로 비균등스케일 전단 해결. 스캐폴드 제거·저장 완료. **PIE CaptureViewport 캡처 신뢰성 미해결로 verifier 정밀 재검증 필요**([[raw/E1_유닛확장]] 참고) — TC-01~08은 verifier가 PIE get_properties 직접 재조회로, 시각 확인은 에디터 레벨 우회 캡처 또는 오너 육안 권장 |
 | E2 | Manager 상태머신+큐+버튼 재배선 E2E | TC-11~19: 등록 8/8 게이트·1턴 흐름 타임스탬프·**최속 8턴 무충돌**·마커 1개 불변·modulo 실길이·null skip | ge(sonnet)→verifier(haiku) | **구현 완료(자가검증 부분적)** — InitBattle·5개 상태 진입 함수/이벤트·NotifyUnitClicked·NotifyAttackButtonClicked·BP_AttackButton 3함수 전부 배선·컴파일 0. 스캐폴드 2턴 자동진행 PIE 검증: TC-11·12·19·무효입력 PASS. **TC-13(타이밍) 재현성 있는 편차(Executing+0.25s·TurnEnd+0.317s) 원인 미규명으로 보류. TakeHit 재측정 중 SpriteMID 런타임 무효화라는 신규 회귀 발견(BP_BattleSpawnPoint 소관, PlayAttack 애니메이션도 영향받을 가능성) — verifier 정밀 재검증 및 F단계 전 재조사 필수**([[raw/E2_상태머신]] 참고) |
 | E3 | 폴리시·엣지(잠금 순서·취소 발광 OFF·숨김 콜리전·재시작 리셋)+풀 회귀 | TC-20~35: 이중진입 방지·잠금 순서 정적 확인·상태누수·**공격버튼데모 회귀·배치_1 회귀·village 최종** | ge→verifier | **개발+자가검증 완료** — TC-08·13(부분)·14·16~18·20~25·30~34 전부 PASS(스캐폴드+정적 확인, [[raw/E3_게이트]] 참고). 직전 세션의 240초 워치독 잔여 스캐폴드(BeginPlay 오염 48노드) 전수 복구 후 재실행. TC-13은 재현성 있는 편차 관찰되나 로직 실패로 이어지지 않음(보류). TC-28/29/05·06·07(육안·장기)은 F단계로 이월. **verifier 실증 및 Director 게이트 판정 대기** |
-| F | **오너 라이브 확인**(PIE 직접 핫시트 플레이 — 스크린샷 없음) + 방향부합 판정 → 이후 "구조 재정비 vs 진행" 논의 | TC-M-방향부합 | 오너+Director | 대기 |
+| F | **오너 라이브 확인**(PIE 직접 핫시트 플레이 — 스크린샷 없음) + 방향부합 판정 → 이후 "구조 재정비 vs 진행" 논의 | TC-M-방향부합 | 오너+Director | 라이브 테스트에서 확정된 결함 5건(치명 2·시인성 2·정리 1)+보너스 로그 1건 핫픽스 완료 — **①Sprite/TurnMarker 콜리전 NoCollision화(클릭 방패 해소) ②LabelCancel 트랜스폼·텍스트·색상 Label 기준값과 완전 일치화(§7 함정③ 재현·우회) ③마커 스케일 확대(0.5,0.35→1.2,0.8) ④하이라이트 EmissiveBoost 2.0→6.0 ⑤State 디버그 프린트 10개 노드 Screen=false 통일(Log=true 유지) +보너스: NotifyUnitClicked 유효클릭 경로 로그 신규**. 3 BP 컴파일 에러 0, 관련 에셋 전부 dirty=false 확인, [[raw/F_라이브결함]] 참고. **화면출력 미노출·클릭 경로 실동작의 시각 확인은 지시에 따라 스캐폴드 없이 오너 실플레이로 이월** — 오너 판정 대기 |
 
 ## 검증 방침 (QA-H6 — 어기면 전 TC 무효)
 - **런타임 상태(BattleState·잠금·큐·MID 파라미터)는 get_properties로 읽으면 에디터 스냅샷만 나옴** → 판정은 **PrintString+GetLogEntries 로그 매칭** 또는 **오너 육안**만. get_properties는 정적 프로퍼티(그래프 노드 값·콜리전 설정·마커 색 소스)에만.
@@ -80,4 +80,5 @@ ATK 시작 t=0(0.70s 타이머) / **임팩트 t=0.25s에 TakeHit**(공격 중반
 - [ ] E2 게이트 통과 (verifier 실증 → Director 판정 — SpriteMID 회귀는 후속 세션에서 완전 규명·기각됨, [[raw/E2_상태머신]] "E2-후속" 참고)
 - [x] E3 개발 (폴리시·엣지 전체 구현·자가검증, 직전 세션 워치독 잔여 복구 후 재실행 — [[raw/E3_게이트]])
 - [ ] E3 게이트 통과 (verifier 실증 → Director 판정 대기)
+- [x] F 라이브 결함 핫픽스 5건+보너스 1건 (클릭방패·LabelCancel·마커확대·하이라이트강화·프린트정리 — [[raw/F_라이브결함]])
 - [ ] F 오너 라이브 확인 + 방향부합 판정
