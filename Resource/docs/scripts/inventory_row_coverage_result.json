@@ -1,0 +1,136 @@
+{
+ "total_png_noncomposed": 765,
+ "grid_match": "761/765",
+ "category_counts": {
+  "bg.png": 1,
+  "catalog_cloth.png": 1,
+  "catalog_hair.png": 1,
+  "frameguide_v2.png": 1,
+  "cloth": 272,
+  "face": 7,
+  "hair": 460,
+  "skin": 6,
+  "weapon": 16
+ },
+ "row_report": {
+  "0": {
+   "name": "IDLE1",
+   "skin_frames": 6,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "1": {
+   "name": "IDLE2",
+   "skin_frames": 6,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "2": {
+   "name": "RUN1",
+   "skin_frames": 8,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "3": {
+   "name": "RUN2",
+   "skin_frames": 8,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "4": {
+   "name": "JUMP(+FALL LOOP)",
+   "skin_frames": 8,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "5": {
+   "name": "ATK1",
+   "skin_frames": 6,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "6": {
+   "name": "ATK2",
+   "skin_frames": 6,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "7": {
+   "name": "ATK3",
+   "skin_frames": 4,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "8": {
+   "name": "AIRATK1",
+   "skin_frames": 6,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "9": {
+   "name": "AIRATK2",
+   "skin_frames": 4,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "10": {
+   "name": "CAST1(+LOOP)",
+   "skin_frames": 5,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "11": {
+   "name": "CAST2(+LOOP)",
+   "skin_frames": 5,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "12": {
+   "name": "HURT",
+   "skin_frames": 4,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "13": {
+   "name": "DYING",
+   "skin_frames": 5,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "14": {
+   "name": "DASH(+LOOP)",
+   "skin_frames": 8,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "15": {
+   "name": "BLOCK",
+   "skin_frames": 5,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  },
+  "16": {
+   "name": "ROLL",
+   "skin_frames": 8,
+   "cloth_ok": 17,
+   "hair_ok": 23,
+   "weapon_ok": 5
+  }
+ }
+}
