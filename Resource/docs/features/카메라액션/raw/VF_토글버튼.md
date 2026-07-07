@@ -197,3 +197,45 @@ CamToggle:false  ← ②OFF전환
 
 ### 정리·저장(재배치 세션)
 스캐폴드 24개 노드(2턴 버전) 전부 `delete_node`, `BeginPlay.then` `break_pins`로 원복(재조회 `connected_pins:[]` 확인), `ScaffoldTarget` 변수 `remove_variable`로 제거. `compile_blueprint(warnings_as_errors=true)` 최종 0/0. `save_assets([])` 후 3개 애셋 전부 `is_dirty=false`.
+
+---
+
+## 라벨 키 소실 결함(저장 누락) 수정 (2026-07-08, 오너 실플레이 리포트 대응)
+
+### 경위
+오너가 실플레이 중 카메라 토글 버튼에 `<MISSING STRING TABLE ENTRY>` 대형 텍스트가 표시되고 버튼 위치가 불명확하다고 리포트했다. Director 사전 추정대로 `ST_UI`의 `Battle.CamOn`/`Battle.CamOff` 키가 소실된 상태였다.
+
+### 근본 원인 확정 — `StringTableTools.set_entry`는 패키지를 dirty로 표시하지 않는다
+`list_keys(/Game/UI/ST_UI)` 최초 조회 결과 `["Battle.Attack"]` 단 1개뿐 — `Battle.CamOn`/`Battle.CamOff`뿐 아니라 `Battle.Cancel`도 애초에 존재하지 않았다(지시서가 "기존 키 Battle.Cancel"이라 가정한 것과 실제가 다름, §아래 "부수 발견" 참조). `set_entry`로 두 키를 추가한 직후 `AssetTools.is_dirty("/Game/UI/ST_UI")`를 호출하자 **`false`**가 반환됐다 — 즉 `set_entry`가 실제 데이터(FStringTable)는 메모리상에서 정확히 변경하지만(`get_entry`/`list_keys` 재조회로 확인) **패키지의 dirty 플래그는 세팅하지 않는다.** 이 상태에서 `save_assets(["/Game/UI/ST_UI"])`(명시적 경로)를 호출하면 `returnValue: true`를 반환하지만 **실제로는 디스크에 아무것도 쓰지 않는다**(파일 mtime 불변, 바이너리에 `CamOn`/`Cam ON` 문자열 부재를 직접 확인) — 이것이 이번 사고와 원래 결함의 정확한 메커니즘이다. 대조 실험: 신규 생성한 스크래치 StringTable(`create`)은 생성 직후 `is_dirty=true`였고, 그 상태에서 `set_entry`+`save_assets`를 하자 디스크에 정상 반영됐다(파일 바이너리에 키/값 문자열 확인) — **`create`는 정상적으로 dirty를 세팅하지만 `set_entry`(기존 애셋에 대한 개별 키 편집)는 세팅하지 않는 비대칭 버그**로 확정.
+
+### ⚠ 조사 중 발생한 2차 사고 — `import_file`이 기존 ST_UI.uasset을 삭제함
+위 dirty 버그를 우회하려고 `StringTableTools.import_file`(CSV 재임포트)로 강제 저장을 시도했다. `folder_path=/Game/UI, asset_name=ST_UI`로 호출하자 `"create_asset: ST_UI at /Game/UI already exists"` 에러로 실패했는데, **이 실패한 호출이 부작용으로 기존 `Content/UI/ST_UI.uasset` 파일 자체를 디스크에서 삭제**했다(`find_assets`가 빈 결과, `ls Content/UI/`에 파일 없음으로 확인). `.gitignore`에 `Content/` 전체가 걸려 있어 git 복구 불가(`git log`/`git status` 확인, 커밋된 적 없음) — **이 프로젝트에서 Content 애셋은 git으로 백업되지 않는다는 것도 이번에 확정**.
+**복구**: 소실 직전 알고 있던 원본 데이터(`Battle.Attack`="Attack" 단 1개 키)를 근거로 `create`+`set_entry`×3(Attack/CamOn/CamOff)+`save_assets`로 처음부터 재생성 — `create` 경로는 정상 dirty이므로 이번엔 저장이 실제로 반영됨(재시작 시나리오까지 흉내낼 순 없었지만 디스크 바이너리에 5개 문자열 전부 존재 확인, `is_dirty=false`로 저장 완료 확정). **재생성 후 기존 참조(BP_AttackButton.Label, BP_CamToggleButton.LabelOn/LabelOff, 레벨 인스턴스+CDO 양쪽) 전부 자동으로 재해석 성공**(재조회로 "Attack"/"Cam ON"/"Cam OFF" 정상 확인) — StringTable 참조가 오브젝트 GUID가 아니라 **경로 기반 테이블ID+키 문자열**로 동작함을 실증, 애셋을 통째로 재생성해도 참조가 깨지지 않는다는 것을 확인했다(단, 이번 복구가 우연히 안전했던 것이지 권장 절차는 아님 — 아래 정식 해법 참조).
+
+### 정식 해법(재발 방지)
+`set_entry`로 기존 StringTable을 편집한 뒤에는 **`is_dirty`가 `true`인지 반드시 재확인**할 것 — `false`면 `save_assets`를 아무리 호출해도 무음 실패한다. 이번 세션에서 시도한 우회(메타데이터 태그로 강제 dirty, 리네임 왕복)는 실제로 검증하지 못한 채 재생성 경로로 대체했다 — **후속 과제**: `set_entry` 이후 dirty가 안 걸리는 경우의 확실한 강제-dirty 수단(예: `update_metadata_tags`로 더미 태그 세팅 후 제거하는 2회 저장 사이클)을 다음 세션에서 실증할 것. 그 전까지는 **기존 StringTable에 새 키를 추가할 때마다 `is_dirty` 재확인을 습관화**하고, `false`로 남으면 (a) 즉시 Director에게 보고하거나 (b) 이번처럼 "알고 있는 전체 키 목록으로 `create` 재생성" 경로로 우회할 것(단, 재생성 전 `list_keys`+`get_entry`로 **기존 키 전체를 빠짐없이 백업**해야 함 — 이번엔 원래 키가 1개뿐이라 단순했지만 키가 많은 ST_UI라면 전수 백업 없이는 위험).
+
+### 부수 발견 — `Battle.Cancel` 키도 원래 존재하지 않았음(별도 결함, 이번 스코프 밖)
+지시서는 "기존 키(Battle.Attack/Cancel)는 무변조"라 가정했으나 실제로는 `Battle.Cancel`이 세션 시작 시점부터 `list_keys`에 없었다. `BP_AttackButton`의 `LabelCancel` 컴포넌트(`bVisible=true`, `Attack` 라벨과 정확히 같은 앵커에서 Left 정렬로 길게 뻗어나가는 배치)가 이 때문에 상시 `<MISSING STRING TABLE ENTRY>`를 표시 중이며, 기본 전투 카메라 화면에 `Attack` 글자 위로 겹쳐 크게 노출된다(스크린샷 확인). 이번 작업 지시 범위(CamOn/CamOff만)를 벗어나므로 **키를 임의로 추가하지 않고 Director에게 보고만 함** — 별도 후속 작업 필요.
+
+### 라벨 정렬 조정 및 시인성 점검
+`LabelOn`/`LabelOff`(인스턴스+CDO 양쪽)의 `HorizontalAlignment`를 `EHTA_Left`→`EHTA_Center`, `VerticalAlignment`를 `EVRTA_TextBottom`→`EVRTA_TextCenter`로 변경 — Attack 버튼(`EHTA_Center`/기존 정상 배치) 패턴에 맞춤, 수평 중앙 정렬이 뚜렷이 개선됨(재조회+`CaptureViewport` 확대 캡처로 확인). `RelativeLocation.Z`를 30→0→-140까지 낮춰보며 판 중앙에 세로로 맞추는 실험을 했으나, **Z를 크게 낮출수록(특히 -140) 텍스트가 캡처에서 완전히 사라지는 비단조적 회귀가 3회 연속 재현**됐다(§노하우 신규 함정, 아래 참조) — CLAUDE.md의 "3회 실패 시 중단" 원칙에 따라 **Z=30(원래값)으로 되돌리고 정렬 변경만 유지**했다. 최종 상태: 텍스트는 판 상단 경계에 살짝 걸치는 정도(완전히 판 안에 중앙정렬되진 않음, 원래보다 개선)로 legible하게 렌더링됨(캡처로 확인, `Cam ON`/`Cam OFF` 텍스트 내용 정확).
+
+### ⚠ 중대 발견 — 기본 전투 카메라 거리에서 카메라 토글 버튼이 사실상 보이지 않음
+실제 기본 전투 카메라(CameraActor_0, location≈(-171,-8731,1207), rotation(pitch-6,yaw84,roll0), 버튼까지 거리≈1780cm) 시점 캡처를 **3회 반복**했으나(정렬 수정 전후 모두) `UI_CamToggle`의 파란 판·라벨이 화면에서 전혀 식별되지 않았다(같은 스크린 좌표를 5배 확대해도 잔디/흙 텍스처만 보임 — `WorldPosToScreenCoords`로 정밀 좌표 계산 후 크롭 확인). 반면 같은 거리에서 `Attack` 버튼(스케일 4,2,1 / Z=420)은 뚜렷이 보인다. CamToggle 버튼(스케일 2.2,1.2,1 / Z=260, Attack 대비 훨씬 낮고 작음)이 지면 근처 잔디에 묻히거나 단순히 너무 작아 보이지 않는 것으로 추정 — **이는 이번 문자열 결함과 무관한, 원래 배치(v3/VF 이전 세션)부터 있던 스케일/높이 설계 문제로 판단되며, 버튼의 전체 스케일이나 Z 높이를 키우는 결정은 system-ui-designer 검토가 필요해 이번 세션에서 임의로 변경하지 않았다.** (버튼 자체는 기능적으로 정상 작동 — 클릭 판정·토글 로직은 이전 세션에서 로그로 검증 완료, 이번엔 순수 시각적 식별성 문제.)
+
+### CT — 이번 수정 검증
+| 항목 | 판정 | 근거 |
+|---|---|---|
+| ST_UI에 Battle.CamOn/CamOff 키 존재 | **PASS** | `list_keys`=["Battle.Attack","Battle.CamOn","Battle.CamOff"], 디스크 바이너리 직접 확인 |
+| ST_UI 디스크 저장(재시작 내구성) | **PASS**(간접) | `is_dirty=false`+파일 mtime 갱신+바이너리 문자열 확인(재시작 자체는 미실행이나 디스크 반영을 직접 실증) |
+| LabelOn/LabelOff Text 해석값 | **PASS** | 인스턴스+CDO 양쪽 재조회 "Cam ON"/"Cam OFF" (MISSING 아님) |
+| 라벨 렌더링(실제 화면) | **PASS** | 확대 캡처에서 "Cam ON" 텍스트 정상 렌더 확인(값 소실 아님, §12 함정⑫ 계열의 캡처 불안정 재현되긴 했으나 최종 안정 상태에서 확인) |
+| 버튼 위치·스케일 원본값 유지 | **PASS** | (-650,-7300,260)/scale(2.2,1.2,1) 무변경 확인 |
+| 기본카메라 거리 시인성 | **FAIL(이월)** | 위 "중대 발견" 참조 — Director/system-ui-designer 판단 필요 |
+| compile 0/0, 3애셋 dirty=false | **PASS** | `compile_blueprint(warnings_as_errors=true)` 통과, `is_dirty` 3종 모두 false |
+
+### 이번 세션에서 확정된 신규 노하우(요약, 전체는 `언리얼_MCP_실전노하우.md` §18 참조)
+- `StringTableTools.set_entry`는 dirty를 세팅하지 않음(재저장 누락의 근본원인) — `create`는 정상.
+- `import_file`을 기존 경로에 시도해 실패하면 **원본 애셋이 삭제될 수 있음**(재현 1회, 위험도 높음) — 함부로 재시도 금지.
+- 비균등스케일+회전 부모의 자식(TextRenderComponent)에서 `RelativeLocation` 국소축 변경이 화면상 비선형·비단조 결과(정상→부분소실→완전소실)를 낳을 수 있음 — §7 함정②의 확장 사례.
