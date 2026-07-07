@@ -27,6 +27,10 @@
 		{
 			"Name": "ConfigSettingsToolset",
 			"Enabled": true
+		},
+		{
+			"Name": "AIModuleToolset",
+			"Enabled": true
 		}
 	]
 }
