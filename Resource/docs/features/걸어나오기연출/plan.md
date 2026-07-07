@@ -1,7 +1,7 @@
 ---
 type: plan
 feature: 걸어나오기연출
-status: 진행중 (W0+W1+W2 완료, W3 예정)
+status: W0~W2 완료, W3 부분판정(3/8 PASS + 5/8 이월/정적보증)
 updated: 2026-07-07
 ---
 

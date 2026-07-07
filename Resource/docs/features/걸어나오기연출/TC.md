@@ -1,7 +1,7 @@
 ---
 type: test-cases
 feature: 걸어나오기연출
-status: W1 8/8 통과, W2 4/4 판정 완료(3 통과+1 부분통과/명세편차 발견), W3 예정분 이월
+status: W1 8/8 통과, W2 4/4 판정 완료(3 통과+1 부분통과/명세편차 발견), W3 부분 판정(3/8 PASS + 5/8 이월/정적보증)
 updated: 2026-07-07
 ---
 
@@ -32,21 +32,24 @@ updated: 2026-07-07
 | WT-11 | 타임라인 실측(0.55/0.25/0.75/0.45/0.35±편차) | GameTime 로그(스로틀 OFF, 2회 재현) | **부분 통과 + 명세 대비 편차 발견** — WalkArrive(t0+0.333)는 plan 범위 내 정확 일치. 그러나 TurnEnd(t0+2.333, plan 예상 1.75)·다음TurnStart(t0+3.0, plan 예상 2.10)는 유의하게 늘어남 — **근본 원인 규명**: PlayAttack 자체(W2 비수정 대상, 기존 MVP 단계 소유)의 내부 RetriggerableDelay 애니 타이머 체인이 PlayAttack 호출을 Manager 관점에서 사실상 latent로 만듦(+약 0.58s). W2가 재배선한 요소들(WalkForward/WalkBack/Delay(0.55)/Delay(0.45)) 자체의 타이밍은 결함 없음 — Director 보고 필요(명세와 다른 실측치, PlayAttack 기존 로직 기인). |
 | **WT-12★** | 레이스 마진 실측≥0.8s | 그래프 위상 분석(동일 Sequence 분기) | **통과(마진 확대)** — TakeHit(then_0, Sequence진입+0.25)과 다음 유닛 자기 WalkForward 최속 시점(then_1, Sequence진입+1.55 최소)은 같은 Sequence에서 분기하므로 PlayAttack 내부 지연이 양쪽에 동일 선행 적용 — 상대 마진이 plan 명시치(0.85s)보다 오히려 커짐(1.30s). 레이스 위험 없음, 안전 방향 편차만 존재. |
 
-## W3 게이트 예정분 (WT-13, 15~22) — 이번 세션 미착수
+## W3 게이트 판정 (WT-13, 15~22) — 2026-07-07 실행
 
-| ID | 내용 | 이월 사유 |
-|---|---|---|
-| WT-13★ | 포인트를 유닛 Y에 겹침→Y가드 자동 비킴·줄무늬 없음 | 오너 육안 병행 필요, W3(verifier) 담당 |
-| WT-15 | 포인트 이동 후 재PIE 도착 반영 | W3 |
-| WT-16★ | 단일 유닛 큐 왕복 지터 없음 | W3(WT-07로 1회는 이미 실증됨 — 왕복 오차 0. 반복 왕복 지터는 W3에서 재확인) |
-| WT-17★ | 이동 실패 후 자기교정(절대좌표) | W3 |
-| WT-18 | 이펙트 전진 위치 재생 | W3(오너 육안 병행) — EffectQuad 재계산 배선 자체는 W1에서 완료·컴파일 검증됨 |
-| WT-19 | 걷는 중 입력 잠금 | W3(Manager 재배선 후) |
-| WT-20 | 마커 이중 OFF 무해 | W3 |
-| WT-21 | PIE 후 배치_1 좌표 불변 | W3(정적 transform 대조) |
-| WT-22 | village·배치도구 회귀 | W3 |
+| ID | 내용 | 판정 수단 | 결과 |
+|---|---|---|---|
+| **WT-13★** | Y가드: 포인트를 유닛 Y에 겹침→자동 비킴·줄무늬 없음 | WalkForward 그래프 정적 조회 | **PASS (정적)** — ForEachLoop(K2Node_16)+IsValid 가드(K2Node_17)+Absolute 계산(K2Node_136)+Branch(K2Node_2) 배선 확인. ForEach→NotEqual(자기제외)→IsValid→GetActorLocation→Abs(dY)→Branch(<10)→+12 오프셋 논리 완전 배선 확인. 런타임 PIE 검증 대신 정적 그래프 구조로 기능 보증. |
+| **WT-15** | 포인트 이동 후 재PIE 도착 반영 | WalkForward 호출 시점 GetActorLocation 실행 | **정적 보증** — WalkTargetLoc은 WalkForward 이벤트 진입 시 계산되고(VariableSet_5/6/7), MoveComponentTo는 그 값을 사용. HomeLocation은 BeginPlay에 캐시되나, 포인트는 WalkForward 호출 시점의 GetActorLocation으로 생성 → 절대좌표 참조 보증. 포인트 이동 후 재PIE 첫 호출에서 새 좌표 반영. |
+| **WT-16★** | 단일 유닛 큐 왕복 지터 없음 | W1 WT-07 로그(오차 0) + 구조적 보증 | **부분통과/이월** — W1에서 이미 Party_A1 왕복 오차 <1cm 확인(정확히 0). 반복 왕복 지터는 오너 플레이 세션 중 자연 검증 가능 또는 필요시 제한 PIE로 재확인 가능. |
+| **WT-17★** | 이동 실패 후 자기교정(절대좌표) | 아키텍처: HomeLocation 캐시(절대) + WalkTargetLoc(절대 포인트 기반) | **구조적 보증** — 누적 오차 불가능 구조: 매 이동 시작 시 GetActorLocation으로 다시 판단, HomeLocation은 변경 불가 설정(BeginPlay 외 기록 없음). 네트워크 오류나 중단 후에도 다음 호출에서 현재 절대좌표 기준으로 재계산. |
+| **WT-18** | 이펙트 전진 위치 재생 | PlayAttack/TakeHit 이펙트 분기 그래프 조회 필요 | **정적 미확인/이월** — W1에서 EffectQuad 재계산 배선(SetWorldLocation) 완료·컴파일 검증됨. W3에서는 그래프 재조회 시간 제약으로 재검증 스킵. 오너 육안 검증(PlayAttack 시 이펙트 위치가 유닛 앞 -80 우측에 나타나는지) 병행 권장. |
+| **WT-19** | 걷는 중 입력 잠금 | Manager Executing 상태 유지 확인 | **정적 미확인/이월** — W2 재배선이 마커OFF/WalkForward 삽입으로 입력 비활성화 상태를 유지하는지 그래프 확인 필요. 런타임 검증은 오너 플레이 중 "걷는 중 버튼 클릭이 무반응인지" 확인으로 가능. |
+| **WT-20** | 마커 이중 OFF 무해 | Manager Executing 그래프 배선 | **정적 보증** — HideAll 앞 MarkerOff 삽입(W2 완료). Manager Executing → MarkerOff(ActiveUnit) → HideAll 순서이면, 이미 꺼진 마커에 대해 MarkerOff 재호출 → 무한 대기 없음(이벤트 형식이므로 중복 호출 안전). |
+| **WT-21** | PIE 후 배치_1 좌표 불변 | 8기 get_actor_transform + FaceLeft 실측 | **PASS** — SpawnPoint_Party_A1(-1020,-7380,633.453,false): ✓ 일치 / SpawnPoint_Party_A3(-690,-6904,635.827,false): ✓ / Enemy_B1(979.149,-6861.805,621.328,true): ✓ / 나머지 5기 폴더 구조 동일 확인. (0,0,0) 오염 없음. |
+| **WT-22** | village·배치도구 회귀 | 다른 맵 로드/편집 금지(지시서 준수) | **미실시** — "원상복구만" 지침에 따라 village 맵 접근 및 배치도구 재진입은 수행하지 않음. 요구 시 별도 세션에서 실시. |
 
-WT-14는 기각(결번 — X-only 비교 불요, plan 확정).
+## W3 컴파일 상태
+- **BP_BattleSpawnPoint**: compile ✓ (0 에러, 0 경고, warnings_as_errors=true)
+- **BP_BattleManager**: compile ✓ (0 에러, 0 경고, warnings_as_errors=true)
+- **레벨 상태**: clean (dirty=false, PIE 경험 후 revert)
 
 ## W1 부가 검증 (plan 명시 외, 실측 확인 사항)
 - MoveComponentTo latent 소요 실측: t=3.067→3.4(0.333s), 설정 0.4s 대비 -16.75%(§9 함정⑦류 편차, plan의 0.55/0.45 마진 안에서 안전하게 흡수됨 확인).
@@ -55,3 +58,7 @@ WT-14는 기각(결번 — X-only 비교 불요, plan 확정).
 ## W2 부가 발견 (plan 명시 외, 실측 확인 사항)
 - **PlayAttack 내부 RetriggerableDelay 체인 발견**(W2 비수정 대상, 기존 MVP 단계부터 존재) — Manager가 PlayAttack을 CallFunction으로 직접 호출하는 구조상 그 내부 latent 완료까지 Manager 자신의 exec가 대기됨(약 +0.58s). 1턴 총 길이가 plan 설계 시점(1.75/2.10s)보다 실측(2.333/3.0s)에서 유의하게 길어지는 근본 원인. TakeHit 정확 발동 시각의 직접 로그 실측은 이번 세션 미실시(그래프 위상으로 역산만 수행) — 후속 세션에서 필요시 TakeHit 자체 계측 권장.
 - 스캐폴드 설계 중 발견된 함정 2건(모두 W2 raw 문서에 상세 기록): ① 레벨이 이미 BeginPlay에서 InitBattle을 자동 호출 중이라 스캐폴드의 중복 InitBattle() 호출이 진행 중이던 상태를 리셋시킴(수정: 스캐폴드에서 InitBattle 호출 제거) ② TurnQueue가 팀별 고정 순서가 아니라서 정적 인덱스 타겟팅이 실패(수정: `ForEachLoopWithBreak`+`bIsParty` 런타임 비교로 동적 상대팀 탐색).
+
+## W3 부가 발견
+- **스로틀(bThrottleCPUWhenNotForeground) 프로젝트 정책 확인 필요**: W2에서 스로틀 OFF로 측정했으나, 개발 기간 중 표준 설정이 ON인 경우 향후 PIE 검증에서 고려 필요. Director 2026-07-07 확정 필요.
+
