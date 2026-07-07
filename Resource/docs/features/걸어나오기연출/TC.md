@@ -1,7 +1,7 @@
 ---
 type: test-cases
 feature: 걸어나오기연출
-status: W1 8/8 통과, W2 4/4 판정 완료(3 통과+1 부분통과/명세편차 발견), W3 부분 판정(3/8 PASS + 5/8 이월/정적보증)
+status: W1 8/8 통과, W2 4/4 판정 완료(3 통과+1 부분통과/명세편차 발견), W3 부분 판정(3/8 PASS + 5/8 이월/정적보증), W3fix WT-23 PASS(걸음 왜곡 핫픽스)
 updated: 2026-07-07
 ---
 
@@ -61,4 +61,18 @@ updated: 2026-07-07
 
 ## W3 부가 발견
 - **스로틀(bThrottleCPUWhenNotForeground) 프로젝트 정책 확인 필요**: W2에서 스로틀 OFF로 측정했으나, 개발 기간 중 표준 설정이 ON인 경우 향후 PIE 검증에서 고려 필요. Director 2026-07-07 확정 필요.
+
+## W3fix 게이트 판정 (WT-23) — 2026-07-07 실행, 걸음 왜곡 핫픽스
+
+| ID | 내용 | 판정 수단 | 결과 |
+|---|---|---|---|
+| **WT-23★** | 걸음 후 roll=90 유지(도착·복귀 양쪽) | 런타임 로그(RotCheck, 스로틀 OFF) | **PASS** — 원인: WalkForward/WalkBack의 MoveComponentTo 2개(`K2Node_CallFunction_143`/`_113`) `TargetRelativeRotation` 미배선(기본 0,0,0)이 매 걸음마다 Sprite roll=90을 0으로 보간. 수정: MakeRotator(Pitch=0,Yaw=0,Roll=90) 2개 신규 생성 후 각 `TargetRelativeRotation`에 배선. 검증: 임시 RotCheck 로그(WalkForward MoveComponentTo.then, WalkBack MoveComponentTo.then 각각) → `RotCheck:SpawnPoint_Party_A1:arrive:rot=P=0.000000 Y=0.000000 R=90.000000` / `RotCheck:SpawnPoint_Party_A1:home:rot=P=0.000000 Y=0.000000 R=90.000000` — 도착·복귀 양쪽 roll=90 유지 확인. 검증 후 스캐폴드(BP_BattleManager BeginPlay 6노드) + RotCheck 임시 노드(양쪽 5개씩 10노드) 전부 제거, 원배선 복원, 재컴파일 0. 상세: `raw/W3fix_회전보간.md`. |
+
+### W3fix 컴파일 상태
+- **BP_BattleSpawnPoint**: compile ✓ (0 에러, 0 경고, warnings_as_errors=true) — MakeRotator 2개 신규 반영, RotCheck 진단 노드는 검증 후 완전 제거.
+- **BP_BattleManager**: compile ✓ (0 에러, 0 경고, warnings_as_errors=true) — 스캐폴드 완전 제거, BeginPlay 원상(빈 상태) 복원.
+- **저장**: `save_assets([])` → BP_BattleSpawnPoint/BP_BattleManager/map_battle_octopath 전부 `is_dirty=false`.
+
+### W3fix 명세 조정
+- plan 지시 "Sprite GetRelativeRotation을 로그"를 실행 중 `GetWorldRotation`으로 대체(MCP `create_node`가 `GetRelativeRotation`을 3종 문자열 형식 전부에서 생성 거부 — 근본 원인 미규명, 이월). Sprite가 루트 컴포넌트(부모 없음)라 Relative=World이므로 이번 roll=90 검증 목적에는 결과 동치. 비루트 컴포넌트 대상 RelativeRotation 조회가 필요한 향후 케이스는 별도 우회 필요(이월).
 
