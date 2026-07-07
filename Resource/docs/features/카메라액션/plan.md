@@ -2,8 +2,8 @@
 
 > 승인 원본: `C:\Users\user\.claude\plans\humble-purring-glacier.md`. gameplay-engineer(sonnet) 실행 시점(2026-07-07) 전사.
 
-## VF 갱신 (2026-07-08) — 카메라 토글 버튼(액션 컷 온/오프)
-VF 단계(OTS 종이 효과 수정) 완료 후, 오너 요청으로 **런타임 온/오프 토글 UI**(`BP_CamToggleButton`, 레벨 액터 `UI_CamToggle`)를 추가했다. 버튼 클릭 시 `bCamActionEnabled`(Manager, 기본 true)를 토글 — false면 공격 시 컷 Align(빌보딩) ForEachLoop 블록을 완전히 건너뛰고 곧장 Delay→PlayAttack으로 직행(카메라 자체의 SetViewTargetWithBlend 컷은 무변경, 스프라이트 빌보딩만 스킵). `bInputLocked`(Executing 중)면 토글 요청 무시(로그 없이 자연 종료). 상세 기록: [[raw/VF_토글버튼]]. **직전 세션에서 이 작업이 부분 완료(허위 완료 보고) 상태로 방치됐다가 재작업으로 완성됨** — 상세는 raw 문서 참조.
+## VF 갱신 (2026-07-08) — 카메라 토글 버튼(액션 컷 온/오프) + OTS 컷 위치 재배치
+VF 단계(OTS 종이 효과 수정) 완료 후, 오너 요청으로 **런타임 온/오프 토글 UI**(`BP_CamToggleButton`, 레벨 액터 `UI_CamToggle`)를 추가했다. 버튼 클릭 시 `bCamActionEnabled`(Manager, 기본 true)를 토글 — false면 공격 시 **OTS 카메라 컷(SetViewTargetWithBlend)과 컷 Align(빌보딩) 전체**를 건너뛰고 곧장 PlayAttack으로 직행. `bInputLocked`(Executing 중)면 토글 요청 무시(로그 없이 자연 종료). **직전 세션에서 이 작업이 부분 완료(허위 완료 보고) 상태로 방치됐다가 재작업으로 완성됨.** 재작업 검증 중 실그래프의 OTS 컷 블록이 v3 원 명세("걷기 도착 후·공격 직전")와 달리 **WalkForward 이전**에 위치해 있던 배치 결함(v3/VF 단계부터 존재)을 발견 — Director 판정에 따라 컷 블록 전체(가드 체인 포함)를 `Delay(0.55).then~PlayAttack` 사이(v3 명세 위치)로 재배치하고 게이트를 그 지점에 통합, 실측(`CamCut` 로그 t가 `WalkArrive` t보다 +0.168초 늦음)으로 "걷기 도착 후 컷" 순서를 확정했다. 상세 기록: [[raw/VF_토글버튼]].
 
 ## v3 갱신 (2026-07-08) — 2단계 카메라: 걷는 동안 기본캠 → 공격 순간 동적 어깨너머(OTS) 컷
 아래 원문(C0/C1, 팀별 고정 앵글 2기)은 v3에서 **철거**되고, `ActionCam_Dynamic` 1기 + 실좌표 기하 계산(공격자·타겟 위치 기반 매 공격마다 동적 산출)으로 대체됐다. 승인 plan: `C:\Users\user\.claude\plans\humble-purring-glacier.md`(V0~V3 단계). 상세 기록: [[raw/V1_철거]] · [[raw/V2_구축]] · [[raw/V3_게이트]] · [[../../카메라연출_원칙]]. 튜닝 파라미터 6종(`CamBack`/`CamLateral`/`CamHeight`/`CamLookBias`/`LookAtZOffset`/`CamBlendIn`)은 `BattleManager` Details에서 오너가 직접 조정.
