@@ -239,3 +239,59 @@ CamToggle:false  ← ②OFF전환
 - `StringTableTools.set_entry`는 dirty를 세팅하지 않음(재저장 누락의 근본원인) — `create`는 정상.
 - `import_file`을 기존 경로에 시도해 실패하면 **원본 애셋이 삭제될 수 있음**(재현 1회, 위험도 높음) — 함부로 재시도 금지.
 - 비균등스케일+회전 부모의 자식(TextRenderComponent)에서 `RelativeLocation` 국소축 변경이 화면상 비선형·비단조 결과(정상→부분소실→완전소실)를 낳을 수 있음 — §7 함정②의 확장 사례.
+
+---
+
+## 토글 버튼 마무리 수정 3건 — Cancel 키 영속화·라벨 기본숨김·시인성 (2026-07-08, Director 후속 지시)
+
+### 경위
+직전 세션("라벨 키 소실 결함 수정")이 스코프 밖으로 보고했던 이월 항목 2건(`Battle.Cancel` 키 부재, 기본카메라 거리 시인성 FAIL)과 오너 실플레이에서 재확인된 LabelCancel 상시노출 문제를 Director 지시로 마무리했다. 시작 시점 `list_keys(/Game/UI/ST_UI)` = `["Battle.Attack","Battle.CamOn","Battle.CamOff"]`(3개, `Battle.Cancel` 부재 재확인 — §라벨 키 소실 문서의 "부수 발견"과 정확히 일치).
+
+### ① `Battle.Cancel`="Cancel" 키 복구 — 함정⑳이 이번 세션에서도 그대로 재현, 재생성 폴백으로 해소
+`set_entry(Battle.Cancel, "Cancel")` 직후 `AssetTools.is_dirty("/Game/UI/ST_UI")` = **`false`**(함정⑳ 재현). `save_assets(["/Game/UI/ST_UI"])`는 `returnValue:true`를 반환했지만 저장 전후 파일 정보가 완전히 동일했다:
+- mtime: 저장 전/후 모두 `2026-07-08 05:20:25.87`(불변)
+- `grep -c "Battle.Cancel" ST_UI.uasset`: 저장 후에도 **0**
+
+즉 "성공"이라는 리턴값 뒤에서 실제로는 무음 스킵됐음을 이번 세션에서도 직접 실측 재확인했다. 지시서의 폴백 절차를 그대로 실행:
+1. 기존 4키(메모리상 `Battle.Attack`="Attack", `Battle.CamOn`="Cam ON", `Battle.CamOff`="Cam OFF", `Battle.Cancel`="Cancel") `get_entry`로 전량 백업.
+2. `AssetTools.delete("/Game/UI/ST_UI")` → `Content/UI/` 폴더가 완전히 빈 상태임을 `ls`로 확인(의도된 삭제, `import_file` 경로가 아니므로 함정㉑과 무관).
+3. `StringTableTools.create(/Game/UI, ST_UI)` → 생성 직후 `is_dirty=true`(함정⑳의 대조군과 일치).
+4. `set_entry` 4회를 **순차** 호출(Attack→Cancel→CamOn→CamOff, §8 함정⑤ "병렬 호출 시 이름/데이터 충돌" 예방 원칙을 StringTable 편집에도 적용).
+5. `save_assets(["/Game/UI/ST_UI"])` → `is_dirty=false`.
+6. **디스크 바이너리 최종 검증**: 파일 mtime이 `05:58`대로 신규 갱신, `grep -c`로 4키+4값 전부 확인:
+
+```
+Battle.Attack: 2   Battle.Cancel: 2   Battle.CamOn: 2   Battle.CamOff: 2
+Attack: 4          Cancel: 4          Cam ON: 2         Cam OFF: 2
+```
+
+**참조 재해석 재검증(2번째 재생성 사례)**: 재생성 후 `get_properties`로 4개 컴포넌트(Label/LabelCancel/LabelOn/LabelOff, 인스턴스+CDO 양쪽)를 전부 재조회한 결과 MISSING 없이 정확한 문자열로 해석됨을 확인 — §라벨 키 소실 문서가 1차 실증한 "StringTable 참조는 경로+키 기반이라 애셋을 통째로 재생성해도 깨지지 않는다"는 결론이 **독립적인 2번째 재생성으로 재확정**됐다.
+
+### ② `LabelCancel` 기본 숨김 복원
+세션 시작 조회에서 흥미로운 비대칭이 발견됐다: **CDO는 이미 `bVisible=false`**였으나(직전 세션 기록엔 CDO 상태가 명시되지 않아 정확한 변경 시점 불명 — 어느 시점에 CDO만 수정되고 인스턴스는 누락된 것으로 추정) **레벨 인스턴스(`UI_AttackButton.LabelCancel`)는 `bVisible=true`**로 남아 있었다. 즉 ①의 키 복구 전에는 `<MISSING STRING TABLE ENTRY>`가, 키 복구 후에는 legible한 "Cancel" 텍스트가 Attack 버튼 위에 상시 겹쳐 보이는 상태였을 것(증상의 형태만 바뀌고 근본 문제—항상 켜져 있음—는 동일).
+인스턴스+CDO 양쪟에 개별 `set_properties({"bVisible": false})` 호출 후 재조회로 둘 다 `false` 확정. `Label`(Attack)은 인스턴스 `bVisible=true` 무변경 재확인(기본 노출 유지, 런타임 `ShowCancel`/`ShowAttack` 토글 로직은 이번 세션에서 손대지 않음 — 그래프 배선은 이미 완성 상태로 별도 조사 불필요했음).
+
+### ③ 카메라 토글 버튼 시인성 (Director 결정 — 디자인 라운드 없이 진행)
+`UI_CamToggle`(=`BP_CamToggleButton_C_0`, 루트 컴포넌트가 `ButtonBg`이므로 액터 트랜스폼 = `ButtonBg` 트랜스폼)에 `set_actor_transform`(location/rotation/scale 3필드 전부 명시, worldspace=true)을 적용:
+
+| | 이전 | 이후 |
+|---|---|---|
+| location | (-650, -7300, **260**) | (-650, -7300, **420**, Attack 버튼과 동일 Z) |
+| rotation | (90, 84, 0) | (90, 84, 0, 무변경) |
+| scale | (**2.2, 1.2**, 1) | (**3.0, 1.5**, 1) |
+
+기본 전투 카메라(`CameraActor_0`, 실측 location(-170.58,-8730.78,1207.07)/rotation(pitch-6,yaw84,roll0)) 시점으로 `CaptureViewport`(captureTransform 지정+annotations 전부 0/null+bShowUI=false, 3파라미터) 1장 캡처 → Pillow로 Cam ON 판 영역 크롭 후 4배 확대(NEAREST)로 자가검증. **"Cam ON" 텍스트와 판이 뚜렷이 식별됨**(글자 왜곡·전단 없음, 판 형태 정상 사각형) — 스케일 3.6 증분 없이 1회차(3.0)로 통과. 우측 팀 4기·Attack 버튼 주변 크롭도 확인해 **어느 쪽도 가려지지 않음**을 확정. §라벨 키 소실 문서의 "기본카메라 거리 시인성 FAIL(이월)" 항목이 이번에 해소됨.
+
+### CT — 이번 3건 검증
+| 항목 | 판정 | 근거 |
+|---|---|---|
+| ① `Battle.Cancel` 디스크 영속 | **PASS** | 재생성 전 `grep -c`=0(저장 스킵 재확인) → 재생성+저장 후 4키 전부 카운트 2, mtime 갱신 |
+| ① 참조 재해석(4개 컴포넌트, 인스턴스+CDO) | **PASS** | Label/LabelCancel/LabelOn/LabelOff 전부 재조회, MISSING 없음 |
+| ② LabelCancel 기본 숨김 | **PASS** | 인스턴스+CDO 양쪽 `bVisible=false`, `Label`(Attack) `bVisible=true` 무변경 |
+| ③ 토글 버튼 위치·스케일 재조회 일치 | **PASS** | `get_actor_transform` = (-650,-7300,420)/(90,84,0)/(3,1.5,1) |
+| ③ 기본카메라 시인성 | **PASS** | 캡처+크롭 확대로 "Cam ON" legible 확인, Attack버튼·8기 유닛 비가림 확인 |
+| compile 0/0(2 BP), 5애셋 dirty=false | **PASS** | `BP_AttackButton`/`BP_CamToggleButton` `compile_blueprint(warnings_as_errors=true)` 통과. `ST_UI`/`BP_AttackButton`/`BP_CamToggleButton`/`map_battle_octopath`/`map_battle_village` 5개 전부 `is_dirty=false` |
+
+### 관찰 — 스코프 밖, 참고용 (임의 수정하지 않음)
+- `BP_AttackButton.Label`의 **CDO** `Text`는 리터럴 `"Text"`(TextRenderComponent 컴파일 기본값)로 남아 있고, StringTable `LOCTABLE` 참조는 **레벨 인스턴스에만** 바인딩된 것으로 관찰됨(§17 "CDO와 인스턴스 양쪽 개별 세팅 필요"와 같은 계열이나, 현재 유일한 배치 인스턴스가 정확히 렌더되므로 기능상 영향 없음 — 새 인스턴스를 추가 배치할 때만 잠재적으로 드러날 수 있는 이슈).
+- 캡처 이미지에서 모든 유닛·양 버튼 주변에 붉은 화살표(+판을 매다는 가는 선) 오버레이가 일관되게 관찰됨 — 이번 세션 작업으로 생긴 부작용이 아니며(모든 액터에 동일 패턴 존재, `set_actor_transform`/`set_properties` 등 이번에 손댄 조작과 무관), 기존 씬의 시각 요소 또는 별개 디버그 표시로 추정. 이번 스코프 밖이라 원인 조사하지 않음.
