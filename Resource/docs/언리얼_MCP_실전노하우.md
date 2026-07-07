@@ -276,3 +276,22 @@ PIE 게임 내 짧은 이펙트 재생 구간을 시각적으로 확인하려고
 
 ### 새 액터/컴포넌트 배치 전 8기(또는 N기) 일괄 실측이 설계 문서의 "예상값"을 크게 벗어날 수 있다 — 반드시 실측 후 채택
 승인 plan 문서는 8기 스폰포인트의 Y좌표를 "약 −7150 부근"으로 예상했으나, `find_actors`+`get_actor_transform` 8회 실측 결과 실제 범위는 **−6861.80 ~ −7630.34**(폭 768.5cm)로 예상과 크게 달랐다. 예상치를 그대로 신뢰해 새 마커 좌표를 정했다면 z-fight 가드 계산이나 "10cm+ 이격" 요구사항이 실패했을 것 — **설계 문서의 좌표 예상값은 항상 실측으로 재검증하고, 실측값을 최종 채택 근거로 문서에 남길 것**(이번 사례처럼 예상과 실측의 괴리 자체가 크면 반드시 명시적으로 기록).
+
+---
+
+## 14. 걸어나오기연출 W2에서 확정된 노하우 (2026-07-07)
+
+### 함정⑮의 일반화 재확인 — "이전 세션에서 만든" 다른 BP의 커스텀 이벤트도 `create_node`에는 `Class|<블루프린트명(언더스코어 제거)>|<멤버명>` 형식이 최우선 유효(빈 `context_pins`로 검색)
+§13 함정⑮은 "이 세션에서 방금 만든 신규 멤버"에 한정된 현상처럼 기술됐으나, 이번 W2에서 **이전 세션(W1)에 이미 만들어 놓고 실제로 여러 차례 호출된 적 있는 `WalkForward`/`WalkBack`/`MarkerOff`**(전부 W1 raw 문서에 성공 호출 기록이 있음)를 이번 세션(W2)에서 **새로운 호출 지점**(Manager EventGraph의 다른 위치)에 추가하려 했을 때도 동일한 패턴이 재현됐다: `get_node_infos`가 보여주는 축약 표기(`|MarkerOff`)를 그대로 `create_node`에 넣으면 실패하고, `find_node_types`에 **context_pins를 채워서** 검색하면 `함수호출|MarkerOff` 같은 형태가 나오지만 이 역시 `create_node`에서 실패한다. **빈 `context_pins`(`[]`)로 검색해야만** `Class|BPBattleSpawnPoint|MarkerOff` 형식이 나오고 이것만 성공한다(같은 세션 내 `WalkForward`/`WalkBack`도 동일하게 재현). **결론**: "신규냐 기존이냐"가 아니라 **"다른 블루프린트의 멤버를 그래프 노드로 새로 생성하려는 모든 경우"**에 이 패턴이 적용되는 것으로 일반화 확정 — 시행착오를 줄이려면 처음부터 `context_pins=[]`로 `find_node_types`를 먼저 시도할 것.
+
+### 함정⑯ 자기 자신의 블루프린트 멤버(같은 BP 안의 변수/함수)는 `find_node_types`가 반환한 문자열(`함수호출|X`, `Variables|디폴트|GetX`)이 그대로 `create_node`에 통과하지만, 유니코드 이스케이프 오타는 완전히 다른 방식으로 실패한다
+스캐폴드 작업 중 `Variables|디폴트|GetActiveUnit`을 만들려고 수동으로 유니코드 이스케이프(`디폰트`)를 입력했는데 "does not exist" 에러가 반복 재현됐다. 원인은 **디폴트(정상)와 디폰트(오타) 두 글자가 자모 하나 차이**(폴=`ud3f4`, 폰=`ud3f0`)로, 육안으로는 렌더링된 한글이 똑같아 보이지 않지만(실제로는 다른 유니코드 코드포인트를 가리켜 콘솔에 다르게 출력됨) 실수로 잘못된 코드포인트를 타이핑한 것이었다. **탐지**: 같은 카테고리 문자열이 반복적으로 "does not exist"로 실패하면서 다른 유사 멤버(`GetTurnQueue`, `SetActiveUnit` 등 같은 `Variables|디폴트|` 접두어)는 성공하는 경우, 접두어 자체의 유니코드 인코딩을 `python -c "print([hex(ord(c)) for c in s])"`로 직접 검증할 것 — 한글 자모 하나 차이는 육안 검토로 거의 못 잡는다.
+
+### 발견 — 다른 BP의 커스텀 이벤트를 CallFunction으로 직접 호출하면, 그 이벤트 내부에 latent 노드(Delay 계열)가 있을 경우 호출자(caller) 자신의 exec 흐름도 그 latent 완료까지 대기한다(같은 그래프 내 함수 호출과 동일하게 "latent 전파")
+W2 타임라인 실측(WT-11) 중 1턴 총 길이가 plan 설계 예상(1.75s)보다 실측(2.333s)에서 +0.58s 더 걸리는 현상을 조사한 결과, 근본 원인은 `BP_BattleManager`가 `BP_BattleSpawnPoint`의 `PlayAttack` 커스텀 이벤트를 `CallFunction` 노드로 직접 호출하는데, **`PlayAttack`의 내부 그래프 자체에 `RetriggerableDelay` 노드 4개(공격 애니메이션 타이머, W2 이전부터 존재)가 직렬로 포함**되어 있었다는 점이다. 이 때문에 Manager 쪽의 `PlayAttack.then`(다음 Sequence 노드로 이어지는 exec 출력)은 PlayAttack 호출 즉시 발화하는 것이 아니라, PlayAttack 내부의 모든 RetriggerableDelay 체인이 완료된 뒤에야 발화한다 — 즉 **다른 BP의 이벤트를 CallFunction으로 호출하는 것은, 그 이벤트가 내부에 latent 노드를 가지고 있다면 호출자 관점에서도 latent 호출이 된다**(§7 함정④가 "함수 그래프에서 Delay 사용 불가"였던 것과는 다른 계열의 사실 — 이건 "커스텀 이벤트 호출자가 그 이벤트의 내부 latent를 투명하게 흡수한다"는 실측 확인). **실전 시사점**: 다른 BP의 이벤트를 호출해 그 직후 타이밍을 정밀 설계할 때는, 반드시 그 이벤트의 **내부 그래프도 먼저 조회**(`get_connected_subgraph`)해 latent 노드 유무를 확인할 것 — 겉보기엔 "즉시 반환하는 트리거성 호출"처럼 보여도 내부에 Delay가 있으면 호출자의 전체 타이밍 설계가 그만큼 밀린다.
+
+### 게이트 스캐폴드 설계 시 "레벨이 이미 자동으로 진행 중인 상태"를 가정하지 말고 먼저 로그로 확인할 것
+BeginPlay에 `InitBattle()` 호출을 포함한 스캐폴드를 심었는데, 실제로는 **레벨(GameMode 등)이 이미 BeginPlay t=0에 자체적으로 InitBattle을 호출하고 있어서**, 스캐폴드의 중복 호출이 이미 AwaitTarget까지 진행된 상태를 되돌려버리는 부작용(`NotifyUnitClicked: ignored`)이 발생했다. **탐지**: 스캐폴드 실행 후 로그에 같은 State 전환 로그가 **두 번 다른 GameTime**(`t=0`과 `t=1.x`처럼)으로 나타나면 중복 초기화를 의심할 것. **해법**: 스캐폴드를 짜기 전에 먼저 순수 관찰(스캐폴드 없이 StartPIE→GetLogEntries)로 레벨이 자동으로 어디까지 진행되는지부터 확인하는 습관이 왕복을 줄인다.
+
+### `NotifyUnitClicked` 같은 "특정 유닛을 대상으로 하는" 함수를 스캐폴드에서 호출할 때, `TurnQueue`의 정적 인덱스로 팀을 가정하지 말 것
+`GetArrayItem(TurnQueue, 4)`가 항상 상대팀일 것이라 가정하고 고정 인덱스로 타겟팅했으나 `NotifyUnitClicked: ignored (same team or self)`가 재현됐다 — TurnQueue 순서는 속도 정렬 등으로 팀이 고정 배치되지 않는다(미규명, 이 프로젝트의 다른 노하우 문서에도 "8기 좌표 예상과 실측이 다르다"는 유사 패턴이 반복됨 — **"배열 순서/좌표 등 구조적 가정은 실측 없이 하드코딩하지 말 것"**이라는 상위 원칙의 또 다른 사례). **해법**: `ForEachLoopWithBreak` + `Branch(GetIsParty(Element) != GetIsParty(ActiveUnit))` 런타임 탐색으로 항상 유효한 상대팀 유닛을 동적으로 찾는 패턴이 정적 인덱스보다 안전하다.
