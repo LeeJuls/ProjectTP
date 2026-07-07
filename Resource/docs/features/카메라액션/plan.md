@@ -2,6 +2,9 @@
 
 > 승인 원본: `C:\Users\user\.claude\plans\humble-purring-glacier.md`. gameplay-engineer(sonnet) 실행 시점(2026-07-07) 전사.
 
+## v3 갱신 (2026-07-08) — 2단계 카메라: 걷는 동안 기본캠 → 공격 순간 동적 어깨너머(OTS) 컷
+아래 원문(C0/C1, 팀별 고정 앵글 2기)은 v3에서 **철거**되고, `ActionCam_Dynamic` 1기 + 실좌표 기하 계산(공격자·타겟 위치 기반 매 공격마다 동적 산출)으로 대체됐다. 승인 plan: `C:\Users\user\.claude\plans\humble-purring-glacier.md`(V0~V3 단계). 상세 기록: [[raw/V1_철거]] · [[raw/V2_구축]] · [[raw/V3_게이트]] · [[../../카메라연출_원칙]]. 튜닝 파라미터 6종(`CamBack`/`CamLateral`/`CamHeight`/`CamLookBias`/`LookAtZOffset`/`CamBlendIn`)은 `BattleManager` Details에서 오너가 직접 조정.
+
 ## Context
 오너 확정: **액션 컷만**(쉐이크는 후속), **앵글은 오너 직접 배치**. 공격(Executing) 동안 팀별 근접 앵글로 부드럽게 전환 → 턴 끝에 기본 카메라 복귀 — 옥토패스식 컷 감성. 구현 핵심은 `SetViewTargetWithBlend`(엔진이 위치·회전·FOV 보간 제공)라 코드가 얇고, 카메라는 **엔진 CameraActor 인스턴스 2기**(BP 불필요 — 에디터 선택 시 픽처인픽처 미리보기 자동 지원 = 오너 앵글 잡기 최적). 실행 sonnet/haiku.
 
