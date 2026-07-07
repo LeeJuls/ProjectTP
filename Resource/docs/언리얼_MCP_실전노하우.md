@@ -230,3 +230,22 @@ StartPIE(warmup 2s) 직후 `GetLogEntries`를 호출했을 때 최신 로그가 
 
 ### `find_node_types`에 `context_pins`로 기존 핀을 지정해 검색하면 프로모터블 연산자가 승격된 형태로 바로 나온다 — 사전 확인 팁
 §9에서는 "생성 후 데이터 연결하면 자동 재해석된다"는 점만 확인했으나, 이번 사례에서 **검색 단계에서부터 `context_pins`에 실제 연결하려는 데이터 핀(예: `GetActorLocation`의 Vector 출력)을 채워 넣으면 `find_node_types`가 이미 승격된 형태**(`수학|벡터|vector+vector` 등, 미승격 상태의 `유틸리티|시간관리|FrameNumber+Int` 같은 엉뚱한 오버로드가 아님)로 결과를 반환한다는 것을 확인했다. 프로모터블 연산자를 다룰 때는 빈 `context_pins`로 검색하지 말고, 실제 연결 대상 핀을 미리 채워 검색하는 편이 이후 재확인 스텝을 하나 줄여준다.
+
+---
+
+## 12. 턴제전투MVP VFX 미표시 결함 수사에서 확정된 노하우 (2026-07-07)
+
+### 함정 ⑩ `get_node_infos`가 보여주는 `type_id`(예: `|SetSpriteMID`, `|GetTurnQueue`, `개발|PrintText`)는 사람이 읽기용 축약 표기이며 `create_node`에 그대로 넣으면 실패할 수 있다 — 항상 `find_node_types`로 정확한 문자열을 재조회할 것
+기존 그래프 노드를 `get_node_infos`로 조회했을 때 나오는 `type_id`(카테고리 접두사가 생략된 경우가 많음 — `|SetSmearMID`, `|GetHitMID`, `|PlayAttack` 등)를 그대로 복사해 `create_node`에 넣으면 "does not exist" 에러가 반복 재현된다(§11 함정⑨는 "다른 BP 커스텀 이벤트 호출"이라는 특정 케이스였지만, 이번엔 **같은 블루프린트 안의 멤버 변수 Get/Set, PrintText, Delay 등 흔한 노드에서도 동일 패턴이 광범위하게 재현**됐다 — 예: `게임|PrintText`로 시도 실패, 정확한 문자열은 `개발|PrintText`; `유틸리티|플로컨트롤|Delay`로 시도 실패, 정확한 문자열은 오타 없이 재확인 시 정상; `Utilities|Text|FormatText`로 검색 시 빈 배열, 한글 `Utilities|Text|포맷텍스트`로 검색해야 나옴). **결론**: `get_node_infos`의 `type_id`는 참고용 표시 문자열일 뿐 `create_node` 입력으로 신뢰하지 말 것 — 새 노드를 만들 때는 항상 **먼저 `find_node_types`(그래프 컨텍스트 지정)로 정확한 문자열을 얻고**, 그 결과를 그대로 `create_node`에 사용한다. 검색어는 영어/한글 둘 다 시도(카테고리가 한글로만 번역된 경우가 다수 존재).
+
+### 함정 ⑪ 인라인 구조체가 아닌 여러 개의 최상위 불리언/스칼라 프로퍼티를 하나의 `set_properties` 호출로 동시에 지정해도 그중 일부만 반영될 수 있다 — §7 함정③의 확장판
+§7 함정③은 "인라인 구조체(Vector/Rotator 등) 내부 필드가 매번 1개만 반영"되는 현상이었는데, 이번 사례에서 **서로 다른 최상위 프로퍼티 3개(`bAbsoluteLocation`/`bAbsoluteRotation`/`bAbsoluteScale`, 전부 독립된 bool 필드)를 한 번의 `set_properties({"bAbsoluteLocation":true,"bAbsoluteRotation":true,"bAbsoluteScale":true})` 호출로 동시에 넘겼을 때도 일부만 반영**되는 현상이 재현됐다(실측: 1회차 호출 후 `bAbsoluteLocation=true`만 반영되고 나머지 둘은 `false`로 남음). 즉 이 비결정성 버그는 구조체 내부 필드에 국한되지 않고, **한 번의 호출에 담긴 여러 프로퍼티 키 전반**에 적용될 수 있는 것으로 확장 확인됐다. **해법은 §7과 동일**: 각 프로퍼티를 **개별 `set_properties` 호출로 하나씩** 세팅하거나, 여러 개를 한 번에 보낸 뒤 반드시 `get_properties`로 재조회해 전부 목표값과 일치하는지 확인하고 불일치 항목만 추가로 개별 재호출한다.
+
+### 함정 ⑫ 언리얼 에디터 창이 최소화(`IsIconic=true`)된 상태에서는 `CaptureEditorImage`가 실패하고 `CaptureViewport`도 최소화 직전의 스테일 프레임을 반환하는 것으로 의심된다
+MCP 클라이언트가 에디터와 장시간 통신하는 동안(§9 함정⑦의 스로틀링과 별개로) 실제 OS 창 상태가 최소화로 전환되는 경우가 있었다(`user32.dll IsIconic` 확인, 창 좌표가 `(-21333,-21333)` 같은 표준 최소화 오프스크린 좌표로 이동). 이 상태에서 `CaptureEditorImage`는 `"Failed to capture any editor windows"` 에러를 반환했고, `CaptureViewport`는 에러 없이 이미지를 반환했지만 **그 내용이 실제 현재 씬이 아니라 다른(이전) 씬처럼 보이는 정황**이 있었다. **진단 순서**: 캡처 결과가 의심스러우면 (1) PowerShell `user32.dll`(`IsIconic`/`GetForegroundWindow`/`GetWindowRect`)로 창 상태를 직접 확인 → (2) 최소화 상태면 `ShowWindow(hwnd, 9)`(SW_RESTORE)+`SetForegroundWindow(hwnd)`로 복원 → (3) `CaptureEditorImage`가 성공하는지로 복원 여부를 검증한 뒤 → (4) `CaptureViewport` 재시도. 단, 창을 복원해도 캡처 내용이 즉시 기대와 다르면(이번 사례처럼) **레벨/배경 자체가 실제로 그런 모습일 가능성**을 먼저 배제할 것(아래 함정⑬ 참조 — "이상해 보이는 배경"을 성급히 캐시 문제로 오판하지 말 것).
+
+### 함정 ⑬ "이상한 배경이 캡처됨" = 캐시/레벨 불일치가 아니라 실제 레벨 콘텐츠일 수 있다 — `GetVisibleActors`로 먼저 액터 소속을 교차검증할 것
+PIE 중 `CaptureViewport`로 얻은 이미지가 예상과 다른 배경(성벽·목책·초가지붕 등 "마을" 스타일)을 보여줘서 "PIE가 잘못된 레벨을 캡처하고 있다"(§7 이슈 D 재현)고 즉시 판단했으나, **실제로는 이 배경 자체가 해당 배틀 레벨의 정상적인 디자인 콘텐츠**였다(기존 완성 스크린샷 문서와 대조해 확인). 오판의 원인은 배경 외관만으로 "이건 다른 레벨"이라고 결론짓고, `GetVisibleActors`가 이미 정확한 레벨의 액터 1880개(배틀 스폰포인트 포함)를 반환하고 있다는 반대 증거를 무시한 것이었다. **교훈**: 캡처된 배경이 예상과 다르면 성급히 "잘못된 레벨/캐시"로 결론짓지 말고, 먼저 `GetVisibleActors`(또는 `find_actors`)로 **실제 그 씬의 액터 목록이 기대한 레벨 소속인지**부터 교차검증하라 — 배경 외관은 특히 여러 아트팩이 공유되는 프로젝트(마을 성문 배경을 배틀 무대로 재사용하는 등)에서 신뢰할 수 없는 판별 근거다.
+
+### `CaptureViewport`의 왕복 지연이 매우 커서(수십 초 단위) 0.3~0.6초짜리 짧은 VFX 재생 순간을 스크린샷으로 잡기 매우 어렵다
+PIE 게임 내 짧은 이펙트 재생 구간을 시각적으로 확인하려고 재생시간(RetriggerableDelay Duration)을 진단 목적으로 3초→12초→90초까지 단계적으로 늘렸음에도 **매번 캡처 이미지에 이펙트가 없었다**. 원인은 `CaptureViewport` 자체(4~5MB base64 PNG 인코딩+전송)의 왕복 시간이 실측 46~110초에 달했기 때문 — `UnitClicked` 로그의 UTC 타임스탬프와 그 직후 `get_properties`/`CaptureViewport` 호출이 실제로 반영된 시점의 UTC(`date -u`)를 대조해 이 지연을 실측 확인했다. **진단 시 유용했던 우회**: 캡처 대신 **PIE 인스턴스 프로퍼티를 직접 실시간 조회**(`get_properties`로 `bVisible`, `overrideMaterials`의 다이나믹 MID 바인딩 등)하면 왕복 1회로 "지금 이 순간 이펙트가 재생 중인가"를 확정할 수 있다 — 이 방법으로 `bVisible=true`와 정확한 MID 바인딩을 여러 차례 실측해 VFX 트리거 자체는 정상 작동함을 실증했다(순간 스크린샷 확보는 실패했지만 로직 정상성 증거로는 충분). **결론**: 짧은 트랜지언트 이펙트의 "눈으로 보이는 증거"가 필요하면 캡처 왕복 지연을 감안해 재생시간을 매우 길게(60초 이상) 잡거나, Windows 데스크톱 자동화로 고속 연사 캡처(§6 "PIE 실클릭 검증" 패턴, `.NET Graphics.CopyFromScreen`)를 사용하는 게 유일하게 재현성 있는 방법으로 보인다 — MCP `CaptureViewport` 단독으로는 재현성이 낮다.

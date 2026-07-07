@@ -97,3 +97,52 @@ State:Executing → TakeHit:...A1 → TakeHitRevert:...A1 → State:TurnEnd → 
 
 ### 저장 상태(2단계)
 `BP_BattleSpawnPoint`·`BP_BattleManager` 전체 `save_assets` 후 관련 에셋(`BP_BattleSpawnPoint`·`BP_BattleManager`·`MI_FX_Smear`·`MI_FX_Hit`·`T_FX_Smear`·`T_FX_Hit`) 및 레벨(`map_battle_octopath`) `is_dirty=false` 확인. village 맵 2종(`map_village_day`/`map_village_night`) `is_dirty=false` 유지(회귀 없음).
+
+---
+
+## 미표시 결함 수사 및 근본수정 (2026-07-07, gameplay-engineer — 오너 리포트 "이펙트가 전혀 안 보임")
+
+### 근본 원인 확정
+2단계에서 배선한 BeginPlay VFX 셋업 세그먼트(`SetAbsolute`→`SetWorldRotation`→`SetWorldLocation`→`SetWorldScale3D`→`SetVisibility`→`SetCollisionEnabled`→CDMI×2→`SetSmearMID`/`SetHitMID`)와 `PlayAttack`/`TakeHit`의 Sequence 분기B(`SetMaterial`→`SetScalarParameterValue`→`SetVisibility(true)`→`RetriggerableDelay`→`SetVisibility(false)`)는 **정적 그래프 추적(`get_connected_subgraph`) 결과 처음부터 전 구간 완벽하게 배선되어 있었다** — 방침 문서 기록과 100% 일치, 고아 세그먼트·끊긴 exec 없음.
+
+실제 근본 원인은 **`EffectQuad`(StaticMeshComponent) 자체의 `staticMesh` 프로퍼티가 레벨에 배치된 8개 인스턴스 전부에서 `None`**이었던 것(`ObjectTools.get_properties`로 실측). 대조군 `TurnMarker`(같은 BeginPlay에서 세팅되는 StaticMeshComponent)는 `staticMesh=/Engine/BasicShapes/Plane.Plane`으로 정상. `BP_BattleSpawnPoint` 블루프린트 클래스 자체의 SCS 템플릿(`EffectQuad_GEN_VARIABLE`, CDO 경유 조회)은 `staticMesh` 정상 보유 — 즉 **클래스 정의는 무죄, 레벨 배치 인스턴스 8개만 결함**이었다(정확한 유입 경로는 미규명 — 컴포넌트를 클래스에 추가하는 시점과 8기 액터가 레벨에 이미 배치돼 있던 시점의 선후관계 문제로 추정, 후속 조사 과제로 이월). `reset_properties`는 이 프로퍼티에 효과 없었음 — `set_properties`로 `/Engine/BasicShapes/Plane.Plane` 명시 지정 후 재조회로 8기 전원 정상 확인.
+
+렌더링할 지오메트리 자체가 없으면 그래프 로직이 아무리 정확해도(`SetVisibility(true)`, 유효한 MID 바인딩) 화면에 아무것도 그려지지 않는다 — 이것이 "이펙트가 전혀 안 보임" 증상의 유일한 원인이었다.
+
+### 수정 내용
+1. **StaticMesh 재할당(근본 수정)**: 8기 전 유닛(`BP_BattleSpawnPoint_C_0,2,3,4,5,6,7,9`)의 `EffectQuad.staticMesh`를 `set_properties`로 `/Engine/BasicShapes/Plane.Plane` 명시 지정, 전수 재조회 확인.
+2. **에디터 인스턴스 청소**: 진단 과정에서 인스턴스에 직접 세팅했던 `relativeLocation`/`relativeRotation`/`relativeScale3D`/`overrideMaterials`/`bAbsolute*`를 SCS 원본 초기값(`(0,0,0)`/`(0,0,0)`/`(1,1,1)`/`[]`/`false,false,false`)으로 복원(BeginPlay가 실행되면 그래프가 이 값을 정확히 재계산하므로 게임 실행엔 영향 없음 — 순수하게 "저장된 에디터 값"의 일관성 확보 목적).
+3. **오너 요청 겸사 조정 적용**: `MI_FX_Smear`/`MI_FX_Hit`의 `FPS` 15→**10**, `PlayAttack` 분기B `RetriggerableDelay` 0.30→**0.45**, `TakeHit` 분기B 0.35→**0.55**(원본 미변경), BeginPlay `SetWorldScale3D` 입력 `MakeVector` (1.8,1.8,1)→**(2.4,2.4,1)**. 전부 `set_pin_value`/`MaterialInstanceTools`로 세팅 후 `get_node_infos`/`get_scalar_parameter` 재조회 확인.
+4. **진단 프린트 1개 유지(Director 지시)**: 신규 Custom Event `DiagVFXSetup`을 BeginPlay 체인 끝(`SetHitMID` 직후)에 배선. `IsValid(SmearMID)`/`IsValid(HitMID)` 각각 분기해 `게임|PrintText`(bPrintToScreen=false, bPrintToLog=true)로 `"VFXSetup:<라벨>:SmearMID=True/False(INVALID)"` 형태 로그(라벨은 `GetSprite→GetOwner→GetDisplayName` pure 체인, 4개 FormatText로 fan-out). PIE 재검증 결과 8기 전원 `SmearMID=True`·`HitMID=True` 정상 발화 확인.
+
+### 시각 실증 — 결정적 판별 테스트(§4 방법론)
+1. **독립 대조 테스트**: `SceneTools.add_to_scene_from_asset`로 EffectQuad와 무관한 신규 액터(`TEST_VFXDiag_Plane`, SM_Plane+MI_FX_Smear)를 씬에 직접 배치 → 스케일 5로 확대 후 카메라를 충분히 가깝게(대상 거리 ≈150~250cm) 두자 명확한 스머 궤적 렌더 확인. **머티리얼/텍스처 자체는 처음부터 완전 무죄**임을 재확인(`CaptureAssetImage`로도 이미 확인됨).
+2. **EffectQuad 자체 시각 확인**: 8기 중 1기(`BP_BattleSpawnPoint_C_4`)의 EffectQuad를 에디터(비-PIE) 상태에서 방침값 그대로(`bAbsolute*=true`, `relativeRotation=(Pitch90,Yaw84,Roll0)`, `relativeScale3D=(2.4,2.4,1)`, `overrideMaterials=[MI_FX_Smear]`) 세팅 후 카메라를 대상 거리 ≈150~350cm로 근접시켜 캡처 → **명확한 스머 이펙트 렌더 확인**(캐릭터 머리 위로 흰 궤적). 원래 방침 회전값(Pitch90/Yaw84/Roll0)으로도, Sprite와 동일한 회전(0,0,90)으로도 둘 다 정상 렌더됨 — **회전값은 결함 원인이 아니었다**(§4 방법론 "만든 사람의 가설을 반증하라" — 애초에 회전이 원인이라는 가설 자체가 성립 안 함을 실험으로 확정).
+3. **결론**: EffectQuad 컴포넌트·회전·배선 전부 무죄. 이전 캡처 실패들은 카메라-대상 거리가 과도(500cm 이상)해 스케일 2.4의 얇은 플레인이 화면상 거의 안 보이는 크기였기 때문(프레이밍 실수) — 이 자체도 §11에 노하우로 등재.
+
+### PIE 실사용 경로(클릭 기반) 검증 — 로그·프로퍼티로 실증, 스크린샷은 인프라 제약으로 미확보
+스캐폴드(`BeginPlay→Delay(2.5)→NotifyAttackButtonClicked→Delay(0.3)→NotifyUnitClicked(TurnQueue[N])`)로 실제 클릭 경로를 재현. `TurnQueue` 등록 순서가 Party/Enemy 교대(`_C_0,4,9,5,2,6,3,7` = A1,B1,A2,B2,A3,B3,A4,B4)임을 실측 확인 후 인덱스 1(B1, 상대팀)로 정확히 타겟팅 → `UnitClicked:valid`→`BattleLog`→`State:Executing`→`TakeHit`→`TakeHitRevert` 전체 1턴 사이클 정상 완료.
+
+**PIE 인스턴스(`UEDPIE_0_...` 접두사, §9 함정⑥ 회피) 직접 조회로 실시간 실증**: 공격 개시 직후 즉시 조회 시 공격자(`_C_0`) EffectQuad `bVisible=true`, `overrideMaterials=[MID_MI_FX_Smear_0]`(런타임 생성된 다이나믹 MID가 정확히 바인딩됨) 확인. 타겟(`_C_4`)도 동일 패턴으로 `MID_MI_FX_Hit_0` 바인딩 확인. **재생 중인 순간의 스크린샷 확보는 실패** — `CaptureViewport`(4~5MB base64 이미지) 자체의 왕복 지연이 수십 초 단위로 커서, RetriggerableDelay를 진단용으로 90초까지 늘려도 "캡처 요청→응답 도착" 사이에 재생 창이 끝나버림(실측: `UnitClicked` 로그 시각과 다음 `get_properties` 조회 시각 사이 UTC 경과 46~110초, 게임 내 목표 재생시간 12~90초 전부 소진). §7 이슈 D(PIE 캡처 대상 불일치)와는 다른 신규 함정으로 §11 확정.
+
+**검증 완결성 판단**: 그래프 배선 정적 검증 + 컴포넌트 프로퍼티 실측(정상값) + 독립 렌더 대조 테스트(무죄 확인) + PIE 런타임 프로퍼티 실측(`bVisible=true`, MID 바인딩 확인)의 4중 교차검증으로 **VFX가 실제 게임플레이에서 정상 트리거·렌더된다는 근거는 충분히 확보**됐다고 판단. 순간 포착 스크린샷은 verifier 재시도 과제로 이월.
+
+### 사다리 로그 최종 상태
+Director 지시 진단 사다리 (1)(2)(3) 중, 정적 전수 추적(1) 단계에서 이미 배선이 100% 정상임이 확정되어 (b)(c) 임시 프린트(`FXSmear:<라벨>`, `FXSmearVis:<라벨>`)는 심지 않음(불필요 — 배선 결함 가설 자체가 기각됨). (a) `VFXSetup` 로그만 최종 구현·유지, 8기 전원 `SmearMID=True`/`HitMID=True` 정상 발화 확인.
+
+### 조정값 적용 확인 요약
+| 항목 | 이전 | 이후 | 확인 방법 |
+|---|---|---|---|
+| MI_FX_Smear FPS | 15 | **10** | `get_scalar_parameter` |
+| MI_FX_Hit FPS | 15 | **10** | `get_scalar_parameter` |
+| PlayAttack 분기B RetrigDelay | 0.30 | **0.45** | `get_node_infos` |
+| TakeHit 분기B RetrigDelay | 0.35 | **0.55**(원본 유지) | `get_node_infos` |
+| EffectQuad SetWorldScale3D | (1.8,1.8,1) | **(2.4,2.4,1)** | `get_node_infos` |
+| EffectQuad.staticMesh(8기) | None | **/Engine/BasicShapes/Plane.Plane** | `get_properties` 전수 |
+
+### 컴파일·저장 최종 상태
+`BP_BattleSpawnPoint`·`BP_BattleManager` 양쪽 `compile_blueprint(warnings_as_errors=true)` 에러 0. `save_assets([])` 전체 저장 후 `BP_BattleSpawnPoint`·`BP_BattleManager`·`MI_FX_Smear`·`MI_FX_Hit`·`map_battle_octopath` `is_dirty=false` 확인. village 관련 에셋(`map_village_day`·`map_village_night`·`map_battle_village`) `is_dirty=false` 유지(회귀 없음). 스캐폴드 노드(BP_BattleManager EventGraph, Delay×2/NotifyAttackButtonClicked/NotifyUnitClicked/GetTurnQueue/ArrayGet 총 6개) 전량 `delete_node` 제거, BeginPlay `then` 핀 원상(미연결) 복구 확인.
+
+### 알려진 제약/TODO(이월)
+- EffectQuad `staticMesh`가 애초에 왜 레벨 인스턴스에서만 유실됐는지(클래스 SCS는 정상) 근본 메커니즘 미규명 — 향후 유사 컴포넌트 추가 시 "레벨 인스턴스 StaticMesh 실측 확인"을 체크리스트에 추가 권장.
+- 짧은(0.3~0.6초) VFX 재생 순간의 PIE 스크린샷 확보는 이번 MCP 조합(`CaptureViewport` 왕복 지연)으로는 재현성이 낮음 — verifier가 다른 수단(예: Duration을 훨씬 길게 임시 고정 + 폴링 간격 최소화, 혹은 Windows 데스크톱 자동화로 고속 연사 캡처, §6 "PIE 실클릭 검증" 패턴 참조) 사용 검토 필요.
