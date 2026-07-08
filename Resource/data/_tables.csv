@@ -1,0 +1,6 @@
+Id,#id_txt,TableName,Domain,Version,OwnerSystem,CycleException,Memo
+90000200,meta_strings,strings,메타,1,공통,,다국어 스트링
+90000300,vocab_jobs,jobs,어휘,1,캐릭터,,직업 정의
+90000600,entity_skills,skills,개체,1,전투,,스킬 정의(알파 5행)
+90000900,vocab_grades,grades,어휘,1,캐릭터,,등급(성) 정의
+90001000,entity_jobstats,job_stats,개체,1,캐릭터,,직업x등급 기본 스탯
