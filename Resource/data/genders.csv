@@ -1,0 +1,4 @@
+Id,#id_txt,NameKey,Memo
+90200000,gender_common,Gender.Common,공용
+90200100,gender_male,Gender.Male,남
+90200200,gender_female,Gender.Female,여
