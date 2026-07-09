@@ -3,28 +3,28 @@ type: raw
 project: projectTP
 feature: UI파이프라인
 agent: gameplay-engineer
-updated: 2026-07-08
+updated: 2026-07-10
 ---
 
 # A0 기술 스파이크 — UMG(WidgetBlueprint)를 MCP로 만들 수 있는가
 
-> 알파의 메뉴 UI(대기실 등) 전량을 UMG WidgetBlueprint로 만들 계획(`알파_개발계획.md` §2.6①)인데, 이 프로젝트는 UMG를 한 번도 안 써봤고 MCP 툴셋 목록에 Widget/UMG 전용 툴셋이 안 보인다는 Director 리컨을 실증하는 A0 스파이크. **최종 판정: 미완료(인프라 차단) — 절차 1단계(클래스/애셋 탐색)는 완료·확정했으나, 2단계(`WBP_SpikeTest` 실제 생성 시도) 진입 직전 unreal-mcp 연결이 끊겨 이후 전 단계(2 실행~6)를 수행하지 못함.** 상위: [[projectTP_허브]]
-> 관련: [[언리얼_MCP_실전노하우]] · 동시기 유사 인프라 차단 사례 [[A0_CSV파이프라인스파이크]](`docs/features/캐릭터시스템/raw/A0_CSV파이프라인스파이크.md`)
+> 알파의 메뉴 UI(대기실 등) 전량을 UMG WidgetBlueprint로 만들 계획(`알파_개발계획.md` §2.6①)인데, 이 프로젝트는 UMG를 한 번도 안 써봤고 MCP 툴셋 목록에 Widget/UMG 전용 툴셋이 안 보인다는 Director 리컨을 실증하는 A0 스파이크. **최종 판정(2026-07-10 재개 세션 완료): 부분성공 — `BlueprintTools.create`로 모달 없이 진짜 `WidgetBlueprint` 애셋 생성 확인, 단 `WidgetTree`/`RootWidget` 프로퍼티는 `ObjectTools`로 read/write 불가해 위젯트리 조작(자식 위젯 배치)은 막힘.** 1차 시도(2026-07-08)는 공유 MCP 브릿지 모달 마비로 인프라 차단·미완료였으나, 2026-07-10 단독 세션으로 재개해 완결했다 — 1차 시도 기록은 §1~6 보존, 재개 실행 상세는 §7. 상위: [[projectTP_허브]]
+> 관련: [[언리얼_MCP_실전노하우]] · 1차 시도 당시 동시기 유사 인프라 차단 사례 [[A0_CSV파이프라인스파이크]](`docs/features/캐릭터시스템/raw/A0_CSV파이프라인스파이크.md`)
 #projectTP/UI파이프라인
 
 ---
 
 ## 최종 판정 (한 줄)
 
-**"완전 성공/부분 성공/완전 실패" 3분류 중 어디에도 속하지 않는 4번째 상태(미완료·인프라 차단)** — Widget/UMG 전용 MCP 툴셋이 없다는 것과 `WidgetBlueprint` 계열 클래스가 리플렉션상 존재한다는 것까지는 확정했으나, 실제 `BlueprintTools.create` 호출 자체를 시도하기 직전 공유 unreal-mcp 브릿지가 (내가 발동한 것이 아닌) 다른 동시 세션의 `BlueprintTools.create` 호출로 인해 전면 마비되어, 이 스파이크가 답해야 할 핵심 질문("WBP 애셋이 실제로 생성되는가, 위젯트리를 조작할 수 있는가")은 **미검증 상태로 남았다**.
+**부분성공** — `BlueprintTools.create(asset_type={"refPath":"/Script/UMG.UserWidget"})`는 모달 없이 즉시 정상 동작하고, `AssetTools.find_assets(asset_type=/Script/UMGEditor.WidgetBlueprint)` 타입필터(+ 네거티브 컨트롤)로 생성물이 껍데기만 다른 일반 Blueprint가 아니라 **애셋 레지스트리 기준 진짜 WidgetBlueprint**임을 확정했다(§7-1·§7-2). 그러나 `WidgetTree`/`RootWidget`은 `ObjectTools`의 `list_properties`/`get_properties`/`set_properties` 전부에서 read·write가 막혀 있어(§7-3), 자식 위젯(Button/TextBlock) 배치 등 위젯트리 조작은 현재 노출된 MCP 표면으로는 불가능함이 실증됐다. "완전성공(트리 조작까지 가능)"도 "폴백확정(create 자체가 모달로 막힘)"도 아닌 정확히 명세의 부분성공 분류에 해당한다.
 
 ---
 
 ## 핵심 발견 (3줄)
 
-1. **Widget/UMG 전용 MCP 툴셋은 확정적으로 없음**(Director 리컨 재확인) — `list_toolsets` 21개 전수 목록에 Widget/UMG/UI 이름을 가진 토大set 전무. `WidgetBlueprint` 계열 클래스 자체는 리플렉션에 존재(`/Script/UMGEditor.WidgetBlueprint` 등 4종, `search_subclasses`로 확인)하므로 "클래스는 있는데 이걸 다루는 전용 툴이 없다"는 정확한 진단이 섰다 — 남은 유일한 경로는 범용 `BlueprintTools.create`+`ObjectTools.set_properties`.
-2. **`BlueprintTools.create` 호출 직전에 공유 MCP 브릿지가 완전히 멎었다** — 로그·프로세스·윈도우 3중 교차검증으로 **Slate 모달 다이얼로그(제목 "메시지", class `UnrealWindow`, 메인 에디터 창의 소유 윈도우)가 13분+ 열려 있는 상태**를 직접 확인했다(hWnd 0x2E0852). 원인은 내가 호출한 게 아니라 **동시 실행 중이던 다른 세션의 `BlueprintTools.create` 호출**로 강하게 추정된다 — 같은 시간대(UTC 07:26~07:28)에 독립적으로 실행된 [[A0_CSV파이프라인스파이크]]도 동일 증상(`BlueprintTools.create(asset_type=UserDefinedStruct)` 직후 "not connected")을 보고해 시점·원인후보가 정확히 겹친다.
-3. **Slate 모달의 내용은 Win32/UI Automation 둘 다로 읽을 수 없음이 확인됨** — `EnumChildWindows`·`AutomationElement.FindAll` 모두 자식 0개 반환(Slate가 네이티브 컨트롤/접근성 트리를 노출하지 않음). 즉 이런 종류의 차단이 재발하면 **기계적으로 원인 문구를 읽을 방법이 없고, 오너가 에디터를 직접 봐야 한다** — 스크린샷 사용 자제 방침과 충돌하는 지점이라 Director 판단이 필요.
+1. **`create`로 실제 `WidgetBlueprint` 생성 확인, 모달 위험 없음** — `/Script/UMG.UserWidget`을 `asset_type`으로 넣으면 `BlueprintTools.create`가 즉시 정상 응답하며(§19 함정㉓이 우려한 "UserWidget도 모달을 유발할 수 있다"는 가설은 기각), `find_assets` 타입필터(양성+네거티브 컨트롤)로 생성물이 진짜 `/Script/UMGEditor.WidgetBlueprint` 컨테이너임을 확정했다.
+2. **위젯트리 조작은 프로퍼티 API 레벨에서 막혀 있음** — `WidgetTree`/`RootWidget`은 `ObjectTools`의 `list_properties`/`get_properties`/`set_properties` 전부에서 접근 불가(읽기도 쓰기도 에러). 서브오브젝트 경로(`:WidgetTree`)로 오브젝트 실존은 확인되지만 그 이상(RootWidget 조회, 자식 위젯 추가) 진입 불가 — 전용 Widget/UMG MCP 툴셋이 여전히 없다는 사실과 결합하면, 위젯트리 구성은 현재 MCP 표면으로 불가능함이 실증됐다.
+3. **1차 시도의 "공유 브릿지 모달 마비"는 재발하지 않음** — 재개 세션은 단독 사용(동시 세션 없음) 조건에서 진행했고, `create` 포함 전체 호출이 전부 즉시 정상 응답했다. 1차 세션의 마비가 "부적절한 asset_type(UserDefinedStruct) + 동시 다중 세션" 조합에서 기인했다는 기존 §19 함정㉓ 가설과 일치하는 결과다.
 
 ---
 
@@ -164,3 +164,77 @@ updated: 2026-07-08
 3. `add_component_bound_event`(컴포넌트 바운드 이벤트)가 Button의 `OnClicked` 같은 델리게이트에도 통하는지(현재 스키마상 `component` 파라미터가 `ActorComponent` 타입으로 고정돼 있어 Button이 여기 해당하는지부터 불확실).
 4. 이번 세션의 "모달로 인한 공유 브릿지 전면 마비" 근본 메커니즘(어떤 정확한 `asset_type` 조건이 모달을 유발하는지) — 재현 시 이번처럼 즉시 차단되지 말고, **가능하면 오너가 에디터를 지켜보는 상태에서 1회씩** 시도해 다이얼로그 문구를 육안으로 확보하는 게 근본원인 규명에 결정적일 것.
 5. Slate 모달 콘텐츠를 스크린샷 없이 기계적으로 읽는 방법 — 이번엔 Win32/UIA 둘 다 실패했다. UE 자체의 접근성(Accessibility) 기능을 프로젝트 설정에서 켜면 UIA 트리가 노출되는지는 미검증(엔진 설정 변경이 필요해 이번 스파이크 범위 밖으로 판단, 별도 조사 과제로 이월).
+
+---
+
+## 7. 재개 실행 결과 (2026-07-10, MCP 단독 세션)
+
+> Director가 `BlueprintTools.create(asset_type=UserDefinedStruct)`를 직접 1회 호출해 300초 무응답(모달)을 재현·확정한 뒤(§19 함정㉓ 확정), 이 스파이크를 **단독 세션**(동시 사용 없음)으로 재개했다. §2-1에서 확보한 클래스 후보를 그대로 사용해 2단계(실제 `create` 호출)부터 시작했다.
+
+### 7-0. 재개 전 연결 확인
+
+- `list_toolsets()` — 정상 응답(21개+ 툴셋, 1차 세션 목록과 일치 + `BehaviorTreeTools` 추가 확인). Widget/UMG 이름의 툴셋은 이번에도 0개.
+- `describe_toolset(editor_toolset.toolsets.blueprint.BlueprintTools)` → `create` 툴 정식 스키마 재확인: `asset_type`은 "The specific kind of Blueprint to make."(§5 메모와 일치, `folder_path`/`asset_name`/`asset_type` 3개 필수 파라미터).
+
+### 7-1. `create` 1회 호출 — 분기 B 확정(모달 미발생)
+
+```
+create(folder_path="/Game/UI/Components", asset_name="WBP_Probe", asset_type={"refPath":"/Script/UMG.UserWidget"})
+→ {"returnValue":{"refPath":"/Game/UI/Components/WBP_Probe.WBP_Probe"}}
+```
+
+**즉시 정상 응답, 무응답·모달 0건.** 절차서가 우려한 "UserWidget도 UserDefinedStruct처럼 모달을 유발할 수 있다"는 가설은 **기각됐다** — Blueprintable UObject(UserWidget)는 non-Blueprintable 구조체(UserDefinedStruct)와 달리 `BlueprintTools.create`의 정상 경로를 탄다. 이 1회 호출 이후 이번 세션에서 `create`는 다시 호출하지 않았다(지침 준수).
+
+### 7-2. 실제 애셋 클래스 판별 — WidgetBlueprint 확정
+
+| 호출 | 결과 | 해석 |
+|---|---|---|
+| `AssetTools.get_asset_class(/Game/UI/Components/WBP_Probe)` | `"WBP_Probe_C"` | **생성된 클래스명**을 반환(컨테이너 타입 아님) — 이 툴 자체 설명 예시("HeroCharacter_C")와 일치하는 설계된 동작으로, Blueprint 자산에 대해 컨테이너가 아닌 생성된 클래스를 보고함 |
+| `ObjectTools.get_class({"refPath":".../WBP_Probe.WBP_Probe"})` | `.../WBP_Probe.WBP_Probe_C` | 동일하게 생성된 클래스로 리다이렉트. 이후 `get_properties` 에러 메시지(`'/Game/UI/Components/WBP_Probe.Default__WBP_Probe_C'`)로 **이 ref가 내부적으로 생성 클래스의 CDO로 리졸브됨**을 확인 — 이 레이어는 Blueprint ref를 "런타임 인스턴스"처럼 추상화하는 것으로 판단됨 |
+| **`AssetTools.find_assets(folder_path="/Game/UI/Components", name="WBP_Probe", asset_type={"refPath":"/Script/UMGEditor.WidgetBlueprint"})`** | `["/Game/UI/Components/WBP_Probe"]` **매치** | **결정적 증거 — 애셋 레지스트리 기준 실제 클래스가 `/Script/UMGEditor.WidgetBlueprint`** |
+| 네거티브 컨트롤: 동일 호출을 `asset_type={"refPath":"/Script/Blutility.EditorUtilityWidgetBlueprint"}`(형제클래스, §5의 후보4)로 | `[]` 매치 없음 | 필터가 허위양성이 아님을 확인 — 형제 클래스는 정확히 배제됨. 위 매치가 신뢰할 수 있는 근거임을 뒷받침 |
+| `BlueprintTools.get_parent({"refPath":".../WBP_Probe.WBP_Probe"})` | `{"refPath":"/Script/UMG.UserWidget"}` | 요청한 부모클래스가 정확히 설정됨 |
+| `BlueprintTools.compile_blueprint({"refPath":".../WBP_Probe.WBP_Probe"})` | 에러 없음(`returnValue: null`) | 정상 컴파일되는 유효한 Blueprint(껍데기가 아님) |
+| `BlueprintTools.list_graphs({"refPath":".../WBP_Probe.WBP_Probe"})` | `[".../WBP_Probe.WBP_Probe:EventGraph"]` | 정상적인 Blueprint 편집 구조(EventGraph) 존재 |
+| `BlueprintTools.list_variables({"refPath":".../WBP_Probe.WBP_Probe"})` | `[]` | 정상 응답(변수 없음, 에러 아님) — 이 API가 WBP 애셋에도 정상 동작함을 확인(§5 이월 항목 해소) |
+
+**판정**: `BlueprintTools.create(asset_type=/Script/UMG.UserWidget)`는 **진짜 `WidgetBlueprint` 애셋을 생성한다** — §2-2의 "부모클래스 해석" 가설이 맞았을 뿐 아니라, 생성물이 껍데기만 다른 일반 `Blueprint`가 아니라 애셋 레지스트리가 인식하는 정식 `UMGEditor.WidgetBlueprint` 컨테이너임을 `asset_type` 필터(양성+음성 대조)로 직접 실증했다. `get_asset_class`/`get_class`가 "생성된 클래스명"을 보고하는 것은 이 판별과 무관한 별개의 설계된 추상화였다(오판 방지를 위해 기록).
+
+### 7-3. 위젯트리 조작 가능성 — 여기서 막힘(정확한 차단 지점 특정)
+
+| 호출 | 결과 |
+|---|---|
+| `ObjectTools.list_properties({"refPath":".../WBP_Probe.WBP_Probe"})` | `UWidget` 계열 프로퍼티 약 30개 반환(`colorAndOpacity`, `visibility`, `slot`, `navigation`, `renderTransform`, `toolTipWidget` 등) — **`WidgetTree`/`RootWidget`은 목록에 없음** |
+| `ObjectTools.get_properties(..., properties=["WidgetTree","RootWidget"])` | 에러: `the following properties could not be read: WidgetTree, RootWidget` |
+| 동일 호출을 camelCase(`["widgetTree","rootWidget"]`)로 재시도 | 동일 에러 — **네이밍 컨벤션 문제가 아님을 확인** |
+| `ObjectTools.set_properties({"refPath":".../WBP_Probe.WBP_Probe"}, values='{"widgetTree": null}')` | 에러: `the following properties could not be set: widgetTree` — **쓰기도 동일하게 불가** |
+| **`ObjectTools.get_class({"refPath":".../WBP_Probe.WBP_Probe:WidgetTree"})`**(서브오브젝트 경로 표기, `list_graphs`의 `:EventGraph` 표기에서 착안) | **`{"refPath":"/Script/UMG.WidgetTree"}`로 정상 리졸브됨** — 오브젝트 자체는 실존하고 개별 주소 지정 가능함을 확인 |
+| `ObjectTools.list_properties({"refPath":".../WBP_Probe.WBP_Probe:WidgetTree"})` | 빈 문자열(`""`) — 노출된 프로퍼티 0개(에러는 아님, 정상적으로 "없음") |
+| `ObjectTools.get_properties({"refPath":".../WBP_Probe.WBP_Probe:WidgetTree"}, properties=["rootWidget"])` | 에러: `could not be read: rootWidget` — 서브오브젝트를 직접 찍어도 동일하게 막힘 |
+| `ObjectTools.get_class({"refPath":".../WBP_Probe.WBP_Probe:WidgetTree:RootWidget"})`(2단 체이닝 시도) | 파라미터 에러: `is not valid Object for property 'instance'` — 체이닝 미지원(안전한 실패, 인프라 영향 없음) |
+
+**막힌 지점 특정**: `WidgetTree`(및 그 안의 `RootWidget`)는 C++ 상 `Transient`+non-Edit 지정 프로퍼티로 추정되며, `ObjectTools`의 `list_properties`/`get_properties`/`set_properties`가 공통으로 사용하는 프로퍼티 가시성 필터(디테일 패널 노출 기준과 유사한 것으로 추정)를 통과하지 못해 **read·write 모두 불가**하다. `WidgetTree` 오브젝트 자체는 서브오브젝트 경로(`:WidgetTree`)로 개별 존재 확인까지는 가능하지만, 그 안의 `RootWidget`이나 다른 프로퍼티로는 어떤 방식으로도 진입하지 못했다. 자식 위젯(Button/TextBlock)을 추가하려면 최소한 `RootWidget`을 읽거나 쓸 수 있어야 하는데 그 경로 자체가 막혀 있어 **위젯 배치의 다음 단계(신규 Button/TextBlock 인스턴스 생성 및 트리 삽입)는 시도할 방법조차 찾지 못했다.**
+
+전용 Widget/UMG MCP 툴셋 부재(1차 세션 §2-1에서 확정, 이번 세션 `list_toolsets`로 재확인 — 여전히 0개)와 종합하면, **위젯트리 조작의 유일한 후보 경로(`ObjectTools` 프로퍼티 조작)가 실제로 막혀 있음이 실증**됐다. `ActorTools.add_component`가 구조적으로 부적합하다는 1차 세션의 스키마 기반 추론(§2-4, `UWidget`이 `UActorComponent`를 상속하지 않음)은 이번 세션에서 재검증하지 않았으나(반환 타입 고정이라는 명확한 스키마 근거가 이미 있어 실호출 불필요로 판단), 결론에 영향 없음.
+
+### 7-4. 애셋 저장
+
+`WBP_Probe`는 생성 직후 dirty 상태(`AssetTools.is_dirty` → `true`)였다. "생성된 애셋은 남겨둬라"는 지침에 따라 `AssetTools.save_assets(["/Game/UI/Components/WBP_Probe"])`로 디스크에 저장했고, 저장 후 `is_dirty` → `false`로 확인했다. 기존 애셋(`ST_UI` 등)은 조회조차 하지 않았다 — 무변조.
+
+### 7-5. 최종 판정 — 부분성공
+
+- **완전성공 아님**: 위젯트리에 자식 위젯(Button/TextBlock)을 실제로 심는 것까지는 도달하지 못함.
+- **폴백확정(완전실패) 아님**: `create` 자체는 대성공 — 모달 0건, 진짜 `WidgetBlueprint` 생성을 `asset_type` 필터로 직접 확인.
+- **부분성공**:
+  - 성공한 것 — ① `create`가 안전하게 동작(모달 없음, §19 함정㉓의 "UserWidget도 위험할 수 있다"는 우려 기각) ② 생성물이 진짜 `/Script/UMGEditor.WidgetBlueprint`(껍데기만 다른 일반 Blueprint 아님, 양성+음성 대조로 확정) ③ 정상 컴파일·`EventGraph` 존재·`list_variables`/`get_parent` 등 기존 BP 툴 정상 작동.
+  - 막힌 것 — `ObjectTools`의 프로퍼티 read/write API로는 `WidgetTree`/`RootWidget`에 접근 불가(읽기·쓰기 전부 에러, camelCase/PascalCase 무관, 서브오브젝트 경로로도 `RootWidget`까지는 못 들어감). 전용 Widget MCP 툴셋은 여전히 없음.
+
+**즉 "WBP 애셋 골격(빈 껍데기)은 MCP로 안전하게 만들 수 있으나, 그 안에 디자인타임 위젯(Button/TextBlock 등)을 MCP만으로 채워 넣는 것은 현재 노출된 MCP 표면적으로는 불가능"으로 확정.** 알파의 UMG 계획을 이 경로만으로 끝까지 실행할 수는 없다 — 위젯트리 구성(레이아웃 배치)부터는 오너가 에디터에서 직접 하거나, cpp-engineer가 전용 브릿지를 추가해야 한다.
+
+### 7-6. 후속 권고
+
+1. 메뉴 UI의 WBP 애셋 **골격 생성 자동화**(`create` + `compile_blueprint` + `save_assets`)는 MCP로 안전하게 가능 — 확정. 여러 화면의 빈 WBP 골격을 일괄 생성하는 용도로는 바로 활용 가능.
+2. 그 안의 실제 레이아웃(Button/TextBlock/CanvasPanel 배치, 앵커/사이즈 조정)은 **오너가 UMG 디자이너에서 수동으로** 해야 한다 — 이번에 검증된 MCP 표면으로는 불가능함이 명확히 실증됨(7-3).
+3. `BlueprintTools.add_component_bound_event`가 Button의 `OnClicked` 델리게이트에 통하는지는 여전히 미검증이다(위젯을 심을 방법 자체가 없어 테스트 대상이 없었음) — 오너가 수동으로 위젯을 배치한 뒤, **기존 위젯에 대해** 이 이벤트 바인딩 툴이 통하는지는 별도로 재확인할 가치가 있다(이월).
+4. `언리얼_MCP_실전노하우.md` §19 갱신 권고(Director 확인 후 편입): "`BlueprintTools.create`는 `UserDefinedStruct` 같은 non-Blueprintable 클래스에 쓰면 모달로 전체 브릿지가 마비되지만(함정㉓), `UserWidget`처럼 정상 Blueprintable 부모클래스는 안전하게 동작하고 실제 `WidgetBlueprint`를 만든다. 단, 만들어진 뒤 `WidgetTree`/`RootWidget` 프로퍼티는 `ObjectTools`의 get/list/set_properties로 접근 불가(read/write 모두 막힘) — 서브오브젝트 경로(`:PropName`)로 오브젝트 존재 확인까지는 가능하나 그 이상 진입 못 함."
+5. 생성된 애셋: `/Game/UI/Components/WBP_Probe`(저장 완료, dirty 아님) — 후속 검증이나 재조사에 재사용 가능하도록 삭제하지 않고 남겨뒀다.
