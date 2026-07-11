@@ -105,9 +105,9 @@ D:\unreal\                     ← 워크스페이스 루트
 
 ---
 
-## 🌱 병행 기획 구상 — Project-FB (별개 아이디어, projectTP 무관)
+## 🌱 별개 프로젝트 — Project-FB (분리됨 2026-07-12)
 
-- [[ProjectFB_판타지스쿼드점령전|Project-FB]] — 3인칭 4:4 판타지 스쿼드 PvP(Fantasy Battle). **출시 모드 '마검전' 룰 v1.0 동결(2026-07-12)** — 구상 단계, 개발 착수 아님. 설계 과정 원문: [[ProjectFB_설계로그_마검전]].
+- **Project-FB**(3인칭 4:4 판타지 스쿼드 PvP, 마검전 룰 v1.0) — 최초 구상은 이 저장소에서 시작(2026-07-11)했으나 별도 저장소로 분리: https://github.com/LeeJuls/ProjectFB (private). 문서는 이전되어 이 볼트에는 더 이상 없음.
 
 ---
 
