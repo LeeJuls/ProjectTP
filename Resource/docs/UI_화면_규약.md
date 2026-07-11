@@ -24,7 +24,7 @@ updated: 2026-07-11
 
 알파_개발계획.md §2.6①② 본문은 이 문서로 위임하는 짧은 참조로 교체됨(구버전 상세 삭제).
 
-> **범위 주의**: 위 표는 **문서(설계) 레벨 위임**만을 뜻한다. **물리 폴더**(`Resource/ui/`·`/Game/UI/`)는 아직 방향성1 이름(`SCR_*`) 그대로이며 **미마이그레이션**(§C-3 게이트 대기) — 문서가 갱신됐다고 폴더도 갱신된 것으로 오해하지 말 것.
+> **범위 주의**: 위 표는 **문서(설계) 레벨 위임**을 뜻한다. **물리 폴더**(`Resource/ui/`·`/Game/UI/`)는 **마이그레이션 실행 완료**(2026-07-11 — system-ui-designer·qa-critic 계획 검토 후 Director 실행, git 14줄 변경(D4+A10)+UE `Screens`→`Frontend/Battle/Common` 재조회 검증). `WBP_Probe`(A0① 테스트 애셋)는 이때 함께 삭제, `ST_UI`는 사전 물리 백업 후 무변조 확인.
 
 > **경계**: 이 문서는 화면 **인벤토리·전환·제작 파이프라인·폴더·문자열·데이터 흐름**을 규정한다. `WBP_BattleHUD`의 **내부 전투 UI**(스킬 메뉴→타겟→확정, ATB, 데미지 부동숫자, 턴 순서)는 **별도 전투 HUD 명세**(system-ui, 예정 — [[알파_개발계획]] §4.5 system-ui #1)에서 다룬다. 밸런스 수치는 balance-designer, 비주얼 룩은 hd2d-art-director 소관.
 
@@ -205,7 +205,7 @@ Resource/ui/
 └─ assets/                       추출 PNG(9-slice·아이콘) — UE 임포트 원본
 ```
 - 각 화면 폴더 = `design_v<N>.html`(버전 보존) + `approved.html`(승인 스냅샷) + `spec.md`(전사 기준).
-- 폴더는 **해당 화면 디자인 착수 시 생성**(그전엔 `.gitkeep`).
+- **골격은 skeleton-first(정정 2026-07-11)**: 8개 화면 폴더 전부 마이그레이션 시점에 `.gitkeep`으로 이미 선배치(이 프로젝트 기존 관행 — 방향성1 때도 동일 패턴). 화면 디자인 착수 시 `.gitkeep` 삭제하고 `design_v1.html`부터 채운다.
 
 ### C-2. `/Game/UI/` (UE Content · 미러)
 
@@ -214,22 +214,28 @@ Resource/ui/
 ├─ Frontend/    WBP_Title · WBP_Lobby · WBP_Options
 ├─ Battle/      WBP_Draft · WBP_BattleHUD · WBP_Result
 ├─ Common/      WBP_Transition · WBP_Matching
-├─ Components/  WBP_CharacterCard · WBP_TimerBar · WBP_PopupFrame · …  (기존 WBP_Probe = A0 테스트 애셋, 삭제/유지 무해)
+├─ Components/  WBP_CharacterCard · WBP_TimerBar · WBP_PopupFrame · …  (구 WBP_Probe = A0 테스트 애셋, 마이그레이션 시 삭제 완료 — referencer 0 확인 후)
 └─ Textures/    T_UI_*
 ```
 - 명명: `WBP_<이름>` / 텍스처 `T_UI_<이름>`.
 - 기존 `/Game/UI/Screens`(빈 폴더) → `Frontend/Battle/Common`으로 대체(폐기).
 
-### C-3. 마이그레이션 지시 (실행은 후속 게이트 — 이 문서는 설계까지)
+### C-3. 마이그레이션 — ★실행 완료 (2026-07-11)
 
-현재 물리 폴더는 전부 방향성1 화면명(`SCR_*`)이고 **전부 빈 폴더(.gitkeep만)라 이동/삭제 비용 0.** → **재작성 권고**(별칭 유지 안 함 — 두 이름 혼란 방지).
+system-ui-designer(원저자 검토)·qa-critic(안전성 검토, ST_UI 무백업 리스크 지적) 피드백 반영 후 Director 실행. 절차·근거는 `C:\Users\user\.claude\plans\humble-purring-glacier.md`(세션 plan 파일)에 보존.
 
-| 현재 | 조치 |
-|---|---|
-| `Resource/ui/screens/{SCR_Lobby,SCR_Battle,SCR_Result}/` | **삭제** — `screens/` 레이어 폐기 |
-| `Resource/ui/components/WBP_Options/` | **삭제** → `frontend/WBP_Options/`로 재생성(오버레이 재분류) |
-| `Resource/ui/components/`, `assets/` | 유지(components는 §E 부품용으로 계속, assets 그대로) |
-| 신규 | `frontend/`·`battle/`·`common/` 및 8개 화면 폴더 = 각 화면 착수 시 생성 |
+| 현재(구) | 조치 | 결과 |
+|---|---|---|
+| `Resource/ui/screens/{SCR_Lobby,SCR_Battle,SCR_Result}/` | 삭제 | ✅ 완료 |
+| `Resource/ui/components/WBP_Options/` | 삭제 → `frontend/WBP_Options/` 재생성 | ✅ 완료 |
+| `Resource/ui/components/`, `assets/`(기존분) | 유지 | ✅ 무변경 확인 |
+| 신규 8개 화면 폴더(`.gitkeep` skeleton-first) | 생성 | ✅ 완료 |
+| §E 컴포넌트 우선순위 "높음" 2종(`WBP_TimerBar`·`WBP_CharacterCard`) | 신규 선배치(Director 결정 — system-ui 권고 채택) | ✅ 완료 |
+| `/Game/UI/Screens`(UE, 빈 폴더) | 삭제 → `Frontend`·`Battle`·`Common` 생성(`Textures`는 기존 존재분 재사용) | ✅ 완료 |
+| `/Game/UI/Components/WBP_Probe`(A0 테스트 애셋) | referencer 0 확인 후 삭제 | ✅ 완료 |
+| `/Game/UI/ST_UI` | **무변조**(사전 물리 백업 후 미대상 확인) | ✅ 무사 |
+
+**검증**: git `Resource/ui/` 범위 `--untracked-files=all` diff = 정확히 14줄(삭제4+추가10, 사전 열거한 기대치와 100% 일치) / UE `list_folders` 재조회 = `Battle·Common·Components·Frontend·Textures` 5개 정확히 일치 / `find_assets` = `ST_UI` 1건만 잔존.
 | `/Game/UI/Screens`(UE, 빈 폴더) | 폐기 → `Frontend/Battle/Common` 생성 |
 
 > **실행 금지 주의**: 이 문서는 **설계·지시까지**. 실제 폴더 생성/이름변경은 **qa-critic 검증 후 Director가 별도 게이트에서** 진행(task 규칙).
