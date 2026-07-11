@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>projectTP — UI Style Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ─── Base surfaces ─── */
+    --tp-void: #050608;
+    --tp-panel-bg: rgba(9, 11, 16, 0.84);
+    --tp-panel-bg-soft: rgba(9, 11, 16, 0.60);
+    --tp-panel-border: rgba(199, 213, 235, 0.14);
+    --tp-panel-border-strong: rgba(199, 213, 235, 0.30);
+    --tp-panel-glow: rgba(79, 124, 255, 0.16);
+    --tp-hairline: rgba(199, 213, 235, 0.10);
+
+    /* ─── Text ─── */
+    --tp-text: #F4F1E9;
+    --tp-text-muted: rgba(244, 241, 233, 0.56);
+    --tp-text-faint: rgba(244, 241, 233, 0.32);
+
+    /* ─── Accents ─── */
+    --tp-accent: #4F7CFF;
+    --tp-accent-strong: #82A9FF;
+    --tp-accent-soft: rgba(79, 124, 255, 0.16);
+    --tp-gold: #D4A657;
+    --tp-gold-soft: rgba(212, 166, 87, 0.16);
+    --tp-gold-strong: #E8C384;
+
+    /* ─── Status (reserved — BattleHUD 별도 명세에서 재사용) ─── */
+    --tp-hp-a: #8FE06A;
+    --tp-hp-b: #3D9A31;
+    --tp-sp-a: #6FD4FF;
+    --tp-sp-b: #2B7FE0;
+
+    /* ─── Type ─── */
+    --tp-font-display: 'Cinzel', 'Cormorant Garamond', serif;
+    --tp-font-body: 'Jost', -apple-system, 'Segoe UI', sans-serif;
+
+    /* ─── Geometry ─── */
+    --tp-radius-panel: 10px;
+    --tp-radius-control: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--tp-void);
+    color: var(--tp-text);
+    font-family: var(--tp-font-body);
+  }
+  body {
+    padding: 64px 48px 120px;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(79,124,255,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(212,166,87,0.06), transparent 60%);
+  }
+
+  .kicker {
+    font-family: var(--tp-font-body);
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--tp-accent-strong);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: var(--tp-font-display);
+    font-weight: 600;
+    font-size: 40px;
+    letter-spacing: 0.03em;
+    margin: 0 0 6px;
+  }
+  .sub {
+    color: var(--tp-text-muted);
+    font-size: 14px;
+    font-weight: 300;
+    max-width: 640px;
+    line-height: 1.6;
+    margin: 0 0 56px;
+  }
+
+  section { margin-bottom: 64px; }
+  .section-title {
+    font-family: var(--tp-font-display);
+    font-size: 20px;
+    letter-spacing: 0.06em;
+    margin: 0 0 4px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title .diamond { width: 7px; height: 7px; background: var(--tp-gold); transform: rotate(45deg); flex: none; }
+  .section-desc { color: var(--tp-text-faint); font-size: 13px; margin: 0 0 24px; font-weight: 300; }
+
+  /* ── Color swatches ── */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+  .swatch {
+    border-radius: var(--tp-radius-control);
+    overflow: hidden;
+    border: 1px solid var(--tp-hairline);
+    background: var(--tp-panel-bg-soft);
+  }
+  .swatch-color { height: 64px; }
+  .swatch-label { padding: 10px 12px; font-size: 11px; }
+  .swatch-name { font-weight: 500; letter-spacing: 0.02em; }
+  .swatch-value { color: var(--tp-text-faint); font-family: monospace; font-size: 10px; margin-top: 2px; }
+
+  /* ── Typography scale ── */
+  .type-row { display: flex; align-items: baseline; gap: 28px; padding: 18px 0; border-bottom: 1px solid var(--tp-hairline); }
+  .type-row:last-child { border-bottom: none; }
+  .type-tag { width: 130px; flex: none; font-size: 11px; color: var(--tp-text-faint); font-family: monospace; letter-spacing: 0.02em; }
+  .t-display-l { font-family: var(--tp-font-display); font-weight: 600; font-size: 40px; letter-spacing: 0.03em; }
+  .t-display-m { font-family: var(--tp-font-display); font-weight: 600; font-size: 26px; letter-spacing: 0.04em; }
+  .t-body { font-family: var(--tp-font-body); font-weight: 400; font-size: 16px; }
+  .t-label { font-family: var(--tp-font-body); font-weight: 500; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tp-text-muted); }
+  .t-numeral { font-family: var(--tp-font-body); font-weight: 600; font-size: 28px; font-variant-numeric: tabular-nums; }
+
+  /* ── Panel treatment ── */
+  .panel-demo {
+    position: relative;
+    width: 340px;
+    padding: 28px;
+    background: var(--tp-panel-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--tp-panel-border);
+    border-radius: var(--tp-radius-panel);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 30px 60px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .panel-demo::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(150deg, var(--tp-panel-border-strong), transparent 40%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+  .panel-demo h3 { font-family: var(--tp-font-display); font-size: 18px; margin: 0 0 8px; font-weight: 600; }
+  .panel-demo p { color: var(--tp-text-muted); font-size: 13px; line-height: 1.6; margin: 0; font-weight: 300; }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    font-family: var(--tp-font-body); font-size: 13px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase;
+    padding: 13px 28px; border-radius: var(--tp-radius-control); cursor: pointer;
+    border: 1px solid transparent; transition: all 0.18s ease;
+  }
+  .btn-primary { background: var(--tp-accent); color: #08101F; border-color: var(--tp-accent); box-shadow: 0 0 0 1px rgba(79,124,255,0.3), 0 8px 24px -8px rgba(79,124,255,0.5); }
+  .btn-primary:hover { background: var(--tp-accent-strong); border-color: var(--tp-accent-strong); }
+  .btn-ghost { background: transparent; color: var(--tp-text-muted); border-color: var(--tp-panel-border-strong); }
+  .btn-ghost:hover { color: var(--tp-text); border-color: var(--tp-text-muted); background: rgba(255,255,255,0.03); }
+  .btn-gold { background: var(--tp-gold); color: #241705; border-color: var(--tp-gold); }
+  .btn-gold:hover { background: var(--tp-gold-strong); }
+  .btn:disabled, .btn.is-disabled { opacity: 0.32; cursor: not-allowed; }
+
+  /* ── Pills (language selector pattern) ── */
+  .pill-group { display: inline-flex; gap: 8px; padding: 6px; background: var(--tp-panel-bg-soft); border: 1px solid var(--tp-hairline); border-radius: 999px; }
+  .pill { padding: 9px 20px; border-radius: 999px; font-size: 13px; font-weight: 500; letter-spacing: 0.03em; color: var(--tp-text-faint); cursor: pointer; transition: all 0.18s ease; }
+  .pill.active { background: var(--tp-accent); color: #08101F; }
+  .pill:not(.active):hover { color: var(--tp-text); background: rgba(255,255,255,0.04); }
+
+  /* ── Diamond motif ── */
+  .motif-row { display: flex; align-items: center; gap: 18px; }
+  .diamond-marker { width: 10px; height: 10px; background: var(--tp-gold); transform: rotate(45deg); }
+  .diamond-marker.accent { background: var(--tp-accent); }
+  .diamond-marker.outline { background: transparent; border: 1.5px solid var(--tp-text-faint); }
+  .ornament-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--tp-panel-border-strong) 20%, var(--tp-panel-border-strong) 80%, transparent); }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--tp-hairline); color: var(--tp-text-faint); font-size: 11px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+  <p class="kicker">projectTP · UI Style Foundation</p>
+  <h1>다크 글라스 · 판타지 택티컬</h1>
+  <p class="sub">
+    레퍼런스: 옥토패스 트래블러 시리즈 전투 UI. 반투명 다크 패널 + 다이아몬드 모티프 + 사파이어 블루 액센트.
+    HD-2D 픽셀 아트가 화면의 주인공이 되도록 UI 크롬은 최대한 뒤로 물러난다 — 낮은 채도, 절제된 장식, 명료한 위계.
+    이 팔레트/타이포는 모든 화면(Frontend·Battle·Common·Components)의 공통 기반이다.
+  </p>
+
+  <section>
+    <h2 class="section-title"><span class="diamond"></span>색상 — Surfaces &amp; Accents</h2>
+    <p class="section-desc">패널은 완전한 검정이 아니라 미세한 블루 언더톤의 다크 네이비 — 차갑고 고급스러운 톤</p>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background:var(--tp-void)"></div><div class="swatch-label"><div class="swatch-name">Void</div><div class="swatch-value">#050608</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#0b0e14"></div><div class="swatch-label"><div class="swatch-name">Panel BG (84%)</div><div class="swatch-value">rgba(9,11,16,.84)</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--tp-accent)"></div><div class="swatch-label"><div class="swatch-name">Accent — Sapphire</div><div class="swatch-value">#4F7CFF</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--tp-accent-strong)"></div><div class="swatch-label"><div class="swatch-name">Accent Strong</div><div class="swatch-value">#82A9FF</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--tp-gold)"></div><div class="swatch-label"><div class="swatch-name">Gold</div><div class="swatch-value">#D4A657</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--tp-text)"></div><div class="swatch-label"><div class="swatch-name">Text</div><div class="swatch-value">#F4F1E9</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:linear-gradient(90deg,var(--tp-hp-a),var(--tp-hp-b))"></div><div class="swatch-label"><div class="swatch-name">HP Gauge (예약)</div><div class="swatch-value">전투HUD 명세용</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background:linear-gradient(90deg,var(--tp-sp-a),var(--tp-sp-b))"></div><div class="swatch-label"><div class="swatch-name">SP Gauge (예약)</div><div class="swatch-value">전투HUD 명세용</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="diamond"></span>타이포그래피</h2>
+    <p class="section-desc">제목 = Cinzel(로만 대문자 세리프, 절제된 격식) · 본문/UI = Jost(기하학적 산세리프, 명료함) — 둘 다 Inter/Roboto 계열 회피</p>
+    <div class="type-row"><div class="type-tag">display / L</div><div class="t-display-l">OPTIONS</div></div>
+    <div class="type-row"><div class="type-tag">display / M</div><div class="t-display-m">Fluid Stance</div></div>
+    <div class="type-row"><div class="type-tag">label</div><div class="t-label">Language</div></div>
+    <div class="type-row"><div class="type-tag">numeral</div><div class="t-numeral">2,602</div></div>
+    <div class="type-row"><div class="type-tag">body</div><div class="t-body">본문 텍스트는 Jost Regular, 16px 기준 — 가독성 우선.</div></div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="diamond"></span>패널 — Dark Glass</h2>
+    <p class="section-desc">backdrop-filter blur + 미세 그라디언트 보더 + 다층 그림자로 "유리판" 깊이감</p>
+    <div class="panel-demo">
+      <h3>패널 예시</h3>
+      <p>반투명 다크 배경(84%) 위에 미세한 상단-좌측 하이라이트 보더. UMG에서는 Retainer + Material(Translucent, backdrop blur 근사)로 재현.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="diamond"></span>버튼 &amp; 인터랙션</h2>
+    <div class="btn-row">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-gold">Gold (강조)</button>
+      <button class="btn btn-ghost">Ghost / Close</button>
+      <button class="btn btn-ghost is-disabled">Disabled</button>
+    </div>
+    <div style="height:24px"></div>
+    <div class="pill-group">
+      <div class="pill active">한국어</div>
+      <div class="pill">日本語</div>
+      <div class="pill">English</div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="diamond"></span>다이아몬드 모티프</h2>
+    <p class="section-desc">턴 순서·BP 표시 등 옥토패스 특유의 회전 사각형 액센트 — 장식선/구분선/불릿에 절제해 사용</p>
+    <div class="motif-row">
+      <div class="diamond-marker"></div>
+      <div class="ornament-line"></div>
+      <div class="diamond-marker accent"></div>
+      <div class="ornament-line"></div>
+      <div class="diamond-marker outline"></div>
+    </div>
+  </section>
+
+  <footer>projectTP · UI_화면_규약.md §B 파이프라인 1단계(디자인) 산출물 · v1 · 2026-07-11</footer>
+
+</body>
+</html>

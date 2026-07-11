@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>WBP_Options — design_v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* style_guide.html과 동일 토큰(v1 — 두 파일 값 동기화 유지) */
+    --tp-void: #050608;
+    --tp-panel-bg: rgba(9, 11, 16, 0.84);
+    --tp-panel-border: rgba(199, 213, 235, 0.14);
+    --tp-panel-border-strong: rgba(199, 213, 235, 0.30);
+    --tp-hairline: rgba(199, 213, 235, 0.10);
+    --tp-text: #F4F1E9;
+    --tp-text-muted: rgba(244, 241, 233, 0.56);
+    --tp-text-faint: rgba(244, 241, 233, 0.32);
+    --tp-accent: #4F7CFF;
+    --tp-accent-strong: #82A9FF;
+    --tp-gold: #D4A657;
+    --tp-gold-strong: #E8C384;
+    --tp-font-display: 'Cinzel', 'Cormorant Garamond', serif;
+    --tp-font-body: 'Jost', -apple-system, 'Segoe UI', sans-serif;
+    --tp-radius-panel: 10px;
+    --tp-radius-control: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: var(--tp-font-body); }
+
+  /* ══ 배경: 로비(길드 하우스) 컨텍스트 목업 — 실제 3D 무대 대신 무드 플레이스홀더 ══ */
+  .stage {
+    position: relative;
+    width: 100%; height: 100vh; min-height: 720px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 1200px 700px at 50% 15%, #2a2318 0%, transparent 55%),
+      linear-gradient(180deg, #14100a 0%, #0a0806 45%, #050403 100%);
+  }
+  .stage::before { /* 은은한 홀 조명 광원 느낌 */
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle 500px at 50% 8%, rgba(255,200,120,0.14), transparent 70%);
+    pointer-events: none;
+  }
+  .dust { position: absolute; inset: 0; pointer-events: none; opacity: 0.5; }
+  .dust span {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(255, 220, 160, 0.5); filter: blur(0.5px);
+    animation: float 9s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); opacity: .2; } 50% { transform: translateY(-24px); opacity: .7; } }
+
+  .stage-label {
+    position: absolute; top: 28px; left: 36px;
+    font-family: var(--tp-font-body); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: rgba(244,241,233,0.28);
+  }
+
+  /* ══ Scrim: 팝업 뒤 어둡게 ══ */
+  .scrim {
+    position: absolute; inset: 0;
+    background: rgba(3, 4, 6, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    animation: scrimIn 0.4s ease both;
+  }
+  @keyframes scrimIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ══ Popup Panel ══ */
+  .popup {
+    position: relative;
+    width: 480px;
+    background: var(--tp-panel-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--tp-panel-border);
+    border-radius: var(--tp-radius-panel);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 40px 80px -24px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05);
+    padding: 36px 40px 32px;
+    animation: popupIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+  @keyframes popupIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .popup::before { /* 그라디언트 하이라이트 보더 (좌상단 강조) */
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(150deg, var(--tp-panel-border-strong), transparent 45%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ── Header ── */
+  .popup-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+  .title-block { display: flex; align-items: center; gap: 12px; }
+  .title-diamond { width: 8px; height: 8px; background: var(--tp-gold); transform: rotate(45deg); flex: none; }
+  h1.popup-title {
+    font-family: var(--tp-font-display); font-weight: 600; font-size: 26px; letter-spacing: 0.10em;
+    margin: 0; color: var(--tp-text);
+    /* data-key: UI_OPTIONS_TITLE */
+  }
+
+  .close-btn {
+    width: 34px; height: 34px; flex: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--tp-panel-border-strong); border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    transition: all 0.16s ease;
+    /* data-key: UI_OPTIONS_CLOSE (아이콘 버튼) */
+  }
+  .close-btn:hover { border-color: var(--tp-text-muted); background: rgba(255,255,255,0.06); }
+  .close-btn svg { width: 13px; height: 13px; stroke: var(--tp-text-muted); }
+  .close-btn:hover svg { stroke: var(--tp-text); }
+
+  .ornament-line {
+    height: 1px; margin: 22px 0 26px;
+    background: linear-gradient(90deg, var(--tp-panel-border-strong) 0%, transparent 60%);
+  }
+
+  /* ── Language Section ── */
+  .field-label {
+    font-family: var(--tp-font-body); font-weight: 500; font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--tp-text-muted); margin: 0 0 16px; display: flex; align-items: center; gap: 10px;
+    /* data-key: UI_OPTIONS_LANGUAGE */
+  }
+  .field-label .bullet { width: 5px; height: 5px; background: var(--tp-accent); transform: rotate(45deg); flex: none; }
+
+  .lang-group { display: flex; gap: 10px; }
+  .lang-pill {
+    flex: 1; text-align: center; cursor: pointer; user-select: none;
+    padding: 14px 8px; border-radius: var(--tp-radius-control);
+    border: 1px solid var(--tp-hairline);
+    background: rgba(255,255,255,0.015);
+    transition: all 0.16s ease;
+  }
+  .lang-pill .lang-native { font-family: var(--tp-font-body); font-size: 15px; font-weight: 500; color: var(--tp-text-muted); transition: color 0.16s ease; }
+  .lang-pill .lang-code { font-family: var(--tp-font-body); font-size: 9px; letter-spacing: 0.18em; color: var(--tp-text-faint); margin-top: 3px; text-transform: uppercase; }
+
+  .lang-pill:hover { border-color: var(--tp-panel-border-strong); background: rgba(255,255,255,0.03); }
+  .lang-pill.active {
+    border-color: var(--tp-accent);
+    background: linear-gradient(180deg, rgba(79,124,255,0.16), rgba(79,124,255,0.06));
+    box-shadow: 0 0 0 1px rgba(79,124,255,0.35), 0 8px 20px -10px rgba(79,124,255,0.5);
+  }
+  .lang-pill.active .lang-native { color: var(--tp-text); }
+  .lang-pill.active .lang-code { color: var(--tp-accent-strong); }
+  /* data-key 3종: UI_OPTIONS_LANG_KO / UI_OPTIONS_LANG_JA / UI_OPTIONS_LANG_EN */
+
+  /* ── Footer ── */
+  .popup-footer { margin-top: 30px; display: flex; align-items: center; gap: 16px; }
+  .btn-close-full {
+    flex: 1; text-align: center; cursor: pointer;
+    padding: 14px; border-radius: var(--tp-radius-control);
+    font-family: var(--tp-font-body); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--tp-text-muted);
+    border: 1px solid var(--tp-panel-border-strong);
+    background: transparent;
+    transition: all 0.16s ease;
+    /* data-key: UI_OPTIONS_CLOSE */
+  }
+  .btn-close-full:hover { color: var(--tp-text); background: rgba(255,255,255,0.04); border-color: var(--tp-text-muted); }
+
+  .version-tag {
+    position: absolute; bottom: -26px; right: 2px;
+    font-family: var(--tp-font-body); font-size: 10px; letter-spacing: 0.08em;
+    color: var(--tp-text-faint);
+  }
+
+  /* ── annotation callouts (스펙 참고용, 실제 게임엔 미노출) ── */
+  .spec-note {
+    position: fixed; left: 24px; bottom: 24px;
+    max-width: 340px; padding: 14px 16px;
+    background: rgba(9,11,16,0.9); border: 1px solid var(--tp-panel-border);
+    border-radius: 8px; font-size: 11px; color: var(--tp-text-faint); line-height: 1.6;
+    font-family: var(--tp-font-body); font-weight: 300;
+  }
+  .spec-note b { color: var(--tp-accent-strong); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="stage-label">LOBBY — map_frontend (배경 무드 목업, 실제 3D 씬 아님)</div>
+  <div class="dust">
+    <span style="left:12%; top:70%; animation-delay:0s;"></span>
+    <span style="left:28%; top:40%; animation-delay:1.4s;"></span>
+    <span style="left:68%; top:60%; animation-delay:2.8s;"></span>
+    <span style="left:82%; top:30%; animation-delay:0.7s;"></span>
+    <span style="left:45%; top:80%; animation-delay:3.5s;"></span>
+  </div>
+
+  <div class="scrim">
+    <div class="popup">
+      <div class="popup-header">
+        <div class="title-block">
+          <div class="title-diamond"></div>
+          <h1 class="popup-title">OPTIONS</h1>
+        </div>
+        <div class="close-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+      </div>
+
+      <div class="ornament-line"></div>
+
+      <div class="field-label"><span class="bullet"></span>LANGUAGE</div>
+      <div class="lang-group">
+        <div class="lang-pill active">
+          <div class="lang-native">한국어</div>
+          <div class="lang-code">KO</div>
+        </div>
+        <div class="lang-pill">
+          <div class="lang-native">日本語</div>
+          <div class="lang-code">JA</div>
+        </div>
+        <div class="lang-pill">
+          <div class="lang-native">English</div>
+          <div class="lang-code">EN</div>
+        </div>
+      </div>
+
+      <div class="popup-footer">
+        <div class="btn-close-full">CLOSE</div>
+      </div>
+
+      <div class="version-tag">v0.1.0-alpha</div>
+    </div>
+  </div>
+</div>
+
+<div class="spec-note">
+  <b>design_v1</b> · WBP_Options · frontend/<br>
+  토큰: <b>style_guide.html</b>과 동기화(다크 글라스 + 사파이어 액센트 + 다이아몬드 모티프).<br>
+  문자열 6종 매핑 완료(HTML 주석) — UI_OPTIONS_TITLE/LANGUAGE/LANG_KO·JA·EN/CLOSE.
+</div>
+
+</body>
+</html>
