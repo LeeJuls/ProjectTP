@@ -29,4 +29,4 @@ unreal/
 2. `projectTP/_Launch_MCP.bat` 실행 → 에디터 + Unreal MCP 서버(:8000)
 
 ## ⚠ 라이선스
-`heroes99`는 유료 에셋(상업 사용·수정 허용 / **재판매·재배포·NFT·AI학습 금지**). 원본 팩(`Resource/_RawAssets/`, `*.zip`)은 git에서 제외됨. 이 저장소는 **PRIVATE** 유지.
+`heroes99`는 유료 에셋(상업 사용·수정 허용 / **재판매·재배포·NFT·AI학습 금지**). 원본 팩(`Resource/_RawAssets/`, `*.zip`)은 git에서 제외됨.
