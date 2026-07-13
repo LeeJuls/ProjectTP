@@ -131,7 +131,7 @@ updated: 2026-07-12
 
 | 상태 | 진입 | 타이머 | 표시 카드 | 주 입력 | 이탈 | GameInstance 기록 |
 |---|---|---|---|---|---|---|
-| **Roll** | Draft 루트 진입(매칭 직후) — **★드래프트 세션 필드 전체 리셋**(아래 참조) | 5초 | 내 6장(탱2딜2힐2 or 조성규칙) | 리롤(1회·골드) | 5초 경과 또는 리롤 확정 | `RolledUnitIds`, `RerollUsed`, `Gold` |
+| **Roll** | Draft 루트 진입(매칭 직후) — **★드래프트 세션 필드 전체 리셋**(아래 참조) | 5초 | 내 6장(**풀랜덤 — B안 오너 확정 2026-07-13**) | 리롤(1회·골드) | 5초 경과 또는 리롤 확정 | `RolledUnitIds`, `RerollUsed`, `Gold` |
 | **Pick** | Roll 종료 | 30초 | 내 6장(선택 가능) | 5장 선택 | 5픽 완료 or 30초(자동 랜덤) | `PickedUnitIds`, `OpponentPickedUnitIds`(AI/서버) |
 | **Ban** | **양측 Pick 잠금 후** | 30초 | 상대 5장 | 1장 밴 | 1밴 완료 or 30초(자동 랜덤) → **내 밴 제출 후 상대 밴 대기**(§I E9) → 양쪽 확정 시 즉시 전환 | `BannedUnitId`, `OpponentBannedUnitId`(AI/서버), `FinalPartyUnitIds` |
 
