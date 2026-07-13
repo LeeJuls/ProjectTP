@@ -4,7 +4,7 @@ project: projectTP
 feature: 전투완성
 agent: qa-critic
 updated: 2026-07-08
-status: v1 적대적 검토 완료 — Director 게이트 대기
+status: v1 적대적 검토 완료 — 게이트 통과(조건부 GO). H1~H3 확정 반영 확인([[plan]] F0①, 2026-07-13), H4~H5 문서 정정 완료([[스탯_전투공식_v1]] §5-5·§5-1). A1 F0~F3 실행 중.
 source: 스탯_전투공식_v1.md + data/ CSV 6종 (UE/MCP 미접근, 문서·CSV 논리검증)
 ---
 

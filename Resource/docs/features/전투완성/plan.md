@@ -82,7 +82,7 @@ updated: 2026-07-14
 ```
 (Id 자체는 `_tables.csv`가 쓰는 도메인9 메타 스킴이 아니라 신규 motions 도메인6 스킴 예시 — 실제 등록 시 balance-designer가 `_tables.csv`의 기존 Id 발급 규칙과 맞춰 정정.)
 
-⑤ **§5-5 막기 잔재 문구 정정**: [[스탯_전투공식_v1]] §5-5 "막기 터틀 = 자기만 보호(적1)" 문구가 H1 확정(막기=지속형, 적1 한정 아님) 이전 표현 잔재 — "자기 자신에게 지속형 피해감소, 다음 자기 턴 시작까지 유지"로 정정 필요(balance-designer 소관, 본 문서는 지적만).
+⑤ **§5-5 막기 잔재 문구 정정**: [[스탯_전투공식_v1]] §5-5 "막기 터틀 = 자기만 보호(적1)" 문구가 H1 확정(막기=지속형, 적1 한정 아님) 이전 표현 잔재 — "자기 자신에게 지속형 피해감소, 다음 자기 턴 시작까지 유지"로 정정 필요(balance-designer 소관, 본 문서는 지적만). **(완료 — [[광폭화_재검증]] §8-4에서 balance-designer가 2026-07-13 직접 편집 반영 확인. [[스탯_전투공식_v1]] §5-5 현재 정정판 상태)**
 
 ⑥ **DYING/BLOCK 정지 메커니즘(신규 치명, art-pipeline 소관)**: 셰이더 프레임 수식이 `floor((Time−TimeOffset)×8) % FrameCount`(모듈러 순환)라 RowIndex/FrameCount 세팅만으로는 "마지막 프레임 고정"이 불가능(시체가 DYING 5프레임을 계속 순환 재생 = 꿈틀거림). **채택안(b)**: 마스터 머티리얼(`M_Sprite_Flipbook_Lit` 계열)에 `bFreeze`(또는 `FreezeFrame`) 파라미터 신설 — true면 UV 계산이 `Time`을 쓰지 않고 고정 프레임(마지막 유효 프레임 = FrameCount−1)을 샘플링. F5(DYING)·F7(BLOCK 지속)가 공통 소비. 기존 8개 MI(idle/run/attack 재생용)는 기본값 `bFreeze=false`로 무회귀. **폴백(c)**: art-pipeline 일정상 불가 시 알파 한정으로 "DYING/BLOCK도 그냥 순환 루프 허용"(품질 타협, Director 재확인 필요).
 
@@ -429,10 +429,10 @@ SetScalar(RowIndex   = 0.0)                    무변경(항상 IDLE 복귀)
 - **유지시간 재계산 검증**: ATK1(FrameCount6) → 6/8−0.05=**0.70**(기존값과 완전 동일, 무회귀 확인 포인트). CASTING1/CASTING2/BLOCK(FrameCount5) → 5/8−0.05=**0.575**(기존 0.70 고정 대비 리와인드 팝 75ms 제거).
 - **DT 조회 실패 폴백**: `GetDataTableRow` 반환 `found=false`면 RowIndex=5·FrameCount=6(기존 ATK1 리터럴)로 폴백 + 로그 1줄. `FrameCount≥1` 가드(0 나눗셈/역주행 방지).
 - **PlayAttack 시그니처**: 현재 파라미터 없는 Custom Event. `SkillId`를 받아야 하므로 F4와 동일 이유로 파라미터 확장 제약(함정⑰)에 걸림 → **`WalkForward`의 `WalkTargetLoc` 선례**를 따라 멤버 변수 `PendingSkillId`를 호출 전에 세팅 후 `PlayAttack` 내부에서 읽는 패턴 채택.
-- **무접촉 확인**: `Walk(Row2)`/`idle(Row0)` 관련 `SetScalar` 호출은 `WalkForward`/`WalkBack`(다른 함수, [[걸어나오기연출]] 소관)에 있어 이 교체 작업과 물리적으로 분리 — 회귀 없음.
+- **무접촉 확인**: `Walk(Row2)`/`idle(Row0)` 관련 `SetScalar` 호출은 `WalkForward`/`WalkBack`(다른 함수, [[../걸어나오기연출/청사진|걸어나오기연출]] 소관)에 있어 이 교체 작업과 물리적으로 분리 — 회귀 없음.
 
 #### 6-2. 회귀 확인 범위 (카메라·걸음 기배선)
-이 지점은 과거 실측으로 2회 배치 오류가 났던 자리([[카메라액션]] V3/VF 리와인드 — OTS 컷 블록이 WalkForward보다 먼저 있었던 버그, 게이트 위치 재배치). F6은 `PlayAttack` **내부 값만** 바꾸고 호출 위치는 그대로라 구조적 회귀 위험은 낮지만, 아래 축을 반드시 재확인:
+이 지점은 과거 실측으로 2회 배치 오류가 났던 자리([[../카메라액션/청사진|카메라액션]] V3/VF 리와인드 — OTS 컷 블록이 WalkForward보다 먼저 있었던 버그, 게이트 위치 재배치). F6은 `PlayAttack` **내부 값만** 바꾸고 호출 위치는 그대로라 구조적 회귀 위험은 낮지만, 아래 축을 반드시 재확인:
 - `CamCut` 로그가 `WalkArrive` 이후에 발생(순서 불변, 실측 델타 +0.168s 기준).
 - `Align`(컷 요/lean 정렬)이 `PlayAttack` 직전에 실행(불변).
 - 카메라 토글 OFF 상태에서도 `CamCut` 자체는 발생하되 `Align` 컷 블록만 스킵(불변, VF_토글버튼 사양).
@@ -697,13 +697,13 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 
 ## 산출물·문서·커밋
 - 본 세션 산출물: `docs/features/전투완성/plan.md`(본 문서) · `data/motions.csv`(17행, 9컬럼, 도메인6).
-- `_tables.csv`는 **미변경**(F0④ 등록은 오너 승인 후 별도 실행).
+- `_tables.csv`는 **F0④ motions 행 등록 완료**(라이브 CSV 실측 확인 — `90001100,entity_motions,motions,개체,1,연출,,모션행 참조...` 9행째 존재, 2026-07-14 정리 세션 재확인).
 - 기능폴더 `docs/features/전투완성/`(청사진·plan·raw) 계속 사용. 커밋 `[C] docs(전투완성): F0 plan.md+motions.csv 초안` 형태로 1건(push는 오너 확인). 신규 MCP 노하우 발견 시 `언리얼_MCP_실전노하우.md`에 추가(예: F2 파일럿에서 `#id_txt`→`IdTxt` 매핑 실증 결과, DataTable `set_entry`류 dirty 버그 유무).
 
 ## 알려진 제약·TODO (본 문서 작성 시점)
-1. **`#id_txt` → `IdTxt` 필드 매핑 미검증** — F2 파일럿에서 최초 확인 필요(값이 빈 문자열로 들어오면 대안 컬럼명 재시도 필요, F2 §2-3 참고).
-2. **JUMP/HURT/DASH/ROLL의 EndBehavior=REVERT_IDLE은 본 문서의 기본값 판단**(v3 지시문에 명시적 언급 없음) — 현재 미사용 행(HURT 제외)이라 실질 영향 없으나 이견 있으면 F2 실행 전 정정.
-3. **`_tables.csv` motions 등록은 미실행** — 오너 승인 후 balance-designer 또는 gameplay-engineer가 실제 Id 발급 규칙과 대조해 등록.
-4. **F4 로그 `dmg` 부호 규약(피해=양수/회복=음수)은 본 문서 제안** — F0 또는 F4 착수 전 1줄 확정 필요.
-5. F1(광폭화 재검증) 결과에 따라 F8 공식의 정확한 계수(현재 +5%/턴 가정)가 조정될 수 있음 — F1 게이트 통과 시 본 문서 F8 절 갱신 필요.
+1. **`#id_txt` → `IdTxt` 필드 매핑 — 해소**(F2 파일럿 검증 완료, TC-F2-04): `#`로 시작하는 컬럼은 프로젝트 주석 규약상 임포터가 스킵 — 애초 매핑 대상이 아니었음이 확인됨(영향 없음, 대안 컬럼명 재시도 불요).
+2. **JUMP/HURT/DASH/ROLL의 EndBehavior=REVERT_IDLE 기본값 — 확정**(F2 완료 시점까지 이견 없어 그대로 반영. `data/motions.csv` 실측: Row4·12·14·16 전부 REVERT_IDLE).
+3. **`_tables.csv` motions 등록 — 완료**(라이브 CSV 실측 확인, 위 "산출물·문서·커밋" 절 참고).
+4. **F4 로그 `dmg` 부호 규약 — 확정**(피해=양수/회복=음수/막기=0, Director 확정 2026-07-13, TC-F0-06 PASS·§4-3 반영).
+5. **F1(광폭화 재검증) 완료**(2026-07-13, [[광폭화_재검증]]) — 30유닛턴 확정, F8 절(본 문서 F8 스테이지)에 이미 최종 공식 반영됨.
 6. **상태이상+AoE 확정([[상태이상_확정]], 2026-07-14) 반영 완료** — `F_SkillsRow.EffectChance` 필드·`F_ActiveStatus` struct는 오너 생성 완료·MCP 확인됨(스키마 준비 완료). **실데이터 반영(`data/skills.csv` 5행 diff 갱신 + `DT_Skills` reimport)은 F4~F7 구현 착수 시점에 gameplay-engineer가 실행**(F2 §2-3 `import_file` 단독호출 절차 재사용). AoE 실 스킬(ENEMY_ALL/ALLY_ALL 발급·AwaitTarget ALL모드)은 A2 이월(위 이월 TC 표 참고) — 계약(SelectedTargets 배열·ResolveTargetPool·HURT 유닛소유)만 지금 F4/F5/F7에 선병합됨.
