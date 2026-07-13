@@ -3,8 +3,8 @@ type: plan
 project: projectTP
 feature: 전투완성
 stage: F
-status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수
-updated: 2026-07-13
+status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]])
+updated: 2026-07-14
 ---
 
 # 📋 전투완성(A1) 세부 plan
@@ -212,6 +212,8 @@ F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 
 **[신규 발견 — F3 이후 구현에 필수 반영] Id 필드는 항상 0, 실제 식별자는 DataTable RowName**: 4개 테이블 전부에서 struct의 `id` 필드가 CSV의 Id 컬럼값과 무관하게 `0`으로 남는다(예: `10102000` 행 조회 시 `"id":0`). 원인: UE DataTable CSV 임포트는 **첫 컬럼을 항상 RowName으로 소비**하고, 그 값을 동명 struct 필드에 별도로 채우지 않는다(엔진 표준 동작, 버그 아님). 실측: `list_rows`가 반환하는 이름(`"10102000"` 등)이 정확히 CSV의 Id 컬럼값과 일치 — **RowName 자체가 진짜 ID다.** → **F3~F8 구현 시 모든 조회는 `.id` 필드가 아니라 RowName(문자열화된 ID)으로 해야 한다**(예: `GetDataTableRowFromName(DT_JobStats, "10102000")`). struct의 `Id`/`IdTxt` 필드는 데이터상 항상 비어있는 게 정상 — 삭제할 필요는 없음(스키마 문서와의 정합·향후 확장 대비 유지).
 
+**[추가 발견 — 2026-07-14, 상태이상+AoE 확정 반영] `F_SkillsRow.effectChance`(Float)·`F_ActiveStatus`(신규 struct: `statusToken:String`/`value:Float`/`remainingTurns:Integer`) 오너 추가 완료, MCP `list_properties`로 실측 확인**(camelCase 노출, 타입 스펙과 완전 일치 — Integer/Float 오타 없음). CSV(`data/skills.csv`)에는 아직 `EffectChance` 컬럼·STUN/ATK_DOWN 데이터가 반영되지 않은 상태(F4~F7 착수 시 반영). 상세 스펙·diff는 [[상태이상_확정]] 참고.
+
 
 
 ---
@@ -228,13 +230,13 @@ F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 
 | ID | 조건 → 기대결과 | 판정방법 | 상태 |
 |---|---|---|---|
-| [F3][TC-F3-01] | 스탯 로드 → A측 스폰 로드값=DT값(전사=90/40/10·마법사=80/42/6), B측 대칭. 슬롯순서는 TC-F0-04 확정안 기준 | 로그 대조 | 대기 |
+| [F3][TC-F3-01] | 스탯 로드 → A측 스폰 로드값=DT값(전사=90/40/10·마법사=80/42/6), B측 대칭. 슬롯순서는 TC-F0-04 확정안 기준 | 로그 대조 | **PASS**(PIE 8기 전부 get_properties 재조회 — A1/A2/B1/B2=90/40/10, A3/A4/B3/B4=80/42/6 정확 일치) |
 | [F3][TC-F3-02] | 등급 로드 범용성 → DT_JobStats 1성/3성 행 스탯 정확(72/32/8·113/50/13). A1 미사용이라 로드로직 스팟만 | 로그/MCP | 이월(F3 스팟만, 등급 실전 검증은 베타) |
-| [F3][TC-F3-03] | 8기 드리프트 0 → JobId 필드추가+컴파일 전후 8기 Location·FaceLeft·Sprite diff=0(S2p 백업 대조) | 트랜스폼 diff | 대기 |
-| [F3][TC-F3-04] | 가시성 캡처 → DefaultCamera 실측 트랜스폼 + ActionCam 근접컷 상태 **둘 다**에서 8기 HP게이지 시인 | 캡처 2종 | 대기 |
-| [F3][TC-F3-05] | 게이지 Z위치 → HP게이지 시작 Z가 UI_AttackButton 기준(≈420대)이라 CamToggle 초기에도 가림 없음 | 트랜스폼/캡처 | 대기 |
-| [F3][TC-F3-06] | 클릭 무간섭 → HP게이지 컴포넌트 BeginPlay 즉시 NoCollision(함정⑧), 기존 Sprite/TurnMarker 클릭 방패 안 됨 | 정적+런타임 | 대기 |
-| [F3][오너] | HP 게이지 8기 머리 위 첫 등장 육안 | 오너 라이브(PIE) | 대기 |
+| [F3][TC-F3-03] | 8기 드리프트 0 → JobId 필드추가+컴파일 전후 8기 Location·FaceLeft·Sprite diff=0(S2p 백업 대조) | 트랜스폼 diff | **PASS**(raw/F3_사전스냅샷.md 대조, max_diff=0.0 — 필드추가 직후·전체 그래프 완성 후·최종 저장 후 3회 재확인 전부 0) |
+| [F3][TC-F3-04] | 가시성 캡처 → DefaultCamera 실측 트랜스폼 + ActionCam 근접컷 상태 **둘 다**에서 8기 HP게이지 시인 | 캡처 2종 | **부분(데이터 검증 PASS, 순수 시각 캡처 제약)** — PIE get_properties로 게이지 월드위치=액터위치+(0,0,250), 회전=(90,84,0)(UI_AttackButton과 동일 컨벤션) 8기 전부 확인. 단 CaptureViewport가 PIE 아닌 에디터 원본을 캡처하는 기존 함정(§7 미해결 이월)+에디터 인스턴스 미러링 시도가 함정③(인라인 구조체 set_properties 비결정성, 10회 재시도도 미수렴)에 막혀 픽셀 단위 시각 확인은 못함. ActionCam 근접컷은 실제 공격 트리거 없이는 미검증 — 이월 |
+| [F3][TC-F3-05] | 게이지 Z위치 → HP게이지 시작 Z가 UI_AttackButton 기준(≈420대)이라 CamToggle 초기에도 가림 없음 | 트랜스폼/캡처 | **명세 대비 변경**(설계와 다르게 구현, 이유 있음) — UI_AttackButton은 지면 근처 별개 UI 평면이라 Z=420이지만, HP게이지는 "머리 위" 요구(TC-F3-오너)를 만족해야 해서 각 유닛 자신의 Location.Z+250(월드 Z≈825~932대)로 계산해 배치. 오너 라이브 확인에서 가림 발견 시 오프셋 조정 필요 |
+| [F3][TC-F3-06] | 클릭 무간섭 → HP게이지 컴포넌트 BeginPlay 즉시 NoCollision(함정⑧), 기존 Sprite/TurnMarker 클릭 방패 안 됨 | 정적+런타임 | **PASS**(BeginPlay 그래프 노드 SetCollisionEnabled(NoCollision) 사용 — 함정⑧ 정석 패턴. PIE 8기 전부 bodyInstance.collisionEnabled="NoCollision" 확인) |
+| [F3][오너] | HP 게이지 8기 머리 위 첫 등장 육안 | 오너 라이브(PIE) | 대기 — Director 안내 예정 |
 
 
 > **오너 라이브 확인 ★필수**: HP 게이지 첫 등장. Director 안내 문구 준비 필요(아래 체크리스트).
@@ -249,26 +251,35 @@ F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 - **시그니처**: `TakeHit(Attacker: BP_BattleSpawnPoint ref, Target: BP_BattleSpawnPoint ref, SkillId: Integer)`.
 - **그래프 종류 주의**: §8 판정 자체(0~9단계)는 전부 동기 연산(분기·수식·HP세팅)이라 **Function Graph**로 가능(파라미터 `add_object_function_param`/`add_function_param` 사용, 함정④ latent 제약과 무관). 단, 마지막에 애니메이션 재생(HURT/DYING 재생 — 기존 패턴은 `RetriggerableDelay`를 쓰는 EventGraph Custom Event)이 필요한데, **Custom Event는 파라미터를 나중에 못 늘림(함정⑰)**. → **`WalkForward` 선례를 그대로 적용**: TakeHit 로직 마지막에 멤버 변수(예: `PendingHitTarget`, `PendingHitDied`)를 세팅한 뒤, 기존 애니 재생용 Custom Event(예: 기존 `TakeHit` 커스텀 이벤트를 `PlayHurtReaction`류로 개명하거나 그대로 유지)를 파라미터 없이 호출 — 이벤트 내부는 그 멤버 변수를 읽어 HURT 또는 DYING(F5)을 재생.
 - 스캐폴드 호출 규약(F0⑧과 동일, F4/F6/F7이 재사용): `Attacker`/`Target`은 항상 `GetTurnQueue()`→Array Get(사본)으로 획득(리터럴 오브젝트 레퍼런스 금지 — 함정⑥ PIE 그림자 액터). `SkillId`는 리터럴 정수(예: 베기=`31001000`).
+- **[신규 2026-07-14, 상태이상+AoE 확정 반영 — [[상태이상_확정]] §11 M1]** `TakeHit`은 여전히 **단일 대상 원자 계약**(Attacker 1·Target 1)으로 고정 — 시그니처 불변. AoE는 이 계약을 바꾸지 않고 상위(Executing)에서 순회한다. Manager 멤버 `SelectedTarget`(단수)은 **`SelectedTargets`(배열)로 전면 교체**(단일 타겟=길이 1, AoE는 A2에서 길이 N — F4 미구현 시점이라 재작업 0). 대상 풀 계산은 신규 `ResolveTargetPool(TargetToken, Caster)→unit[]` 단일 소스 함수를 경유(ENEMY1/ALLY1/SELF 3분기도 **지금부터 이 함수 안에서** 처리 — bEnabled·하이라이트·클릭·커밋 4소비처가 동일 소스를 씀). HURT 리액션 이벤트(`PendingHitTarget`+`RetriggerableDelay`)는 **대상 유닛(BP_BattleSpawnPoint) 소유**로 배치할 것(Manager 단일 인스턴스로 두면 A2 AoE 도입 시 마지막 대상만 idle 복귀하는 함정 — 지금 유닛 소유로 지으면 비용 0, F4 착수 시 최우선 확인).
 
 #### 4-2. §8 판정 스켈레톤 (Branch 구조 — HEAL·DMG_REDUCE 분기 포함, 후속 그래프 수술 회피)
+
+**[2026-07-14 개정 — 상태이상 확정 반영, [[상태이상_확정]] §7·qa m6]** step1에 `EffectChance` 로드, step4에 `OutgoingAtkMult` 인자, step8에 `ActiveStatuses` Clear 가산, step8.5 신설. 아래가 확정판:
+
 ```
 TakeHit(Attacker, Target, SkillId):
  0. Branch: GetSkillCooldown(Attacker, SkillId) > 0
       True  → (조기 return — 방어적 가드, 정상 경로는 F7 버튼 enabled가 이미 필터링)
       False → 계속
  1. GetDataTableRow(DT_Skills, SkillId) → 로컬변수 Kind/MotionRow/Target(스킬의)/PowerRate/
-            EffectType/EffectValue/EffectDurationTurns/CooldownTurns 확보 (found=false면 로그+return)
+            EffectType/EffectValue/EffectDurationTurns/CooldownTurns/EffectChance[신규] 확보
+            (found=false면 로그+return)
  2. Branch: Kind == "HEAL"
       True  → HealAmt = floor(Attacker.Atk × PowerRate)
                Target.Hp = Min(Target.MaxHp, Target.Hp + HealAmt)
-               LogDmg = -HealAmt  → goto 9
+               LogDmg = -HealAmt  → goto 9                              (8.5 미경유 — V2)
       False → 계속
  3. Branch: EffectType == "DMG_REDUCE"
       True  → Target(=Attacker, SELF캐스트)에 버프 부여: bBlockActive=true, BlockValue=EffectValue,
                BlockSetTurn=현재유닛턴(해제 판정용) + F0⑥ Freeze 파라미터 세팅(자세 유지)
-               LogDmg = 0 → goto 9
+               LogDmg = 0 → goto 9                                       (8.5 미경유 — 시전형 롤 없음)
       False → 계속
- 4. Base = floor(Attacker.Atk × PowerRate)
+ 4. Base = floor(Attacker.Atk × GetOutgoingAtkMult(Attacker) × PowerRate)   [신규 인자 삽입]
+    · GetOutgoingAtkMult(U) = Π(1 − Value_i) (U.ActiveStatuses 중 ATK_DOWN 채널, RemainingTurns>0.
+      없으면 1.0)
+    · 단일 floor. **F8 게이트 통과 후 BerserkMult 결선 시 곱 순서 = Atk×OutgoingAtkMult×PowerRate×
+      BerserkMult로 고정**([[상태이상_확정]] §6, M2 확정 — F8 절 갱신 시 이 순서 준수)
  5. Dmg  = Base − Target.Def
  6. Branch: Target.bBlockActive == true → Dmg = Dmg × (1 − Target.BlockValue)
  7. Dmg  = Max(1, floor(Dmg))
@@ -276,12 +287,20 @@ TakeHit(Attacker, Target, SkillId):
     Branch: Target.Hp <= 0
       True  → Target.bAlive=false → PendingHitDied=true (F5가 이 분기에 DYING+생존카운트+
                bBattleOver 세팅을 이어붙임 — F4 시점엔 bAlive 세팅까지만, 승패체크는 F5 담당)
+               **+ Target.ActiveStatuses 전체 Clear(+StatusLog CLEAR) — 가산 확장, 무변경 아님**[신규]
       False → PendingHitDied=false (기존 HURT 재생 경로)
+ 8.5 [신규] EffectType ∈ {STUN, ATK_DOWN}(ON_HIT 패밀리)일 때만:
+      a. Target.bAlive == false → effectRoll=-1, effectApplied=false → 9   (시체엔 상태이상 없음)
+      b. roll = RandomFloat01()                          (검증훅=전역 Chance 오버라이드 변수 1순위)
+      c. roll < EffectChance → ApplyStatus(Target, EffectType, EffectValue, EffectDurationTurns)
+         (갱신 규칙 — 완전 리셋, 중첩 없음)
+         else → effectApplied=false
+      d. BattleLog effect/effectRoll/effectApplied 필드 세팅
  9. SetSkillCooldown(Attacker, SkillId, CooldownTurns)
     PendingHitTarget=Target → 기존 애니 재생 Custom Event 호출(파라미터 없이, 멤버변수 경유)
-    BattleLog 로그 방출(§4-3) → Return
+    BattleLog 로그 방출(§4-3, 상태이상 필드 포함) → Return
 ```
-HEAL/DMG_REDUCE 분기는 F4 시점엔 **아직 시전할 스킬 자체가 없어(파이어볼·막기·치유는 F7)** 실전 트리거 불가 — 그래프는 존재하되 도달 불가 상태로 F7까지 대기(스켈레톤 선구축 원칙, 리뷰에서 확정).
+HEAL/DMG_REDUCE 분기는 F4 시점엔 **아직 시전할 스킬 자체가 없어(파이어볼·막기·치유는 F7)** 실전 트리거 불가 — 그래프는 존재하되 도달 불가 상태로 F7까지 대기(스켈레톤 선구축 원칙, 리뷰에서 확정). **STUN/ATK_DOWN(8.5 경로)도 동일 — 베기·파이어볼의 실제 상태이상 데이터(§9 skills.csv diff)는 F4~F7 착수 시점에 반영되므로 그 전까지는 도달 불가 상태로 대기.** 전체 근거·검산: [[상태이상_확정]] §5~§7.
 
 #### 4-3. 전투로그 스키마 (F0⑧ 확정)
 ```
@@ -293,6 +312,7 @@ BattleLog|turn=<TurnCounter>|attacker=<GetDisplayName(Attacker)>|target=<GetDisp
 - `dmg`: **부호 규약(Director 확정 2026-07-13)**: 피해=양수, 회복(HEAL)=음수(예: 치유 33 → `dmg=-33`), 막기(피해 0, 버프만)=`dmg=0`.
 - `hp`: 적용 후 Target.Hp(0~MaxHp 클램프 최종값).
 - 기존 `extract_battle_log.py`는 라인을 그대로 통과시키는 방식이라 필드 확장에 스크립트 수정 불요(F9a "기존 파서 호환" 자동 충족).
+- **[신규 2026-07-14] 옵션 필드 확장**: `[|berserk=<mult>]`(F8 결선 시) + `[|effect=<토큰>|effectRoll=<-1 또는 0~1 float>|effectApplied=<true/false>]`(ON_HIT 스킬일 때만, §8.5). 순서 고정: `hp=`→`berserk=`→`effect=`→`effectRoll=`→`effectApplied=`. `effectRoll=-1`은 사망으로 롤이 생략된 라인의 sentinel(값 미실행이지 오류 아님). 상세: [[상태이상_확정]] §8. 별도 프리픽스 `StatusLog|`(상태 라이프사이클: APPLY/REFRESH/EXPIRE/SKIP_TURN/CLEAR)도 함께 방출 — `extract_battle_log.py`가 `BattleLog|` 한정 필터면 별도 grep 수집 필요(verifier 확인 1건).
 
 #### 4-4. 검증 경로 — "베기"는 F7 전까지 스캐폴드 전용
 현재 UI엔 버튼이 "Attack" 1개뿐(스킬 선택은 F7). **F4의 베기 검증은 F0⑧ 스캐폴드로 `TakeHit(Attacker, Target, SkillId=31001000)`을 직접 호출하는 함수 레벨 검증**이며, 실제 플레이 중 베기를 선택할 수 있는 건 F7부터다(qa-critic/verifier가 "베기 버튼"을 찾지 않도록 명시).
@@ -322,15 +342,32 @@ BattleLog|turn=<TurnCounter>|attacker=<GetDisplayName(Attacker)>|target=<GetDisp
 #### 5-1. bAlive·턴 스킵
 `EnterTurnStart`에서 `ActiveUnit`이 `bAlive==false`면 카메라·걸음·PlayAttack 전부 건너뛰고 즉시 EnterTurnEnd로(마커도 안 켬) — **턴큐는 splice하지 않음**(H2, 길이 불변 유지).
 
+**[신규 2026-07-14] STUN 스킵(상태이상) — bAlive 뒤·쿨다운/막기해제 뒤에 판정**: `EnterTurnStart`를 아래 TS1~TS6 파이프라인으로 고정한다([[상태이상_확정]] §5, B1 δ규칙 확정):
+```
+TS1. ActiveUnit.bAlive==false → 사망 스킵(기존, 마커·카메라 없음) → 즉시 EnterTurnEnd
+TS2. TurnCounter +1 (기존 위치 불변 — 기절이어도 여기를 지나므로 +1, 확정)
+TS3. 쿨다운 스윕(−1, 하한0) + 막기 해제(bBlockActive 해제)  (기존 불변 — ★기절 여부와 무관하게 실행)
+TS4. [신규] bSkipTurn = ActiveUnit.ActiveStatuses에 (StatusToken=STUN ∧ RemainingTurns>0) 존재
+       — 차감 없이 판정만(δ 핵심: 차감은 §5-2 EnterTurnEnd에서)
+TS5. bSkipTurn==true → StatusLog SKIP_TURN 방출 → [사망 스킵과 동일 꼬리] EnterTurnEnd
+TS6. 정상 진행(기존 마커·카메라·AwaitCommand)
+```
+- 기절이 쿨다운 회복(TS3)·막기 해제(TS3)를 멈추지 않는다(TS3가 TS4보다 앞) — 이중 페널티 방지 + "기절당한 막기 유닛의 영구 막기" 버그 차단.
+- STUN dur=1 검산: 적 턴에 부여(잔여=1) → 자기 턴 TS4(1>0→스킵) → TS5→EnterTurnEnd(§5-2에서 1→0 제거+EXPIRE) → 다음 자기 턴은 정상. **1턴 고정 스킵 확인.**
+- 무한 기절 락(경제적): G1(ON_HIT⇒PowerRate>0)+G2(중첩 금지) 구조로 차단 성립(CONFIRMED) — 상세: [[상태이상_확정]] §5-5.
+
 #### 5-2. End 전이 = EnterTurnEnd 단일 관문 (레이스 원천 차단)
 Executing은 걸음 후 `PlayAttack`을 호출하고, 그 뒤 Sequence 2분기(A: Delay0.25→TakeHit / B: Delay0.75→WalkBack→Delay0.45→**EnterTurnEnd**)가 **병렬**로 돈다(권위 서술 = 걸어나오기연출 plan L39 — qa 검증요망#4 정정: PlayAttack이 Sequence 분기보다 먼저다). TakeHit(A분기)이 마지막 생존자를 죽여도 B분기는 그걸 모르고 계속 진행해 `EnterTurnEnd()`를 그대로 호출하므로, **TakeHit이 직접 상태를 End로 바꾸면 B분기의 뒤이은 EnterTurnEnd 호출이 그걸 TurnStart로 되돌리는 레이스**가 생긴다(리뷰에서 확정한 핵심 리스크).
 
 **해법**: TakeHit(F4가 만든 §8 스켈레톤의 8번 death 분기)은 **플래그만** 세팅한다 — 실제 상태 전이는 **기존 `EnterTurnEnd`의 "① 마커OFF → ② i=(i+1)%길이" 다음, "TurnStart 진입" 이전**에 신규 Branch 하나로만 일어난다:
 
 ```
-EnterTurnEnd() [기존 함수, 확장]:
+EnterTurnEnd() [기존 함수, 확장 — 2026-07-14 상태이상 δ틱 추가]:
   ① MarkerOff(ActiveUnit)
      (카메라 기배선: SetViewTargetWithBlend(DefaultCamera, 0.3s) — 무변경, 그대로 실행됨)
+  ①.5 [신규] TickStatusesAtTurnEnd(ActiveUnit): ActiveUnit.ActiveStatuses 전 엔트리 RemainingTurns
+       −1 → ≤0 엔트리 제거(+StatusLog EXPIRE). **무분기(항상 실행)·ActiveUnit 한정·큐 인덱스
+       증가(②) 전** — [[상태이상_확정]] §5-2(TE2), B1 δ규칙 확정
   ② SetCurrentIndex((CurrentIndex + 1) % 큐길이)
   ③ [신규] Branch(Condition = GetbBattleOver)
        True  → EnterEnd()          ← 신규, 이 지점에서만 호출
@@ -443,13 +480,17 @@ SetScalar(RowIndex   = 0.0)                    무변경(항상 IDLE 복귀)
 버튼 콜리전은 **ClickBox만** 유효(배경/라벨은 기존 컨벤션대로 NoCollision).
 
 #### 7-3. NotifySkillSelected(SkillId) 분기 (Manager 소유)
+
+**[2026-07-14 개정 — [[상태이상_확정]] §11·§15, M1/O5]** 분기 로직은 신규 단일 소스 함수 `ResolveTargetPool(TargetToken, Caster)→unit[]`를 경유(bEnabled 계산·하이라이트·클릭 유효판정·커밋 4곳이 전부 이 함수를 재사용):
 ```
-GetDataTableRow(DT_Skills, SkillId).Target 분기:
-  "ENEMY1" → 기존 AwaitTarget 로직 그대로(상대팀 하이라이트, 유효 타겟 클릭 시 Executing)
-  "ALLY1"  → AwaitTarget 변형: 아군(bIsParty==ActiveUnit.bIsParty) 중 bAlive==true(자신 포함, F0② 확정) 하이라이트
-  "SELF"   → AwaitTarget 스킵 — SelectedTarget=ActiveUnit 즉시 세팅 → EnterExecuting 직행(SELF 즉시커밋, 취소창 없음)
+GetDataTableRow(DT_Skills, SkillId).Target 분기 (ResolveTargetPool 경유):
+  "ENEMY1"    → ResolveTargetPool("ENEMY1", ActiveUnit) 하이라이트 → 1기 클릭 → SelectedTargets=[클릭 유닛]
+  "ALLY1"     → ResolveTargetPool("ALLY1", ActiveUnit) 하이라이트(자신 포함, F0② 확정) → 1기 클릭 → SelectedTargets=[클릭 유닛]
+  "SELF"      → AwaitTarget 스킵 — SelectedTargets=[ActiveUnit] 즉시 세팅 → EnterExecuting 직행(즉시커밋, 취소창 없음)
+  "ENEMY_ALL" / "ALLY_ALL" [예약, A2 미발급] → 알파 데이터에 미존재(V5) — 유입 시 로그 1줄+슬롯 bEnabled=false 폴백(크래시 금지)
 ```
-Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도 **기존 ENEMY1과 동일한 균일 step-forward**를 그대로 수용(A1 범위 — 대상별 안무 분기는 HUD 시대에 고려, 이번엔 만들지 않음).
+`SelectedTarget`(단수) 멤버는 **`SelectedTargets`(배열)로 전면 교체**(단일 타겟=길이 1) — F4 §4-1과 동일 결정, 재작업 0.
+Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도 **기존 ENEMY1과 동일한 균일 step-forward**를 그대로 수용(A1 범위 — 대상별 안무 분기는 HUD 시대에 고려, 이번엔 만들지 않음). **Executing의 TakeHit 호출은 `SelectedTargets`를 ForEach로 순회**(길이 1이면 기존과 동일 1회 호출 — 死코드 아님, A2에서 길이 N으로 확장).
 
 #### 7-4. 스킬별 세부
 - **파이어볼**(MotionRow=10, CASTING1): F4 스켈레톤의 4~8단계(데미지 경로) 그대로 통과, PowerRate 1.7.
@@ -474,7 +515,7 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 | [F7][TC-F7-10] | 쿨다운 진행 → 사용 후 CooldownTurns 세팅, 자기턴 시작마다 −1(하한0), 쿨0 전 재사용 불가(qa TC-C01) | 로그 파싱 | 대기 |
 | [F7][TC-F7-11] | 쿨다운 슬롯 비활성 → 쿨>0 슬롯 ClickBox NoCollision + 시각 반투명, 클릭 무효 | 정적+캡처 | 대기 |
 | [F7][TC-F7-12] | 슬롯 재바인딩 → 전사턴↔마법사턴 전환 시 3슬롯 라벨·활성상태 정확 갱신(SkillIds ParseIntoArray) | 캡처/로그 | 대기 |
-| [F7][TC-F7-13] | SELF 즉시커밋 → 막기 버튼 클릭 시 AwaitTarget 스킵, SelectedTarget=자신 즉시, 취소창 없음 | 로그 | 대기 |
+| [F7][TC-F7-13] | SELF 즉시커밋 → 막기 버튼 클릭 시 AwaitTarget 스킵, SelectedTargets=[자신] 즉시(배열화, 2026-07-14), 취소창 없음 | 로그 | 대기 |
 | [F7][TC-F7-14] | ALLY1 타겟 경로 → 치유 선택 시 아군만 하이라이트, 적 클릭 무효(ENEMY1과 다른 경로) | 런타임/캡처 | 대기 |
 | [F7][TC-F7-15]★ | 버튼 라벨 SSOT → 슬롯 라벨=DT_Strings 조회 텍스트(하드코딩 아님) — **선결 해소됨**(DT_Strings가 F2로 편입, Director 2026-07-13) | 캡처 | 대기 |
 | [F7][오너] | 스킬 4종 사용감(슬롯 선택·타겟팅·파이어볼/막기/치유 모션) 육안 | 오너 라이브(PIE) | 대기 |
@@ -484,8 +525,62 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 
 ---
 
+### F4/F5/F7 확장 — 상태이상+AoE 통합 TC (Director 확정 2026-07-14)
+
+> 전체 스펙(카탈로그·틱규칙·합성식·로그스키마·death code 편입경계)은 [[상태이상_확정]] 참고. 아래는 그 구현을 검증할 TC **33개**(TC-SE=balance 원안 12·TC-V=system-ui 원안 6·TC-QA=qa-critic 신규 15) — B1(틱앵커)·B2(EffectValue의미)·M2(곱순서)·M3(effectRoll표기)·M4(검증훅)·O5(편입스테이지)·M1(death code경계)이 전부 확정되어 舊 "결정대기" 항목 없이 전부 **대기**(실행 준비 완료)로 승격. 실행 시점은 F4~F7 구현 단계, 판정방법 컬럼 필수(v3 반영 원칙 동일 적용).
+
+#### TC-SE (balance-designer 원안, 12개)
+
+| ID | 조건 → 기대결과 | 판정방법 | 확정 반영 | 상태 |
+|---|---|---|---|---|
+| [SE][TC-SE01] | Chance=0 강제 → v1 §5-1 전 셀+23턴 원장 무변경(회귀) | 로그 원장 대조 | M4(전역 Chance 오버라이드 훅) | 대기 |
+| [SE][TC-SE02] | Chance=1 베기 → 피격자 다음 자기 턴 1회 스킵, 그 다음 턴 정상 행동 | 로그 대조(StatusLog SKIP_TURN + 해당 턴 BattleLog 부재) | M4 훅·QA12 통제 | 대기 |
+| [SE][TC-SE03] | Chance=1 파볼 → 후속 공격이 약화 매트릭스 일치(**자기 턴 2회**, δ 확정), 3회째 원복 | 로그 대조 | B1(δ)·B2(EffectValue=0.25) 반영 | 대기 |
+| [SE][TC-SE04] | 약화 중 치유 = 33 불변(step2 미접촉) | 로그 대조 | — | 대기 |
+| [SE][TC-SE05] | 킬링 블로우 → 롤 생략(effectRoll=-1, applied=false·시체 상태 0) | 로그 대조 | M3(−1 기록) 반영 | 대기 |
+| [SE][TC-SE06] | 기절 턴 쿨다운 −1 진행 + 막기 버프는 기존대로 해제(TS3가 TS4보다 앞) | 로그 대조(간접: 해제 턴 직후 시전 성공)+스캐폴드 쿨 조회 | — | 대기 |
+| [SE][TC-SE07] | 기절 스킵 턴 TurnCounter +1(확정 — 조건부 문구 삭제, turn 갭은 TC-QA07 별도검증) | 로그 대조(turn 시퀀스) | — | 대기 |
+| [SE][TC-SE08] | 3효과 체인 turn40 파볼·약화·막기=35 / 평시=21(§6-3, B2 정정 후 값 불변 재검산 완료) | 로그 대조(스캐폴드 턴 가속) | B1·B2·M2 반영(값 불변 확인) | 대기 |
+| [SE][TC-SE09] | 재부여 = 완전 리셋(중첩·연장 없음, 용어="갱신")+REFRESH 로그 1줄 | 로그 대조 | — | 대기 |
+| [SE][TC-SE10] | 기절자 타겟팅·치유 가능(사망자와 구분), bAlive 무오염 | 런타임+로그(하이라이트 후보) | — | 대기 |
+| [SE][TC-SE11] | 칩락 안전: 약화 1성 전사 기본 24−13=11 ≥ min1 미발동 | 로그 대조(mock — 1성은 F0③ 로스터 밖, TC-F4-05 선례) | B2(수치 불변 확인) | 대기 |
+| [SE][TC-SE12] | 로그: 프록/스킵 기록 존재 | 로그 파싱 | — | 대기 |
+
+#### TC-V (system-ui-designer 원안, 6개 — CSV 데이터 게이트)
+
+| ID | 조건 → 기대결과 | 판정방법 | 확정 반영 | 상태 |
+|---|---|---|---|---|
+| [V][TC-V1] | 전 행: EffectType∈ON_HIT ⇒ PowerRate>0(베기1.3·파볼1.7) | CSV 대조 | — | 대기 |
+| [V][TC-V2] | Kind=HEAL ⇒ EffectType∈{NONE,HEAL} | CSV 대조 | — | 대기 |
+| [V][TC-V3] | ATK_DOWN ⇒ dur 하한 **≥1**(δ로 완화, 함정소멸 — 카탈로그 채택값=2는 balance 재량) | CSV 대조 | B1(δ) 반영 | 대기 |
+| [V][TC-V4] | ON_HIT ⇒ EffectChance ∈ (0,1] | CSV 대조 | — | 대기 |
+| [V][TC-V5] | Target 토큰 ∈ 발급 목록(사용 3종+예약 2종, SELF_ALL 등 미발급 금지) | CSV 대조 | — | 대기 |
+| [V][TC-V6] | EffectValue 의미=**감소율**(B2 확정) — STUN=0 / ATK_DOWN r∈(0,1), 파볼 값=0.25(정정 반영) | CSV 대조 | B2 반영 | 대기 |
+
+#### TC-QA (qa-critic 신규, 15개)
+
+| ID | 조건 → 기대결과 | 판정방법 | 확정 반영 | 상태 |
+|---|---|---|---|---|
+| [QA][TC-QA01] | SelectedTargets 배열화 무회귀 → 길이 1 경로로 F4~F7 기존 TC 전부 PASS | 로그 대조(기존 TC 재사용) | M1 채택 | 대기 |
+| [QA][TC-QA02] | ResolveTargetPool 단일 소스 → 3토큰 풀이 bEnabled·하이라이트·클릭·커밋 4소비처 동일+TurnQueue 오름차순 | 로그 대조+정적 그래프 조회 | M1 채택 | 대기 |
+| [QA][TC-QA03] | 예약 토큰 폴백 → mock Target=ENEMY_ALL 주입 시 슬롯 비활성+로그 1줄+무크래시 | 로그 대조(mock) | — | 대기 |
+| [QA][TC-QA04] | 死코드 0 → Manager 그래프에 ALL 분기·ALL 모드 노드 부재(a-1+ 확인) | MCP 정적 그래프 조회 | M1 채택 | 대기 |
+| [QA][TC-QA05] | step4 곱 순서 = balance 순서(Atk×OutgoingAtkMult×PR×Berserk) + floor 1회(중간 floor 없음) | MCP 정적 그래프 조회 | M2 반영 | 대기 |
+| [QA][TC-QA06] | EffectValue 해석 일치 → 감소율 기준 약화 후속딜(vs Def10=43 등) 재현 — TC-SE03 자매(값 관점) | 로그 대조 | B2 반영 | 대기 |
+| [QA][TC-QA07] | 기절 턴 로그 갭 → BattleLog 라인 부재+StatusLog SKIP_TURN 존재+turn 갭을 원장 대조가 정상 수용 | 로그 대조+스크립트 | — | 대기 |
+| [QA][TC-QA08] | 롤 사후 감사 → 실확률 1판 전 effect 라인에서 (roll<EffectChance)⇔applied 성립(action=SkillId→skills.csv 조인, effectRoll=-1 라인은 감사 제외) | 로그+CSV 조인 스크립트 | M3 반영 | 대기 |
+| [QA][TC-QA09] | 킬링블로우 라인 표기 → effectRoll=-1 기록(M3)+hp=0∧applied=false 조합으로 사망/실패 구분 성립 | 로그 대조 | M3 반영 | 대기 |
+| [QA][TC-QA10] | F_ActiveStatus 필드 실증 → 일회용 CSV 임포트 성공 후 삭제(또는 list_properties 실측) — **타입(statusToken=String/value=Float/remainingTurns=Integer) MCP 실측 완료(2026-07-14, 본 확정작업)**, 임포트 스캐폴드는 F4 착수 시 상시회귀용 | MCP(스캐폴드) | 오너 struct 생성(완료) | 대기(타입확인 선행완료) |
+| [QA][TC-QA11] | CSV 게이트 일괄 → 확정 skills.csv 5행(§9 diff)이 V1~V6 갱신판 전 룰 통과 | CSV 대조 | B1·B2 반영 | 대기 |
+| [QA][TC-QA12] | SE02 시나리오 통제 → Chance=1 베기는 1회만, 이후 기본공격(재부여로 인한 "차턴 정상 행동" 위양성 차단) | 시나리오 명세(로그 대조) | — | 대기 |
+| [QA][TC-QA13] | 지속 검증 = remaining 시퀀스(APPLY=D→EXPIRE=0). turn 차 사용 금지(m9 정정) | 로그 대조 | — | 대기 |
+| [QA][TC-QA14] | 복합 상태(STUN+ATK_DOWN 동시 보유) → 기절 스킵 턴도 EnterTurnEnd(①.5) 경유하므로 ATK_DOWN 잔여 정상 차감(스킵이 다른 상태 틱을 막지 않음, δ 반영) | 로그 대조 | B1(δ) 반영 | 대기 |
+| [QA][TC-QA15] | InitBattle 리셋 → 상태 보유 중 재시작 시 전 유닛 ActiveStatuses·SelectedTargets 전량 Clear | 로그 대조/MCP | — | 대기 |
+
+---
+
 ### F8 — 광폭화 (F1 게이트)
-공식(balance 스펙, F1 산출물 승인 후 확정치로 대입): `BerserkMult = 1 + 0.05 × (turn − 30)`(turn≤30이면 1.0, **가산**이지 복리 아님). 적용 지점 = **F4 §8 step4에만 국소** — `Base = floor(Attacker.Atk × PowerRate × BerserkMult)`(단일 floor). **Atk 스탯 자체는 불변**(치유가 Atk를 그대로 읽으므로 자동으로 광폭화 배율을 타지 않게 하는 가드 — HEAL 분기(§8 step2)는 BerserkMult 미적용 유지). **전역 유닛턴 카운터**(`TurnCounter` 재사용) 기준, 양측 동일 배율 적용(PvP 대칭 필수, 리뷰 확정). 로그에 배율 적용 여부 기록(`|berserk=<mult>` 필드 추가 검토, F0⑧ 스키마에 후속 확장).
+공식(balance 스펙, F1 산출물 승인 후 확정치로 대입): `BerserkMult = 1 + 0.05 × (turn − 30)`(turn≤30이면 1.0, **가산**이지 복리 아님). 적용 지점 = **F4 §8 step4에만 국소** — `Base = floor(Attacker.Atk × OutgoingAtkMult(Attacker) × PowerRate × BerserkMult)`(단일 floor, **곱 순서는 [[상태이상_확정]] §6 M2 확정 — OutgoingAtkMult는 상태이상 ATK_DOWN 확정으로 2026-07-14 선삽입됨, F8 자체는 BerserkMult 인자만 추가**). **Atk 스탯 자체는 불변**(치유가 Atk를 그대로 읽으므로 자동으로 광폭화 배율을 타지 않게 하는 가드 — HEAL 분기(§8 step2)는 BerserkMult 미적용 유지). **전역 유닛턴 카운터**(`TurnCounter` 재사용) 기준, 양측 동일 배율 적용(PvP 대칭 필수, 리뷰 확정). 로그에 배율 적용 여부 기록(`|berserk=<mult>` 필드 추가 검토, F0⑧ 스키마에 후속 확장).
 
 
 #### TC — F8 (qa-critic 확정 · 판정방법 컬럼 필수)
@@ -546,6 +641,7 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 | [F3][TC-F3-02] 1성/3성 등급 템플릿 스탯 (A1 미사용, 로드로직 스팟만) | F3 스팟 / 등급 실전=베타 | 대기 |
 | 순수-수동 절대턴상한 무승부룰 (berserk 미포섭 홀, A1 핫시트 무해) | 베타(PvP/AI) | 대기 |
 | [F7][TC-F7-15] DT_Strings 선결 (F2가 strings DT 이월 → F7 라벨과 충돌) | F7 착수 전 확정 | **해소**(DT_Strings F2 편입 — Director 2026-07-13) |
+| [AoE][M1] ENEMY_ALL/ALLY_ALL 실행분기 전체(`ResolveTargetPool` ALL 2케이스·`AwaitTarget` ALL모드·AoE 스킬행·AoE PowerRate 밸런스) — 계약(SelectedTargets 배열·ResolveTargetPool 함수·토큰 예약)은 F4~F7에 선병합, 이 4항목만 이월 | A2 | **승인**(Director 확정 2026-07-14, [[상태이상_확정]] §11 M1) |
 
 ---
 
@@ -610,3 +706,4 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 3. **`_tables.csv` motions 등록은 미실행** — 오너 승인 후 balance-designer 또는 gameplay-engineer가 실제 Id 발급 규칙과 대조해 등록.
 4. **F4 로그 `dmg` 부호 규약(피해=양수/회복=음수)은 본 문서 제안** — F0 또는 F4 착수 전 1줄 확정 필요.
 5. F1(광폭화 재검증) 결과에 따라 F8 공식의 정확한 계수(현재 +5%/턴 가정)가 조정될 수 있음 — F1 게이트 통과 시 본 문서 F8 절 갱신 필요.
+6. **상태이상+AoE 확정([[상태이상_확정]], 2026-07-14) 반영 완료** — `F_SkillsRow.EffectChance` 필드·`F_ActiveStatus` struct는 오너 생성 완료·MCP 확인됨(스키마 준비 완료). **실데이터 반영(`data/skills.csv` 5행 diff 갱신 + `DT_Skills` reimport)은 F4~F7 구현 착수 시점에 gameplay-engineer가 실행**(F2 §2-3 `import_file` 단독호출 절차 재사용). AoE 실 스킬(ENEMY_ALL/ALLY_ALL 발급·AwaitTarget ALL모드)은 A2 이월(위 이월 TC 표 참고) — 계약(SelectedTargets 배열·ResolveTargetPool·HURT 유닛소유)만 지금 F4/F5/F7에 선병합됨.
