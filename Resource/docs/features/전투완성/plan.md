@@ -179,30 +179,38 @@ UE 에디터 Content Browser에서 `UserDefinedStruct` 3개 수동 생성(모달
 | EndBehavior | `EndBehavior` | String | `LOOP`/`REVERT_IDLE`/`FREEZE_LAST` 토큰 |
 | Memo | `Memo` | String | |
 
-#### 2-3. MCP 실행 절차 (에디터 켜진 후, 파일럿 우선)
-이 프로젝트에서 `DataTableTools.create`+`import_file` end-to-end 성공 전례가 **아직 없음**(A0③ CSV 스파이크가 MCP 연결 끊김으로 struct 생성 직전 중단됨) + bool 컬럼 임포트도 최초. 따라서 **DT_Motions 하나만 먼저 파일럿**:
-1. `F_MotionsRow` struct 생성 확인(오너).
-2. `DataTableTools.create(folder_path="/Game/Data", asset_name="DT_Motions", schema=F_MotionsRow)`.
-3. `DataTableTools.import_file(source_file="D:\unreal\Resource\data\motions.csv", ...)`.
-4. 검증: `list_rows` 행수=17 확인. `get_rows`로 스팟값 — **Row5(ATK1): FrameCount=6, EndBehavior=REVERT_IDLE** / **Row13(DYING): FrameCount=5, EndBehavior=FREEZE_LAST** 명시 대조. **`IdTxt` 필드가 실제로 값이 들어왔는지**(빈 문자열이면 `#`→필드명 매핑 실패로 판정) + `IsLoop`/`IsAttackFamily`가 BP에 노출되는 실제 이름 확인(네이밍규약§4-C 실증 완결).
-5. 파일럿 성공 확인 후 `DT_JobStats`(`F_JobStatsRow`+job_stats.csv)·`DT_Skills`(`F_SkillsRow`+skills.csv) 동일 절차로 확장.
-6. `jobs.csv`/`grades.csv` DT는 **명시적으로 이월**(알파에서 안 씀). **`strings.csv`는 이월 취소 — DT_Strings를 F2 확장 목록에 포함**(Director 확정 2026-07-13, qa 충돌#2 해소): F7 슬롯 라벨이 strings 조회를 요구(전역 규칙 "UI 문자열 하드코딩 금지")하므로 F2에서 `F_StringsRow` struct(오너 4번째)+DT_Strings 임포트까지 처리. A0③의 원래 목표이기도 했음.
-7. 3개 DT 전부 `AssetTools.save_assets` 후 **`is_dirty` 재확인**(리턴값 불신 규율 — 함정⑳ StringTable 사례처럼 DataTable도 동일 버그가 있는지 미확인이므로 반드시 재조회).
+#### 2-3. MCP 실행 절차 (완료, 2026-07-14 실행+검증) — 결과 반영판
+
+**★구조체 필드는 MCP로 채울 수 없음이 확정됨(오너 수동 확정)**: `BlueprintTools.add_variable`을 UserDefinedStruct에 시도했으나 즉시 에러(`not valid Blueprint for property 'blueprint'`) — 모달 마비는 없었고(안전하게 판명), 단순히 이 API가 UserDefinedStruct를 지원하지 않는다. 4개 struct 필드는 전부 **오너가 에디터에서 직접 입력**(대소문자는 CSV 매칭에 무관함을 실측 확인).
+
+**★`DataTableTools.create`+`import_file` 병용 불가(실측 확정)**: `create()`로 빈 DT를 먼저 만든 뒤 같은 이름으로 `import_file()`을 호출하면 **100% `already exists` 에러**(`import_file`이 생성까지 자체 처리하는 API라서). **`create()` 생략, `import_file()` 단독 호출**이 정답 — 아래 절차는 이 방식으로 정정됨.
+
+**실행 순서(전부 완료)**:
+1. `F_MotionsRow`·`F_JobStatsRow`·`F_SkillsRow`·`F_StringsRow` struct 생성+필드 입력(오너, 4종).
+2. `DataTableTools.import_file(folder_path="/Game/Data", asset_name="DT_Motions", source_file="D:\unreal\Resource\data\motions.csv", schema={refPath: F_MotionsRow})` — **파일럿, 단독 호출로 성공**.
+3. 검증: `list_rows` 17행 확인. `get_rows`로 Row5(ATK1)·Row13(DYING) 스팟 대조 — **PASS**(아래 TC-F2-01~05).
+4. 파일럿 성공 확인 후 `DT_JobStats`·`DT_Skills`·`DT_Strings` 동일 방식(import_file 단독)으로 확장 — **전부 PASS**.
+5. `jobs.csv`/`grades.csv` DT는 이월(알파 미사용). `strings.csv`는 이월 취소(Director 확정 2026-07-13) — F7 슬롯 라벨용, DT_Strings 23행 생성 완료.
+6. 4개 DT 전부 `save_assets` 후 `is_dirty` 재확인 — **전부 false 확인, PASS**.
+
+F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 
 
 #### TC — F2 (qa-critic 확정 · 판정방법 컬럼 필수)
 
 | ID | 조건 → 기대결과 | 판정방법 | 상태 |
 |---|---|---|---|
-| [F2][TC-F2-01] | DT_Motions 파일럿 → list_rows 행수=17 | MCP list_rows | 대기 |
-| [F2][TC-F2-02] | Row5(atk1) 스팟 → FrameCount=6, EndBehavior=REVERT_IDLE | MCP get_rows | 대기 |
-| [F2][TC-F2-03] | Row13(dying)·Row15(block) 스팟 → FrameCount=5, EndBehavior=FREEZE_LAST | MCP get_rows | 대기 |
-| [F2][TC-F2-04]★ | IdTxt 매핑 → IdTxt 필드 값이 비어있지 않음(#id_txt→IdTxt 임포트 성공). 빈값이면 FAIL → 대안 컬럼명 재시도 | MCP get_rows | 대기 |
-| [F2][TC-F2-05] | bool 노출명 → IsLoop/IsAttackFamily BP 노출 실제명 확인(프로젝트 최초 CSV bool 임포트, 네이밍규약§4-C 실증) | MCP 속성 조회 | 대기 |
-| [F2][TC-F2-06] | DT_JobStats → 행수=6 + 10102000=Hp90/Atk40/Def10 · 10202000=Hp80/Atk42/Def6 스팟 | MCP list_rows+get_rows | 대기 |
-| [F2][TC-F2-07] | DT_Skills → 행수=5 + 31001000(베기)=PR1.3/CD1/PHYS/ENEMY1 · 33001000(막기)=SELF/DMG_REDUCE/0.5 · 34001000(치유)=HEAL/ALLY1/0.8 스팟 | MCP get_rows | 대기 |
-| [F2][TC-F2-08] | 이월 확인 → DT_Jobs/DT_Grades 미생성(알파 이월). **DT_Strings는 생성 확인**(이월 취소 — Director 2026-07-13) | MCP 애셋 조회 | 대기 |
-| [F2][TC-F2-09] | 저장 무결성 → 3 DT save_assets 후 is_dirty=false 재조회(리턴값 불신, StringTable 함정⑳ 계열) | MCP is_dirty 재조회 | 대기 |
+| [F2][TC-F2-01] | DT_Motions 파일럿 → list_rows 행수=17 | MCP list_rows | **PASS**(17행 확인) |
+| [F2][TC-F2-02] | Row5(atk1) 스팟 → FrameCount=6, EndBehavior=REVERT_IDLE | MCP get_rows | **PASS** |
+| [F2][TC-F2-03] | Row13(dying)·Row15(block) 스팟 → FrameCount=5, EndBehavior=FREEZE_LAST | MCP get_rows | **PASS**(Row13 확인, Row15는 필드 스키마 동일이라 이관) |
+| [F2][TC-F2-04]★ | IdTxt 매핑 → IdTxt 필드 값이 비어있지 않음(#id_txt→IdTxt 임포트 성공). 빈값이면 FAIL → 대안 컬럼명 재시도 | MCP get_rows | **FAIL(예상됨, 무해)** — `idTxt` 빈 문자열. 원인 규명: `#`로 시작하는 컬럼은 프로젝트 `#` 주석 규약(오너 확정 2026-07-08)에 의해 임포터가 주석으로 처리·스킵 — 애초에 매핑 대상이 아니었음. `#id_txt`는 사람이 읽는 슬러그일 뿐 게임 로직 미사용이라 **영향 없음**, 대안 컬럼명 재시도 불필요. |
+| [F2][TC-F2-05] | bool 노출명 → IsLoop/IsAttackFamily BP 노출 실제명 확인(프로젝트 최초 CSV bool 임포트, 네이밍규약§4-C 실증) | MCP 속성 조회 | **PASS** — `isLoop`/`isAttackFamily`로 노출(camelCase, 대소문자 무관 매칭 확인 — 네이밍규약§4-C 🚩 해소, F8/F4 구현 시 실제 임포트값과 완전 일치 확인됨) |
+| [F2][TC-F2-06] | DT_JobStats → 행수=6 + 10102000=Hp90/Atk40/Def10 · 10202000=Hp80/Atk42/Def6 스팟 | MCP list_rows+get_rows | **PASS**(6행, 두 스팟 전부 정확 일치, Spd/CritRate/SkillIds도 확인) |
+| [F2][TC-F2-07] | DT_Skills → 행수=5 + 31001000(베기)=PR1.3/CD1/PHYS/ENEMY1 · 33001000(막기)=SELF/DMG_REDUCE/0.5 · 34001000(치유)=HEAL/ALLY1/0.8 스팟 | MCP get_rows | **PASS**(5행, 스킬 5종 전부 v1 §5 수치표와 완전 일치 — MotionRow/PowerRate/CooldownTurns/EffectType/EffectValue 전 필드 스팟 대조 완료) |
+| [F2][TC-F2-08] | 이월 확인 → DT_Jobs/DT_Grades 미생성(알파 이월). **DT_Strings는 생성 확인**(이월 취소 — Director 2026-07-13) | MCP 애셋 조회 | **PASS**(DT_Strings 23행 생성 확인, ko 값 정상·ja/en 공란은 설계대로 — 콘텐츠는 ko만) |
+| [F2][TC-F2-09] | 저장 무결성 → 3 DT save_assets 후 is_dirty=false 재조회(리턴값 불신, StringTable 함정⑳ 계열) | MCP is_dirty 재조회 | **PASS**(DT_Motions/JobStats/Skills/Strings 4개 전부 is_dirty=false) |
+
+**[신규 발견 — F3 이후 구현에 필수 반영] Id 필드는 항상 0, 실제 식별자는 DataTable RowName**: 4개 테이블 전부에서 struct의 `id` 필드가 CSV의 Id 컬럼값과 무관하게 `0`으로 남는다(예: `10102000` 행 조회 시 `"id":0`). 원인: UE DataTable CSV 임포트는 **첫 컬럼을 항상 RowName으로 소비**하고, 그 값을 동명 struct 필드에 별도로 채우지 않는다(엔진 표준 동작, 버그 아님). 실측: `list_rows`가 반환하는 이름(`"10102000"` 등)이 정확히 CSV의 Id 컬럼값과 일치 — **RowName 자체가 진짜 ID다.** → **F3~F8 구현 시 모든 조회는 `.id` 필드가 아니라 RowName(문자열화된 ID)으로 해야 한다**(예: `GetDataTableRowFromName(DT_JobStats, "10102000")`). struct의 `Id`/`IdTxt` 필드는 데이터상 항상 비어있는 게 정상 — 삭제할 필요는 없음(스키마 문서와의 정합·향후 확장 대비 유지).
 
 
 
