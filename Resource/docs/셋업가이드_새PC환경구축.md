@@ -1,7 +1,7 @@
 ---
 type: guide
 project: projectTP
-updated: 2026-06-28
+updated: 2026-07-14
 ---
 
 # 새 PC 환경 구축 가이드
@@ -17,6 +17,7 @@ updated: 2026-06-28
 | **Git** | 최신 | https://git-scm.com |
 | **Unreal Engine 5.8** | 5.8.x | Epic Games Launcher로 설치 |
 | **Visual C++ Redist** | **14.50+** | UE 5.8 필수 — 아래 참조 |
+| **.NET Framework Developer Pack** | **4.8.1+** | **C++ 플러그인 빌드 필수**(엔진 `SwarmInterface` 모듈이 요구) — 없으면 신규 C++ 플러그인 추가 시 `Result: Failed (RulesError)`로 전체 재빌드 실패. 아래 §4-1 참조 |
 | **Python** | 3.13 | https://python.org (PATH 추가 체크) |
 | **Pillow** | 12.x | `pip install Pillow` |
 
@@ -67,6 +68,21 @@ D:\unreal\UE_5.8\Engine\Extras\Redist\en-us\vc_redist.x64.exe
 ```
 
 실행 후 **재부팅** 필수.
+
+---
+
+## 4-1. .NET Framework SDK 설치 (C++ 플러그인 빌드 전제조건, 2026-07-14 추가)
+
+> 이 항목이 없으면 **신규 C++ 플러그인을 하나라도 추가하는 순간 프로젝트 전체 재빌드가 실패한다**(UmgMcp 도입 시 처음 발견 — 원인·로그 상세는 [[언리얼_MCP_실전노하우]] §21). VS2022/UE 엔진 설치만으로는 부족하다.
+
+**관리자 권한 PowerShell**에서 실행(일반 권한은 `exit 1602`로 실패):
+```
+winget install Microsoft.DotNet.Framework.DeveloperPack_4
+```
+
+설치 확인: `C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8.1` 폴더 존재 여부.
+
+> MVP(Blueprint-only) 단계엔 당장 필요 없지만, C++ 플러그인을 하나라도 추가하는 순간(예: UMG 자동화 플러그인) 즉시 필요해진다. **새 PC 세팅 시 미리 설치해두는 걸 권장** — 나중에 빌드 실패로 알게 되면 원인 진단에 시간이 든다.
 
 ---
 
@@ -145,6 +161,7 @@ D:\unreal\projectTP\_Launch_MCP.bat  ← 더블클릭
 - [ ] `D:\unreal` 클론 완료
 - [ ] UE 5.8 `D:\unreal\UE_5.8\` 에 설치 완료
 - [ ] VC++ 14.50+ 설치 + 재부팅 완료
+- [ ] .NET Framework Developer Pack 4.8.1+ 설치 완료(C++ 플러그인 빌드 전제조건, §4-1)
 - [ ] Python 3.13 + Pillow 설치 완료
 - [ ] heroes99 `_RawAssets\heroes99\` 에 배치 완료
 - [ ] `compose_knight.py` 실행 → `hero_knight_idle1.png` 생성 확인

@@ -28,6 +28,9 @@
 # ===== UE Content — imported assets (incl. paid Fab packs) + heavy; reproduce via docs/scripts =====
 /projectTP/Content/
 
+# ===== 서드파티 UE 플러그인 (오픈소스 클론 — 재현: git clone + UBT 빌드, 절차는 docs/언리얼_MCP_실전노하우.md) =====
+/projectTP/Plugins/UmgMcp/
+
 # ===== Blend / large source files =====
 /Resource/*.blend
 
