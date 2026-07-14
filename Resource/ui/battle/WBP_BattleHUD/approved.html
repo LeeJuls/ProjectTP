@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>WBP_BattleHUD — design_v2_octopath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ─── style_guide.html 토큰 동기화 (v1 계승, 신규 토큰 없음) ─── */
+    --tp-void: #050608;
+    --tp-panel-bg: rgba(9, 11, 16, 0.84);
+    --tp-panel-bg-soft: rgba(9, 11, 16, 0.60);
+    --tp-panel-border: rgba(199, 213, 235, 0.14);
+    --tp-panel-border-strong: rgba(199, 213, 235, 0.30);
+    --tp-hairline: rgba(199, 213, 235, 0.10);
+    --tp-text: #F4F1E9;
+    --tp-text-muted: rgba(244, 241, 233, 0.56);
+    --tp-text-faint: rgba(244, 241, 233, 0.32);
+    --tp-accent: #4F7CFF;
+    --tp-accent-strong: #82A9FF;
+    --tp-gold: #D4A657;
+    --tp-gold-strong: #E8C384;
+    --tp-gold-soft: rgba(212, 166, 87, 0.16);
+    --tp-hp-a: #8FE06A;
+    --tp-hp-b: #3D9A31;
+    --tp-sp-a: #6FD4FF;
+    --tp-sp-b: #2B7FE0;
+    /* ─── BattleHUD 전용 확장 토큰 (적/경고 계열 — style_guide.html에는 없던 신규) ─── */
+    --tp-crimson: #C24B44;
+    --tp-crimson-strong: #E2534F;
+
+    --tp-font-display: 'Cinzel', 'Cormorant Garamond', serif;
+    --tp-font-body: 'Jost', -apple-system, 'Segoe UI', sans-serif;
+    --tp-radius-panel: 10px;
+    --tp-radius-control: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: var(--tp-font-body); }
+  body {
+    min-height: 100vh;
+    background: var(--tp-void);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(79,124,255,0.08), transparent 60%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; padding: 44px 20px 90px;
+  }
+
+  .canvas-label {
+    font-family: var(--tp-font-body); font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--tp-text-faint);
+  }
+  .canvas-label b { color: var(--tp-gold-strong); font-weight: 500; }
+
+  /* ══════════════════════ STAGE (1280×720 고정 캔버스) ══════════════════════ */
+  .stage {
+    position: relative;
+    width: 1280px; height: 720px; flex: none;
+    overflow: hidden;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px rgba(199,213,235,0.12), 0 60px 140px -30px rgba(0,0,0,0.9);
+  }
+
+  /* ── 배경: HD-2D 마을(하늘→초원) 플레이스홀더 — 정밀도 목적 아님 ── */
+  .bg-sky {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 820px 360px at 50% 2%, rgba(255,246,220,0.40), transparent 62%),
+      linear-gradient(180deg, #a9d5ec 0%, #cfe6dc 27%, #e7edcf 42%, #cbdca0 46%, #8fac5c 58%, #61803c 76%, #35471f 100%);
+  }
+  .bg-village { position: absolute; left: 0; right: 0; top: 298px; height: 64px; z-index: 1; }
+  .bg-village .hut { position: absolute; bottom: 0; }
+  .bg-village .hut .wall { width: 34px; height: 24px; background: rgba(56,64,80,0.34); }
+  .bg-village .hut .roof { width: 0; height: 0; margin-left: -4px; border-left: 21px solid transparent; border-right: 21px solid transparent; border-bottom: 17px solid rgba(56,64,80,0.40); }
+  .bg-vignette {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(ellipse 920px 620px at 50% 54%, transparent 52%, rgba(4,5,8,0.50) 100%);
+  }
+  .bg-grain {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .motes { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .motes span {
+    position: absolute; width: 3px; height: 3px; border-radius: 50%;
+    background: rgba(255,250,230,0.65); filter: blur(0.4px);
+    animation: moteFloat 8s ease-in-out infinite;
+  }
+  @keyframes moteFloat { 0%,100% { transform: translateY(0); opacity: 0.22; } 50% { transform: translateY(-22px); opacity: 0.7; } }
+
+  .stage-label {
+    position: absolute; top: 14px; left: 20px; z-index: 20;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(244,241,233,0.30);
+  }
+
+  /* ══════════════════════ 턴 순서 바 (상단 중앙) ══════════════════════ */
+  .turn-order-bar {
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 15;
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 20px;
+    background: var(--tp-panel-bg);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(212,166,87,0.45);
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 18px 40px -18px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .turn-order-bar::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 999px;
+    border: 1px solid rgba(244,241,233,0.14); pointer-events: none;
+  }
+  .turn-label {
+    font-family: var(--tp-font-display); font-weight: 600; font-size: 13px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--tp-gold-strong); white-space: nowrap;
+    /* data-key: UI_BATTLE_TURN */
+  }
+  .turn-label .turn-num { color: var(--tp-text); margin-left: 4px; font-variant-numeric: tabular-nums; }
+  .bar-divider { width: 1px; height: 20px; background: linear-gradient(180deg, transparent, var(--tp-panel-border-strong) 50%, transparent); flex: none; }
+
+  .turn-chip {
+    width: 28px; height: 28px; border-radius: 6px; flex: none;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--tp-hairline);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .turn-chip .dot { width: 8px; height: 8px; transform: rotate(45deg); flex: none; }
+  .turn-chip.ally { box-shadow: inset 0 0 0 1px rgba(212,166,87,0.35); }
+  .turn-chip.ally .dot { background: var(--tp-gold); }
+  .turn-chip.enemy { box-shadow: inset 0 0 0 1px rgba(194,75,68,0.40); }
+  .turn-chip.enemy .dot { background: var(--tp-crimson); }
+  .turn-chip.current {
+    width: 36px; height: 36px; transform: translateY(-4px);
+    border-color: var(--tp-gold);
+    box-shadow: 0 0 0 1px var(--tp-gold), 0 0 16px rgba(212,166,87,0.65);
+  }
+  .turn-chip.current .dot { width: 10px; height: 10px; }
+
+  /* ══════════════════════ 광폭화 배지 ══════════════════════ */
+  .berserk-badge {
+    position: absolute; top: 20px; right: 34px; z-index: 15;
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 16px;
+    background: linear-gradient(135deg, rgba(94,22,20,0.88), rgba(38,10,10,0.88));
+    border: 1px solid rgba(226,90,79,0.55);
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 18px rgba(194,60,50,0.35);
+    animation: berserkPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes berserkPulse {
+    0%,100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 16px rgba(194,60,50,0.35); }
+    50%     { box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 30px rgba(226,83,79,0.62); }
+  }
+  .berserk-badge .flame {
+    width: 11px; height: 11px; flex: none;
+    background: linear-gradient(180deg, #FFD9A0, var(--tp-crimson-strong));
+    border-radius: 0% 60% 60% 60%; transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(226,83,79,0.7);
+  }
+  .berserk-badge .txt {
+    font-family: var(--tp-font-display); font-weight: 700; font-size: 12.5px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #FFDCCF; white-space: nowrap;
+    /* data-key: UI_BATTLE_BERSERK — "T31"·"+5%"는 런타임 값(턴카운터·balance 수치), 로컬라이즈 대상 아님 */
+  }
+  .berserk-badge .bonus { color: var(--tp-crimson-strong); font-weight: 700; }
+
+  /* ══════════════════════ 전장 — 유닛 슬롯 ══════════════════════ */
+  .battlefield { position: absolute; inset: 0; z-index: 6; }
+
+  .unit-slot {
+    position: absolute; display: flex; flex-direction: column; align-items: center;
+  }
+  .unit-slot.back { transform: scale(0.82); transform-origin: top center; opacity: 0.94; z-index: 2; }
+  .unit-slot.front { z-index: 4; }
+
+  /* ── HP 프레임 ── */
+  .unit-frame {
+    position: relative; display: flex; flex-direction: column; gap: 5px;
+    padding: 8px 10px 7px; border-radius: 6px;
+    background: var(--tp-panel-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .unit-frame.ally {
+    width: 110px;
+    border: 1px solid rgba(212,166,87,0.55);
+    box-shadow: 0 10px 22px -12px rgba(0,0,0,0.7);
+  }
+  .unit-frame.ally::after {
+    /* 옥토패스풍 금색+아이보리 이중 테두리 — 바깥 골드 border + 안쪽 아이보리 헤어라인 */
+    content: ''; position: absolute; inset: 3px; border-radius: 3px;
+    border: 1px solid rgba(244,241,233,0.16); pointer-events: none;
+  }
+  .unit-frame.enemy {
+    width: 92px; padding: 6px 8px;
+    border: 1px solid rgba(199,213,235,0.20);
+    box-shadow: 0 10px 22px -12px rgba(0,0,0,0.7);
+  }
+  .unit-frame.enemy::after {
+    content: ''; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 2px;
+    background: rgba(194,75,68,0.55); border-radius: 2px; pointer-events: none;
+  }
+  .unit-slot.current .unit-frame.ally {
+    box-shadow: 0 0 0 1px var(--tp-gold), 0 0 24px rgba(212,166,87,0.55);
+  }
+
+  .unit-name {
+    font-size: 10.5px; font-weight: 500; letter-spacing: 0.04em; color: var(--tp-text-muted);
+    text-align: center; white-space: nowrap;
+  }
+  .hp-row { display: flex; align-items: center; gap: 6px; }
+  .hp-track {
+    flex: 1; height: 7px; border-radius: 4px; overflow: hidden;
+    background: rgba(0,0,0,0.5); box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .hp-fill { position: relative; height: 100%; border-radius: 4px; }
+  .hp-fill.gold { background: linear-gradient(90deg, #B8863C, var(--tp-gold-strong)); }
+  .hp-fill.green { background: linear-gradient(90deg, var(--tp-hp-b), var(--tp-hp-a)); }
+  .hp-fill::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: rgba(255,255,255,0.32);
+  }
+  .hp-num {
+    font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--tp-text);
+    white-space: nowrap;
+  }
+
+  .status-tag {
+    align-self: center; margin-top: 1px; font-size: 8px; letter-spacing: 0.03em;
+    padding: 2px 6px; border-radius: 3px; white-space: nowrap;
+  }
+  .status-tag.down { color: #FFD3CF; background: rgba(194,75,68,0.30); }
+  .status-tag.stun { color: #FBF0B8; background: rgba(232,217,122,0.24); }
+
+  /* ── 상태이상 아이콘 배지 ── */
+  .status-icon {
+    position: absolute; top: -8px; right: -8px; z-index: 5;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--tp-panel-bg); border: 1.5px solid;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .status-icon.stun { border-color: #E8D97A; }
+  .status-icon.atk-down { border-color: var(--tp-crimson-strong); }
+  .status-icon .star {
+    position: absolute; width: 6px; height: 6px; background: #F0E18C;
+    clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  }
+  .status-icon .s1 { top: 3px; left: 3px; transform: scale(0.9) rotate(-10deg); }
+  .status-icon .s2 { top: 2px; right: 3px; transform: scale(0.68) rotate(15deg); opacity: 0.85; }
+  .status-icon .s3 { bottom: 2px; left: 7px; transform: scale(0.58) rotate(6deg); opacity: 0.7; }
+  .status-icon .arrow {
+    width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 7px solid var(--tp-crimson-strong);
+  }
+
+  /* ── 유닛 실루엣 스프라이트 (플레이스홀더 색블록) ── */
+  .unit-sprite { position: relative; width: 54px; height: 88px; margin-top: 10px; flex: none; }
+  .unit-sprite .head { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 22px; height: 22px; border-radius: 50%; }
+  .unit-sprite .body { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 34px; height: 50px; clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%); }
+  .unit-sprite .pauldron { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 44px; height: 9px; border-radius: 3px; }
+  .unit-sprite .hat { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-bottom: 19px solid currentColor; }
+
+  .unit-sprite.ally .head, .unit-sprite.ally .body {
+    background: #232a44; box-shadow: 0 0 0 1px rgba(212,166,87,0.45), 0 0 14px rgba(212,166,87,0.28);
+  }
+  .unit-sprite.ally .pauldron { background: #2c3452; box-shadow: 0 0 0 1px rgba(212,166,87,0.3); }
+  .unit-sprite.ally .hat { color: #232a44; filter: drop-shadow(0 0 4px rgba(212,166,87,0.45)); }
+
+  .unit-sprite.enemy .head, .unit-sprite.enemy .body {
+    background: #2c2026; box-shadow: 0 0 0 1px rgba(194,75,68,0.45), 0 0 14px rgba(194,75,68,0.22);
+  }
+  .unit-sprite.enemy .pauldron { background: #33252b; box-shadow: 0 0 0 1px rgba(194,75,68,0.3); }
+  .unit-sprite.enemy .hat { color: #2c2026; filter: drop-shadow(0 0 4px rgba(194,75,68,0.4)); }
+
+  .ground-shadow {
+    width: 46px; height: 12px; border-radius: 50%; margin-top: -6px; flex: none;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.55), transparent 72%);
+  }
+
+  .turn-mark {
+    width: 10px; height: 10px; margin-top: 4px; background: var(--tp-gold); transform: rotate(45deg);
+    box-shadow: 0 0 10px rgba(212,166,87,0.85); animation: markPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes markPulse {
+    0%,100% { opacity: 0.65; transform: rotate(45deg) scale(1); }
+    50%     { opacity: 1;    transform: rotate(45deg) scale(1.3); }
+  }
+
+  /* ── 현재 턴 캐릭터 머리 위 화살표 마크 (v2 신규 — 옥토패스 II 참조) ── */
+  .head-arrow {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 6;
+    width: 0; height: 0;
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-top: 10px solid var(--tp-gold-strong);
+    filter: drop-shadow(0 0 6px rgba(212,166,87,0.75));
+    animation: headArrowBob 1.6s ease-in-out infinite;
+  }
+  @keyframes headArrowBob {
+    0%,100% { transform: translateX(-50%) translateY(0); opacity: 0.82; }
+    50%     { transform: translateX(-50%) translateY(-5px); opacity: 1; }
+  }
+
+  /* ── 타겟팅 커서 ── */
+  .target-cursor {
+    position: absolute; top: -34px; left: 50%; transform: translateX(-50%); z-index: 6;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    animation: cursorBob 1.3s ease-in-out infinite;
+  }
+  @keyframes cursorBob {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%     { transform: translateX(-50%) translateY(-6px); }
+  }
+  .target-cursor .diamond {
+    width: 13px; height: 13px; background: var(--tp-crimson-strong); transform: rotate(45deg);
+    box-shadow: 0 0 12px rgba(226,83,79,0.75);
+  }
+  .target-cursor .cap {
+    font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;
+    color: #FFB4AE; background: rgba(9,11,16,0.75); padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+    /* data-key: UI_BATTLE_TARGET */
+  }
+
+  /* ── 부동 데미지 / 힐 숫자 ── */
+  .floating-number {
+    position: absolute; top: -30px; left: 50%; z-index: 7;
+    font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 0 16px currentColor;
+    pointer-events: none;
+    animation: floatUp 2.4s ease-out infinite;
+  }
+  .floating-number.dmg { color: #FF6B62; }
+  .floating-number.heal { color: #8FE06A; }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.85); }
+    14%  { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    72%  { opacity: 1; transform: translate(-50%, -26px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -36px) scale(0.95); }
+  }
+
+  /* ══════════════════════ 전투 메뉴 (v2: 우하단 세로 리스트형 — 옥토패스 II 참조) ══════════════════════ */
+  .command-box {
+    position: absolute; right: 32px; bottom: 24px; z-index: 10;
+    display: flex; flex-direction: column; align-items: stretch;
+    width: 320px;
+    padding: 14px 18px 15px;
+    background: var(--tp-panel-bg);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,166,87,0.55);
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 44px 90px -30px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .command-box::after {
+    content: ''; position: absolute; inset: 4px; border-radius: 7px;
+    border: 1px solid rgba(244,241,233,0.14); pointer-events: none;
+  }
+  .command-box .corner { position: absolute; width: 14px; height: 14px; pointer-events: none; }
+  .command-box .corner::before, .command-box .corner::after { content: ''; position: absolute; background: var(--tp-gold); }
+  .command-box .corner::before { width: 100%; height: 2px; top: 0; left: 0; }
+  .command-box .corner::after  { width: 2px; height: 100%; top: 0; left: 0; }
+  .command-box .corner.tl { top: -1px; left: -1px; }
+  .command-box .corner.tr { top: -1px; right: -1px; }
+  .command-box .corner.tr::before, .command-box .corner.tr::after { left: auto; right: 0; }
+  .command-box .corner.bl { bottom: -1px; left: -1px; }
+  .command-box .corner.bl::before, .command-box .corner.bl::after { top: auto; bottom: 0; }
+  .command-box .corner.br { bottom: -1px; right: -1px; }
+  .command-box .corner.br::before, .command-box .corner.br::after { top: auto; bottom: 0; left: auto; right: 0; }
+
+  /* ── 메뉴 헤더: 현재 행동 캐릭터명 ── */
+  .menu-header { display: flex; align-items: center; gap: 12px; }
+  .chip-portrait {
+    width: 42px; height: 42px; border-radius: 8px; flex: none; overflow: hidden;
+    background: rgba(0,0,0,0.35); border: 1px solid var(--tp-gold);
+    box-shadow: 0 0 14px rgba(212,166,87,0.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mini-sprite { transform: scale(0.36); transform-origin: center 46%; }
+  .chip-label {
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--tp-gold-strong); margin-bottom: 3px;
+    /* data-key: UI_BATTLE_TURN */
+  }
+  .chip-name { font-family: var(--tp-font-display); font-size: 16px; font-weight: 600; letter-spacing: 0.03em; color: var(--tp-text); white-space: nowrap; }
+
+  .menu-divider {
+    height: 1px; margin: 10px 0 9px; flex: none;
+    background: linear-gradient(90deg, transparent, var(--tp-panel-border-strong) 50%, transparent);
+  }
+
+  /* ── 세로 스킬 리스트 (옥토패스 II 참조 — 리스트형 텍스트 메뉴, 장식 최소화) ── */
+  .skill-list { display: flex; flex-direction: column; }
+  .skill-row-item {
+    position: relative; display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px 7px 20px; border-radius: 5px; cursor: pointer;
+    border-bottom: 1px solid var(--tp-hairline);
+    transition: background 0.15s ease;
+  }
+  .skill-row-item:last-child { border-bottom: none; }
+  .skill-row-item:hover { background: rgba(255,255,255,0.04); }
+
+  /* 선택 커서 마크 (◀/▶ 중 우측 지향 삼각형 채택 — 행을 가리킴) */
+  .row-cursor {
+    position: absolute; left: 2px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--tp-gold-strong);
+    filter: drop-shadow(0 0 4px rgba(212,166,87,0.7));
+  }
+
+  .row-icon {
+    width: 18px; height: 18px; flex: none; display: flex; align-items: center; justify-content: center;
+    color: var(--tp-text-muted); transform: scale(0.62);
+  }
+  .row-name {
+    font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--tp-text); white-space: nowrap;
+  }
+  .row-leader { flex: 1; height: 1px; margin: 0 2px; border-bottom: 1px dotted var(--tp-panel-border); align-self: center; opacity: 0.6; }
+  .row-cd {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: var(--tp-text-muted);
+    font-variant-numeric: tabular-nums; white-space: nowrap; flex: none;
+    /* data-key: UI_BATTLE_COOLDOWN_FORMAT ("CD {0}") — {0}=쿨다운/잔여 턴수, balance 데이터. v1의 "CD:{0}"에서 구두점 제거(리스트 우측 정렬 가독성) */
+  }
+
+  /* 선택 항목 아래 설명 툴팁(1줄) */
+  .row-desc {
+    margin: 2px 0 5px 20px;
+    font-size: 10.5px; font-weight: 300; line-height: 1.5; color: var(--tp-text-muted);
+    border-left: 2px solid rgba(212,166,87,0.45); padding-left: 8px;
+  }
+
+  /* 선택 상태(커서가 놓인 행) */
+  .skill-row-item.selected {
+    background: linear-gradient(90deg, rgba(212,166,87,0.20), rgba(212,166,87,0.05));
+  }
+  .skill-row-item.selected .row-name { color: var(--tp-gold-strong); font-weight: 600; }
+  .skill-row-item.selected .row-icon { color: var(--tp-gold-strong); }
+  .skill-row-item.selected .row-cd { color: var(--tp-gold-strong); }
+
+  /* 쿨다운 중 — 비활성(흐리게) */
+  .skill-row-item.on-cooldown { opacity: 0.46; cursor: default; }
+  .skill-row-item.on-cooldown:hover { background: none; }
+  .skill-row-item.on-cooldown .row-cd { color: var(--tp-crimson-strong); }
+
+  /* ── 스킬 아이콘 (라인아트 placeholder, 추후 T_UI_Icon_* 로 교체) ── */
+  .icon-sword { position: relative; width: 26px; height: 26px; }
+  .icon-sword-inner { position: absolute; inset: 0; transform: rotate(45deg); }
+  .icon-sword .blade { position: absolute; left: 50%; top: 1px; width: 3px; height: 17px; margin-left: -1.5px; border-radius: 1px; background: linear-gradient(180deg, #F2EFE3, #C9A25A); }
+  .icon-sword .guard { position: absolute; left: 50%; top: 15px; width: 12px; height: 3px; margin-left: -6px; border-radius: 1px; background: currentColor; }
+  .icon-sword .grip  { position: absolute; left: 50%; top: 18px; width: 2.5px; height: 7px; margin-left: -1.25px; background: #8a7048; }
+
+  .icon-slash { position: relative; width: 28px; height: 28px; }
+  .icon-slash .arc { position: absolute; inset: 3px; border-radius: 50%; border: 3px solid transparent; border-top-color: currentColor; border-right-color: currentColor; transform: rotate(-40deg); }
+  .icon-slash .tip { position: absolute; right: 1px; top: 8px; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid currentColor; transform: rotate(40deg); }
+
+  .icon-shield { position: relative; width: 21px; height: 25px; margin: 0 auto; background: currentColor; clip-path: polygon(50% 0%, 100% 15%, 100% 58%, 50% 100%, 0% 58%, 0% 15%); }
+  .icon-shield::after { content: ''; position: absolute; top: 5px; left: 50%; width: 1.5px; height: 13px; transform: translateX(-50%); background: rgba(0,0,0,0.35); }
+
+  /* ══════════════════════ 개발용 주석 (실 UI 아님) ══════════════════════ */
+  .spec-note {
+    position: fixed; left: 24px; bottom: 20px; z-index: 50;
+    max-width: 420px; padding: 14px 16px;
+    background: rgba(9,11,16,0.92); border: 1px solid var(--tp-panel-border);
+    border-radius: 8px; font-size: 11px; color: var(--tp-text-faint); line-height: 1.65; font-weight: 300;
+  }
+  .spec-note b { color: var(--tp-accent-strong); font-weight: 500; }
+  .spec-note .flag { color: var(--tp-gold-strong); }
+</style>
+</head>
+<body>
+
+  <div class="canvas-label"><b>projectTP</b> · WBP_BattleHUD · design_v2_octopath — 1280×720 목업 (전투 메뉴 리스트형)</div>
+
+  <div class="stage">
+    <div class="bg-sky"></div>
+    <div class="bg-village">
+      <div class="hut" style="left:470px;"><div class="roof"></div><div class="wall"></div></div>
+      <div class="hut" style="left:512px; transform:scale(0.82);"><div class="roof"></div><div class="wall"></div></div>
+      <div class="hut" style="left:600px; transform:scale(1.1);"><div class="roof"></div><div class="wall"></div></div>
+      <div class="hut" style="left:690px; transform:scale(0.9);"><div class="roof"></div><div class="wall"></div></div>
+      <div class="hut" style="left:748px; transform:scale(0.78);"><div class="roof"></div><div class="wall"></div></div>
+    </div>
+    <div class="bg-vignette"></div>
+    <div class="motes">
+      <span style="left:12%; top:20%; animation-delay:0s;"></span>
+      <span style="left:34%; top:11%; animation-delay:1.2s;"></span>
+      <span style="left:64%; top:16%; animation-delay:2.4s;"></span>
+      <span style="left:82%; top:9%;  animation-delay:0.6s;"></span>
+      <span style="left:48%; top:26%; animation-delay:3s;"></span>
+    </div>
+    <div class="bg-grain"></div>
+
+    <div class="stage-label">BATTLE — map_battle (배경 무드 플레이스홀더, 실제 3D 씬 아님 — 핵심은 HUD)</div>
+
+    <!-- ══ 턴 순서 바 ══ -->
+    <div class="turn-order-bar">
+      <div class="turn-label">턴<!-- UI_BATTLE_TURN --><span class="turn-num">31</span></div>
+      <div class="bar-divider"></div>
+      <div class="turn-chip current ally"><span class="dot"></span></div>
+      <div class="turn-chip enemy"><span class="dot"></span></div>
+      <div class="turn-chip ally"><span class="dot"></span></div>
+      <div class="turn-chip enemy"><span class="dot"></span></div>
+      <div class="turn-chip ally"><span class="dot"></span></div>
+      <div class="turn-chip enemy"><span class="dot"></span></div>
+      <div class="turn-chip ally"><span class="dot"></span></div>
+      <div class="turn-chip enemy"><span class="dot"></span></div>
+    </div>
+
+    <!-- ══ 광폭화 배지 (30턴 초과 예시) ══ -->
+    <div class="berserk-badge">
+      <div class="flame"></div>
+      <div class="txt">광폭화<!-- UI_BATTLE_BERSERK --> T31 <span class="bonus">+5%</span></div>
+    </div>
+
+    <!-- ══ 전장: 8기 대치 (좌 아군 4 / 우 적 4) ══ -->
+    <div class="battlefield">
+
+      <!-- ── 아군 (좌측) ── -->
+      <div class="unit-slot front current ally" style="left:150px; top:358px;">
+        <div class="unit-frame ally">
+          <div class="unit-name">전사<!-- UI_BATTLE_ROLE_WARRIOR --> I</div>
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill gold" style="width:100%"></div></div>
+            <div class="hp-num">90/90</div>
+          </div>
+        </div>
+        <div class="unit-sprite warrior ally">
+          <!-- v2 신규: 현재 턴 캐릭터 머리 위 화살표 마크 -->
+          <!-- 추후 옥토패스처럼 현재 턴 캐릭터가 앞으로 한 칸 나오는 연출 가능성 있음(미정) -->
+          <div class="head-arrow"></div>
+          <div class="pauldron"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+        <div class="turn-mark"></div>
+      </div>
+
+      <div class="unit-slot front ally" style="left:300px; top:328px;">
+        <div class="unit-frame ally">
+          <div class="unit-name">마법사<!-- UI_BATTLE_ROLE_MAGE --> I</div>
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill gold" style="width:100%"></div></div>
+            <div class="hp-num">80/80</div>
+          </div>
+        </div>
+        <div class="unit-sprite mage ally">
+          <div class="hat"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <div class="unit-slot back ally" style="left:195px; top:187px;">
+        <div class="unit-frame ally">
+          <div class="status-icon atk-down"><div class="arrow"></div></div>
+          <div class="unit-name">전사<!-- UI_BATTLE_ROLE_WARRIOR --> II</div>
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill gold" style="width:100%"></div></div>
+            <div class="hp-num">90/90</div>
+          </div>
+          <div class="status-tag down">공격력약화<!-- UI_BATTLE_STATUS_ATK_DOWN --></div>
+        </div>
+        <div class="unit-sprite warrior ally">
+          <div class="pauldron"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <div class="unit-slot back ally" style="left:70px; top:212px;">
+        <div class="floating-number heal">+33</div>
+        <div class="unit-frame ally">
+          <div class="unit-name">마법사<!-- UI_BATTLE_ROLE_MAGE --> II</div>
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill gold" style="width:100%"></div></div>
+            <div class="hp-num">80/80</div>
+          </div>
+        </div>
+        <div class="unit-sprite mage ally">
+          <div class="hat"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <!-- ── 적 (우측) ── -->
+      <div class="unit-slot front enemy" style="left:1010px; top:358px;">
+        <div class="floating-number dmg">-42</div>
+        <div class="target-cursor">
+          <div class="diamond"></div>
+          <div class="cap">타겟<!-- UI_BATTLE_TARGET --></div>
+        </div>
+        <div class="unit-frame enemy">
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill green" style="width:53%"></div></div>
+            <div class="hp-num">48/90</div>
+          </div>
+        </div>
+        <div class="unit-sprite warrior enemy">
+          <div class="pauldron"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <div class="unit-slot front enemy" style="left:860px; top:328px;">
+        <div class="unit-frame enemy">
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill green" style="width:100%"></div></div>
+            <div class="hp-num">80/80</div>
+          </div>
+        </div>
+        <div class="unit-sprite mage enemy">
+          <div class="hat"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <div class="unit-slot back enemy" style="left:965px; top:187px;">
+        <div class="unit-frame enemy">
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill green" style="width:100%"></div></div>
+            <div class="hp-num">90/90</div>
+          </div>
+        </div>
+        <div class="unit-sprite warrior enemy">
+          <div class="pauldron"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+      <div class="unit-slot back enemy" style="left:1090px; top:212px;">
+        <div class="unit-frame enemy">
+          <div class="status-icon stun"><div class="star s1"></div><div class="star s2"></div><div class="star s3"></div></div>
+          <div class="hp-row">
+            <div class="hp-track"><div class="hp-fill green" style="width:100%"></div></div>
+            <div class="hp-num">80/80</div>
+          </div>
+          <div class="status-tag stun">기절<!-- UI_BATTLE_STATUS_STUN --></div>
+        </div>
+        <div class="unit-sprite mage enemy">
+          <div class="hat"></div><div class="head"></div><div class="body"></div>
+        </div>
+        <div class="ground-shadow"></div>
+      </div>
+
+    </div>
+
+    <!-- ══ 전투 메뉴 (v2: 우하단 세로 리스트형 — 옥토패스 II 참조, 전사 턴 예시: 공격/베기[선택]/막기[CD중]) ══ -->
+    <div class="command-box">
+      <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+      <div class="menu-header">
+        <div class="chip-portrait">
+          <div class="unit-sprite warrior ally mini-sprite">
+            <div class="pauldron"></div><div class="head"></div><div class="body"></div>
+          </div>
+        </div>
+        <div>
+          <div class="chip-label">턴<!-- UI_BATTLE_TURN --></div>
+          <div class="chip-name">전사<!-- UI_BATTLE_ROLE_WARRIOR --> I</div>
+        </div>
+      </div>
+      <!-- (선택) 상위 커맨드 탭(공격/스킬/아이템 등) 자리 — 현재는 스킬 리스트로 직결, 필요해지면 헤더 하단에 추가 -->
+
+      <div class="menu-divider"></div>
+
+      <div class="skill-list">
+        <div class="skill-row-item">
+          <div class="row-icon">
+            <div class="icon-sword"><div class="icon-sword-inner"><div class="blade"></div><div class="guard"></div><div class="grip"></div></div></div>
+          </div>
+          <div class="row-name">공격<!-- UI_BATTLE_ATTACK --></div>
+          <div class="row-leader"></div>
+        </div>
+
+        <div class="skill-row-item selected">
+          <div class="row-cursor"></div>
+          <div class="row-icon">
+            <div class="icon-slash"><div class="arc"></div><div class="tip"></div></div>
+          </div>
+          <div class="row-name">베기<!-- UI_BATTLE_SLASH --></div>
+          <div class="row-leader"></div>
+          <div class="row-cd">CD 1</div>
+        </div>
+        <div class="row-desc">적에게 강한 물리 피해(강타)<!-- UI_BATTLE_SKILL_DESC_SLASH --></div>
+
+        <div class="skill-row-item on-cooldown">
+          <div class="row-icon"><div class="icon-shield"></div></div>
+          <div class="row-name">막기<!-- UI_BATTLE_GUARD --></div>
+          <div class="row-leader"></div>
+          <div class="row-cd">CD 2</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="spec-note">
+    <b>design_v2_octopath</b> · WBP_BattleHUD · docs/features/전투UI/ · v1 대비 변경 2건: <span class="flag">① 전투 메뉴</span> 가로 3카드 → 세로 리스트형(옥토패스 II 참조 — 전사 턴 예시: 공격/베기[선택 커서+하이라이트+설명]/막기[CD 2, 비활성]) · <span class="flag">② 현재 턴 캐릭터</span> 머리 위 화살표 마크 신규(전사 I 예시, 기존 지면 다이아 마크와 이중 표시). 그 외 HUD는 v1과 동일.<br>
+    HUD 요소: 유닛 HP프레임×8(아군 이름+바+숫자 / 적 바+숫자) · 스킬 리스트×3(세로 리스트·커서+하이라이트·설명 툴팁·CD 비활성) · 타겟팅 커서 · 턴순서바(8기) · 광폭화 배지(T31 +5%) · 상태이상 아이콘(기절·공격력약화) · 데미지(-42)/힐(+33) 부동숫자.<br>
+    문자열 키 12종 매핑(<b>UI_BATTLE_</b> 축약 — §G 확정 규칙, UI_BATTLEHUD_ 아님). v1 대비: UI_BATTLE_SKILL(스킬 섹션 킥커) 삭제 — 리스트 헤더가 캐릭터명으로 대체하여 불필요, 신규 UI_BATTLE_SKILL_DESC_SLASH(선택 스킬 설명 툴팁) 추가로 12종 유지. 색/폰트 토큰은 v1과 동일(신규 토큰 없음).<br>
+    <span class="flag">좌우 배치 FYI</span>(v1과 동일 사항): 이 목업은 아군-좌/적-우(관례적 JRPG HUD 배치, 이번 지시 기준). 실제 3D 씬 카메라 배치(옥토패스대치 청사진 — 적 좌측 우향/아군 우측 좌향)와는 좌우가 반전 관계 — HUD 오버레이라 3D 블로킹과 별개로 판단, 필요시 확인 바람.<br>
+    <span class="flag">전투 메뉴 위치 FYI</span>(v2 신규 사항): 레퍼런스 준수를 위해 우하단으로 이동하면서 전열 적 유닛(우측, x:1010~1102)과 패널 상단 모서리가 소폭(세로 방향 약 16px 내외) 겹칠 수 있음 — 반투명 패널+z-index 상위 레이어라 가독성 문제는 없으나, 정식 UMG 구현 시 세이프존/앵커 조정 검토 권장.<br>
+    게임패드 포커스 내비게이션은 UI_화면_규약.md §H·J-2 예정 검토 사항 — 리스트형 메뉴는 세로 커서 이동(위/아래)이 게임패드 D-pad와 자연 대응되는 장점 있음(§J-2 검토 시 참고). 본 목업은 Steam 마우스 우선 기준(스킬 리스트 행 hover 상태로 시사).
+  </div>
+
+</body>
+</html>
