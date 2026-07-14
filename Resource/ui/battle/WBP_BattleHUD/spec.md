@@ -4,7 +4,7 @@ project: projectTP
 feature: 전투UI
 screen: WBP_BattleHUD
 updated: 2026-07-14
-status: design_v2 오너 확정(approved.html) — 1순위(전투 메뉴+HP프레임) UMG 배치 대기, 2순위는 명세만 선반영
+status: design_v2 오너 확정(approved.html) — 1순위 WBP 골격 생성 완료(§B 3단계, WBP_BattleHUD/WBP_UnitFrame/WBP_SkillMenu/WBP_SkillMenuRow), 오너 UMG 배치 대기(§B 4단계, `오너_UMG배치가이드.md` 참고), 2순위는 명세만 선반영
 ---
 
 # WBP_BattleHUD spec.md
@@ -265,6 +265,8 @@ CSS 소스: `.target-cursor`(다이아몬드+"타겟" 캡션). 유효 타겟 하
 
 design_v2 HTML 주석 기준 12종. 아래 표는 **실제로 `UI_BATTLE_*` 네임스페이스에 신규 등록해야 하는 키만** 추린 것(§4-2에서 제외되는 4종은 여기 없음).
 
+> **✅ 확정 반영(gameplay-engineer, 2026-07-14, WBP 골격 생성 세션)**: 아래 6종 전부 `data/strings.csv` + `DT_Strings`에 등록 완료(ko값 기입, ja/en은 기존 관행대로 공란). 이중등록 없음(§4-2의 6종은 `Skill.*`/`Job.*` 기등록 재사용, 신규 등록 안 함) — 확인은 `DataTableTools.get_rows`로 실측.
+
 | 키 | 용도 | 위젯 | ko 값(목업 기준) |
 |---|---|---|---|
 | `UI_BATTLE_TURN` | "턴" 라벨 | `Txt_TurnLabel`(턴순서바+메뉴헤더, 2곳 재사용) | 턴 |
@@ -325,10 +327,10 @@ v1의 스킬 섹션 킥커 `UI_BATTLE_SKILL`("스킬")은 v2에서 리스트 헤
 
 | # | 항목 | 내용 | 권장(잠정) |
 |---|---|---|---|
-| 6-1 | **`row-cd` 숫자의 의미** | 목업은 "베기"(사용가능, CD1)와 "막기"(쿨다운중, CD2) 둘 다 `DT_Skills.CooldownTurns` 정의값과 정확히 일치하는 숫자를 보여줌 — 스냅샷만으론 "정의값 상시표시"와 "잔여값표시"가 구분 안 됨(막 사용 직후엔 둘이 같은 값이라서). **권장**: 사용 가능(쿨다운 0) 상태면 `DT_Skills.CooldownTurns`(정의/예고값), 쿨다운 중이면 `GetSkillCooldown(unit,skillId)`(실제 잔여값) 표시 — 플레이어에게 더 유용. **gameplay-engineer 확인 후 확정 요청.** |
+| 6-1 | **`row-cd` 숫자의 의미** | 목업은 "베기"(사용가능, CD1)와 "막기"(쿨다운중, CD2) 둘 다 `DT_Skills.CooldownTurns` 정의값과 정확히 일치하는 숫자를 보여줌 — 스냅샷만으론 "정의값 상시표시"와 "잔여값표시"가 구분 안 됨(막 사용 직후엔 둘이 같은 값이라서). **권장**: 사용 가능(쿨다운 0) 상태면 `DT_Skills.CooldownTurns`(정의/예고값), 쿨다운 중이면 `GetSkillCooldown(unit,skillId)`(실제 잔여값) 표시 — 플레이어에게 더 유용. **✅ 확정(gameplay-engineer, 2026-07-14)**: 권장안 그대로 채택. `WBP_SkillMenuRow.SetCooldown(CooldownText, bInOnCooldown)` 골격에서 값 산출(정의값 vs 잔여값 분기)은 **호출부**(`WBP_SkillMenu`의 행 리바인드 로직, §B 5단계 배선 시 구현) 책임으로 설계 — Row는 이미 포맷된 텍스트만 받는다. |
 | 6-2 | **동일 Job 중복 유닛 표기(전사 I/II)** | "I"/"II" 로마숫자는 어느 필드에서 오는가 — 현재 DT_JobStats/스폰 로직에 순번 필드 없음(F0③ 배정표는 JobId만 규정). UI 표시용 파생 로직(같은 팀 내 동일 Job 등장 순서로 서수 계산) 신설 필요 — 로컬라이즈 키가 아니라 **표시 로직**임을 gameplay-engineer 확인 요청. |
 | 6-3 | **기본 선택 행(메뉴 오픈 시 커서 위치)** | 목업은 "베기"(2번째 행)가 기본 선택 상태로 그려짐 — 우연인지 의도인지 불명. **권장**: 메뉴 오픈 시 기본 선택 = 첫 번째 사용 가능(쿨다운 0 & 유효타겟 有) 스킬 행. 첫 스킬(공격)은 CooldownTurns=0 고정이라 "전부 쿨다운 중" 엣지는 발생 안 함(안전). UX 확정은 qa-critic/오너 확인 요청. |
-| 6-4 | **WBP_UnitFrame 위치추적 방식(정적 vs 동적) — ★설계 결정 필요** | 기존 F3 임시 HP(`HpGaugeText`)는 **액터 부착 월드공간**이라 카메라 상태(DefaultCamera/ActionCam 근접컷)와 무관하게 항상 유닛 위에 붙어 있다. 이 문서 §3-3a의 좌표(예: A1=150,358)는 design_v2 목업의 **정적 스냅샷**일 뿐이다. WBP_BattleHUD를 CanvasPanel 화면 오버레이로 만들면서 위치를 고정 px로 박으면, ActionCam 근접컷 등 카메라 변화 시 유닛과 프레임이 어긋나는 **회귀** 가능성이 있다([[전투완성/plan]] F3 TC-F3-04가 이미 이 이슈로 "부분 PASS·이월"). **권장**: `Project World To Screen Location`으로 매 틱(또는 카메라 전환/유닛 이동 이벤트 시)마다 각 `UnitFrame_*`의 Canvas Slot Position을 갱신 — §3-3a 좌표는 기본 카메라 기준 참고값으로만 사용. **gameplay-engineer 확인 필요(성능·구현 방식 확정은 구현 소관).** |
+| 6-4 | **WBP_UnitFrame 위치추적 방식(정적 vs 동적) — ★설계 결정 필요** | 기존 F3 임시 HP(`HpGaugeText`)는 **액터 부착 월드공간**이라 카메라 상태(DefaultCamera/ActionCam 근접컷)와 무관하게 항상 유닛 위에 붙어 있다. 이 문서 §3-3a의 좌표(예: A1=150,358)는 design_v2 목업의 **정적 스냅샷**일 뿐이다. WBP_BattleHUD를 CanvasPanel 화면 오버레이로 만들면서 위치를 고정 px로 박으면, ActionCam 근접컷 등 카메라 변화 시 유닛과 프레임이 어긋나는 **회귀** 가능성이 있다([[전투완성/plan]] F3 TC-F3-04가 이미 이 이슈로 "부분 PASS·이월"). **권장**: `Project World To Screen Location`으로 매 틱(또는 카메라 전환/유닛 이동 이벤트 시)마다 각 `UnitFrame_*`의 Canvas Slot Position을 갱신 — §3-3a 좌표는 기본 카메라 기준 참고값으로만 사용. **✅ 확정(gameplay-engineer, 2026-07-14)**: 권장안(동적 PWTS) 채택. 골격 단계에서 훅 포인트 선배치 — `WBP_UnitFrame.UpdateScreenPosition(WorldLocation: Vector)`(자기 Slot을 CanvasPanelSlot으로 캐스트해 Position 갱신, self-contained) + `WBP_BattleHUD.RefreshAllUnitFramePositions()`(오너가 8개 UnitFrame을 배치해 `UnitFrame_A1~B4` 변수가 생긴 뒤 루프 구현, §B 5단계). Tick 기반이냐 카메라 전환 이벤트 기반이냐(성능 트레이드오프)는 5단계 구현 시 확정. |
 | 6-5 | **미분류 요소 우선순위 귀속** | 오너 지시의 2순위 리스트(턴순서바/광폭화배지/상태이상아이콘/데미지부동숫자)에 `WBP_TargetCursor`·머리위화살표·지면다이아가 명시적으로 없음. 이 문서는 TargetCursor를 "2순위에 준함"으로 잠정 분류(§0 표) — **Director/오너 확인 요청**, 다른 처리를 원하면 정정. |
 | 6-6 | **동시 다중 상태이상 아이콘 슬롯 1개 한정** | 목업은 유닛당 상태이상 아이콘 슬롯 1개만 설계(`Img_StatusIcon` 단수). 한 유닛이 STUN+ATK_DOWN을 동시에 가질 수 있는지는 [[상태이상_확정]](상태이상 SSOT) 확인 필요 — 가능하다면 아이콘 다중표시(가로나열) 또는 우선순위 1개만 표시 중 선택 필요. **2순위 착수 시** balance-designer/qa-critic 확인 요청(지금 결정 불요). |
 | 6-7 | **전투 메뉴와 전열 적 프레임 겹침(v2 자체 인지 사항)** | design_v2 spec-note 원문: 우하단 이동한 메뉴가 전열 적 유닛(x:1010~1102) 상단과 세로 약 16px 내외 겹칠 수 있음 — 반투명+z-index로 가독성 문제는 없다고 판단되나, UMG 구현 시 실측 재확인 권장(§3-1 Position 확정 후 `UnitFrame_B1` 실제 렌더 위치와 겹침 여부 재확인). |
