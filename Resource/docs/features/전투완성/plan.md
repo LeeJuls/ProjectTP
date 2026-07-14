@@ -3,8 +3,8 @@ type: plan
 project: projectTP
 feature: 전투완성
 stage: F
-status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]])
-updated: 2026-07-14
+status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]]). F3(HP 게이지)는 U단계로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]])
+updated: 2026-07-15
 ---
 
 # 📋 전투완성(A1) 세부 plan
@@ -225,6 +225,11 @@ F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 4. **착수 전 액터 스냅샷 raw 1회**(`S2p_초기배치백업.md` 스타일) — 필드 추가+컴파일 전후 8기 Location/FaceLeft/Sprite 드리프트 0 확인용 롤백 지점.
 5. 배치가이드.md에 신규 필드 "손대지 마세요" 1줄 추가.
 
+#### F3 결과 — U단계(전투HUD UMG 실장)로 완결 (2026-07-15)
+F3b(액터부착 월드공간 TextRenderComponent, 3회 실패)를 폐기하고 **UMG WidgetComponent(Screen space)로 재구현** — PIE에서 8기 전원 머리 위 HP 바 표시 확인, 오너 육안 승인 완료(Director MCP 실측 확인). 상세 구현·핵심 노하우(컴포넌트 RelativeLocation MCP 수정 불가+BeginPlay 해법, 스프라이트 로컬축 함정 등): [[U단계_HP게이지_UMG_실장]] · TC: [[U단계_TC]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §22.
+
+**구현 방식 변경으로 아래 TC-F3-04·TC-F3-05는 superseded** — 두 항목이 서술하는 TextRenderComponent 기준 Z+250 월드오프셋·CaptureViewport 시각확인은 더 이상 존재하지 않는 컴포넌트를 대상으로 한 이력 기록이다(원문은 보존). 새 구현의 위치 확정 방식은 위 raw 문서 참고.
+
 
 #### TC — F3 (qa-critic 확정 · 판정방법 컬럼 필수)
 
@@ -233,13 +238,13 @@ F2 완료. 다음 F3(스탯 로드+HP 게이지) 착수 가능.
 | [F3][TC-F3-01] | 스탯 로드 → A측 스폰 로드값=DT값(전사=90/40/10·마법사=80/42/6), B측 대칭. 슬롯순서는 TC-F0-04 확정안 기준 | 로그 대조 | **PASS**(PIE 8기 전부 get_properties 재조회 — A1/A2/B1/B2=90/40/10, A3/A4/B3/B4=80/42/6 정확 일치) |
 | [F3][TC-F3-02] | 등급 로드 범용성 → DT_JobStats 1성/3성 행 스탯 정확(72/32/8·113/50/13). A1 미사용이라 로드로직 스팟만 | 로그/MCP | 이월(F3 스팟만, 등급 실전 검증은 베타) |
 | [F3][TC-F3-03] | 8기 드리프트 0 → JobId 필드추가+컴파일 전후 8기 Location·FaceLeft·Sprite diff=0(S2p 백업 대조) | 트랜스폼 diff | **PASS**(raw/F3_사전스냅샷.md 대조, max_diff=0.0 — 필드추가 직후·전체 그래프 완성 후·최종 저장 후 3회 재확인 전부 0) |
-| [F3][TC-F3-04] | 가시성 캡처 → DefaultCamera 실측 트랜스폼 + ActionCam 근접컷 상태 **둘 다**에서 8기 HP게이지 시인 | 캡처 2종 | **부분(데이터 검증 PASS, 순수 시각 캡처 제약)** — PIE get_properties로 게이지 월드위치=액터위치+(0,0,250), 회전=(90,84,0)(UI_AttackButton과 동일 컨벤션) 8기 전부 확인. 단 CaptureViewport가 PIE 아닌 에디터 원본을 캡처하는 기존 함정(§7 미해결 이월)+에디터 인스턴스 미러링 시도가 함정③(인라인 구조체 set_properties 비결정성, 10회 재시도도 미수렴)에 막혀 픽셀 단위 시각 확인은 못함. ActionCam 근접컷은 실제 공격 트리거 없이는 미검증 — 이월 |
-| [F3][TC-F3-05] | 게이지 Z위치 → HP게이지 시작 Z가 UI_AttackButton 기준(≈420대)이라 CamToggle 초기에도 가림 없음 | 트랜스폼/캡처 | **명세 대비 변경**(설계와 다르게 구현, 이유 있음) — UI_AttackButton은 지면 근처 별개 UI 평면이라 Z=420이지만, HP게이지는 "머리 위" 요구(TC-F3-오너)를 만족해야 해서 각 유닛 자신의 Location.Z+250(월드 Z≈825~932대)로 계산해 배치. 오너 라이브 확인에서 가림 발견 시 오프셋 조정 필요 |
+| [F3][TC-F3-04] | 가시성 캡처 → DefaultCamera 실측 트랜스폼 + ActionCam 근접컷 상태 **둘 다**에서 8기 HP게이지 시인 | 캡처 2종 | **부분(데이터 검증 PASS, 순수 시각 캡처 제약)** — PIE get_properties로 게이지 월드위치=액터위치+(0,0,250), 회전=(90,84,0)(UI_AttackButton과 동일 컨벤션) 8기 전부 확인. 단 CaptureViewport가 PIE 아닌 에디터 원본을 캡처하는 기존 함정(§7 미해결 이월)+에디터 인스턴스 미러링 시도가 함정③(인라인 구조체 set_properties 비결정성, 10회 재시도도 미수렴)에 막혀 픽셀 단위 시각 확인은 못함. ActionCam 근접컷은 실제 공격 트리거 없이는 미검증 — 이월. **[U단계 갱신, 2026-07-15] superseded** — 이 TextRenderComponent 자체가 폐기되고 UMG WidgetComponent로 교체됨. 새 구현은 PIE `get_properties`(UEDPIE_0 월드 경로) 실측+오너 육안으로 검증([[U단계_HP게이지_UMG_실장]]), ActionCam 근접컷 상태의 별도 확인은 주어진 사실 없어 미기재 |
+| [F3][TC-F3-05] | 게이지 Z위치 → HP게이지 시작 Z가 UI_AttackButton 기준(≈420대)이라 CamToggle 초기에도 가림 없음 | 트랜스폼/캡처 | **명세 대비 변경**(설계와 다르게 구현, 이유 있음) — UI_AttackButton은 지면 근처 별개 UI 평면이라 Z=420이지만, HP게이지는 "머리 위" 요구(TC-F3-오너)를 만족해야 해서 각 유닛 자신의 Location.Z+250(월드 Z≈825~932대)로 계산해 배치. 오너 라이브 확인에서 가림 발견 시 오프셋 조정 필요. **[U단계 갱신, 2026-07-15] superseded** — Z+250 월드오프셋 방식 자체가 폐기됨. 새 구현은 스프라이트 로컬공간 RelativeLocation(아군/적군 별도값, BeginPlay 주입)으로 완전히 다르게 배치([[U단계_HP게이지_UMG_실장]] §3) |
 | [F3][TC-F3-06] | 클릭 무간섭 → HP게이지 컴포넌트 BeginPlay 즉시 NoCollision(함정⑧), 기존 Sprite/TurnMarker 클릭 방패 안 됨 | 정적+런타임 | **PASS**(BeginPlay 그래프 노드 SetCollisionEnabled(NoCollision) 사용 — 함정⑧ 정석 패턴. PIE 8기 전부 bodyInstance.collisionEnabled="NoCollision" 확인) |
-| [F3][오너] | HP 게이지 8기 머리 위 첫 등장 육안 | 오너 라이브(PIE) | 대기 — Director 안내 예정 |
+| [F3][오너] | HP 게이지 8기 머리 위 첫 등장 육안 | 오너 라이브(PIE) | **PASS**(2026-07-15, U단계 UMG 재구현 후 PIE에서 8기 전원 확인 — 오너 육안 승인, [[U단계_HP게이지_UMG_실장]]) |
 
 
-> **오너 라이브 확인 ★필수**: HP 게이지 첫 등장. Director 안내 문구 준비 필요(아래 체크리스트).
+> **오너 라이브 확인 ★필수**: HP 게이지 첫 등장 — **완료**(2026-07-15, U단계 UMG 재구현 후 8기 전원 확인, 오너 육안 승인).
 
 ---
 
@@ -655,11 +660,11 @@ Executing 안무(걸음→PlayAttack→TakeHit/WalkBack)는 SELF/ALLY1 스킬도
 - [ ] F2 개발(motions.csv 완료 / struct 3종 오너 생성 / DT 파일럿 / DT 확장)
 - [ ] F2 게이트: verifier 실증
 - [ ] F2 게이트 통과 (Director 판정)
-- [ ] F3 개발
-- [ ] F3 게이트: verifier 실증
-- [ ] F3 게이트: ★오너 라이브 확인(PIE) — HP 게이지 첫 등장
-  - [ ] 오너 안내 문구 준비(Director) — 무엇을 클릭·무엇을 관찰
-- [ ] F3 게이트 통과 (Director 판정)
+- [x] F3 개발 — U단계(UMG 재구현)로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]])
+- [x] F3 게이트: 실증 — Director MCP 실측 확인(PIE `get_properties`, 8기 전원)
+- [x] F3 게이트: ★오너 라이브 확인(PIE) — HP 게이지 첫 등장(8기 전원 확인, 오너 육안 승인)
+  - [x] 오너 안내 문구 준비(Director) — 무엇을 클릭·무엇을 관찰
+- [x] F3 게이트 통과 (Director 판정) — 완료
 - [ ] F4 개발
 - [ ] F4 게이트: verifier 실증
 - [ ] F4 게이트: ★오너 라이브 확인(PIE) — 공격하면 HP가 실제로 깎임

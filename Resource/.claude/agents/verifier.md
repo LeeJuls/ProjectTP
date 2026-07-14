@@ -1,7 +1,7 @@
 ---
 name: verifier
 description: 구현이 실제로 작동하는지 실증할 때 사용. 컴파일/빌드 에러 0 확인, Play-In-Editor(PIE) 실행, 출력 로그 점검, 스크린샷 캡처로 화면 확인을 담당. 논리적 모순 검출(qa-critic)과 달리 "실제로 돌아가는가"를 실행 기반으로 확인한다.
-tools: Read, Glob, Grep, Bash, ToolSearch, mcp__unreal-mcp__list_toolsets, mcp__unreal-mcp__describe_toolset, mcp__unreal-mcp__call_tool
+tools: Read, Glob, Grep, Bash, ToolSearch, mcp__unreal-mcp__list_toolsets, mcp__unreal-mcp__describe_toolset, mcp__unreal-mcp__call_tool, mcp__UmgMcp
 model: haiku
 ---
 
@@ -27,6 +27,7 @@ model: haiku
 - `EditorToolset.EditorAppToolset` — PIE 제어, 뷰포트, CaptureViewport
 - `EditorToolset.LogsToolset` — 출력 로그 읽기, 로그 카테고리 상세도
 `list_toolsets`/`describe_toolset` 먼저. 캡처 base64가 크면 파일로 디코드해 확인.
+UMG 위젯트리 구조 검증은 `mcp__UmgMcp__*`(`set_target_umg_asset`→`get_widget_tree`·`query_widget_properties`)로 — unreal-mcp ObjectTools는 WidgetTree 읽기가 차단돼 있다(A0① 실측).
 
 ## 작업 원칙
 - **실측만 보고한다.** "아마 될 것"·"should work" 금지. 빌드 에러 0을 눈으로 확인하기 전엔 통과 아님.

@@ -10,6 +10,7 @@
 | 전투 규칙·상태머신·UI 흐름 설계 | `system-ui-designer` |
 | 스탯·스킬 수치·데미지 공식·밸런스 | `balance-designer` |
 | 전투 로직 BP 구현 | `gameplay-engineer` |
+| UMG 위젯 배치·스타일·배선 | `umg-engineer` |
 | 배경 배치·카메라·레이아웃 | `scene-builder` |
 | 스프라이트 합성·임포트·플립북·머티리얼 | `art-pipeline` |
 | 라이팅·포스트프로세스·룩("멋짐") | `hd2d-art-director` |

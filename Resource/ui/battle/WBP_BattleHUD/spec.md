@@ -3,8 +3,8 @@ type: spec
 project: projectTP
 feature: 전투UI
 screen: WBP_BattleHUD
-updated: 2026-07-14
-status: design_v2 오너 확정(approved.html) — 1순위 WBP 골격 생성 완료(§B 3단계, WBP_BattleHUD/WBP_UnitFrame/WBP_SkillMenu/WBP_SkillMenuRow), 오너 UMG 배치 대기(§B 4단계, `오너_UMG배치가이드.md` 참고), 2순위는 명세만 선반영
+updated: 2026-07-15
+status: design_v2 오너 확정(approved.html) — 1순위 WBP 골격 생성 완료(§B 3단계, WBP_BattleHUD/WBP_UnitFrame/WBP_SkillMenu/WBP_SkillMenuRow), 오너 UMG 배치 대기(§B 4단계, `오너_UMG배치가이드.md` 참고), 2순위는 명세만 선반영. WBP_UnitFrame(HP 게이지)은 U단계로 배치+배선 완료 — F3 완결([[U단계_HP게이지_UMG_실장]])
 ---
 
 # WBP_BattleHUD spec.md
@@ -56,9 +56,9 @@ status: design_v2 오너 확정(approved.html) — 1순위 WBP 골격 생성 완
 WBP_BattleHUD  [루트, CanvasPanel — /Game/UI/Battle]
 ├─ Panel_TurnOrderBar        [WBP_TurnOrderBar 인스턴스]              (2순위)
 ├─ Panel_BerserkBadge        [WBP_BerserkBadge 인스턴스]              (2순위, Visibility 조건부)
-├─ Panel_Battlefield         [CanvasPanel — 유닛프레임 8개의 부모 컨테이너]
-│   ├─ UnitFrame_A1 … UnitFrame_A4   ×4  [WBP_UnitFrame 인스턴스]     (1순위)
-│   └─ UnitFrame_B1 … UnitFrame_B4   ×4  [WBP_UnitFrame 인스턴스]     (1순위)
+├─ Panel_Battlefield         [CanvasPanel — 유닛프레임 8개의 부모 컨테이너]  ⚠(무효 — §6-4 재확정 참조)
+│   ├─ UnitFrame_A1 … UnitFrame_A4   ×4  [WBP_UnitFrame 인스턴스]     (1순위)  ⚠(무효 — §6-4 재확정 참조)
+│   └─ UnitFrame_B1 … UnitFrame_B4   ×4  [WBP_UnitFrame 인스턴스]     (1순위)  ⚠(무효 — §6-4 재확정 참조)
 ├─ Panel_FloatingNumbers     [CanvasPanel — 빈 컨테이너, 런타임 CreateWidget으로 WBP_DamageNumber 동적 추가/제거] (2순위)
 ├─ Panel_TargetCursor        [WBP_TargetCursor 인스턴스, 런타임 가시성 토글]  (미분류, §6-5)
 └─ Menu_SkillMenu            [WBP_SkillMenu 인스턴스]                 (1순위)
@@ -170,13 +170,15 @@ WBP_UnitFrame [루트: CanvasPanel]
  └─ Panel_Root (CanvasPanel, anchor fill)
      ├─ Border_Frame (Border, anchor fill — 배경 --tp-panel-bg, 테두리/radius는 bIsAlly로 분기 §3-3b)
      │   └─ VBox_Frame (VerticalBox — padding은 §3-3b)
-     │       ├─ Txt_Name        (TextBlock — Visibility: bIsAlly?Visible:Collapsed)
+     │       ├─ Txt_Name        (TextBlock — Visibility: bIsAlly?Visible:Collapsed) ⚠**삭제됨**(아래 노트 참고)
      │       ├─ HBox_Hp         (HorizontalBox, gap6)
      │       │    ├─ Bar_Hp      (ProgressBar — height7, radius4, 배경 rgba(0,0,0,0.5))
-     │       │    └─ Txt_HpValue (TextBlock — "90/90")
+     │       │    └─ Txt_HpValue (TextBlock — "90/90") ⚠**삭제됨**(아래 노트 참고)
      │       └─ Txt_StatusTag   (TextBlock — §0-1 권장: 1순위에 자리만 배치, Visibility=Collapsed 기본)
      └─ Img_StatusIcon (Image, 20×20 원형 — Anchor=(1,0), Position≈(+8,-8)(모서리 오버랩) — §0-1 권장: 1순위에 자리만 배치, Visibility=Collapsed 기본)
 ```
+
+> **✅ 구현 반영(오너 간소화 지시, 2026-07-15)**: "정보가 많아서 간소화" — 최종 구현은 `Txt_Name`·`Txt_HpValue` 위젯을 **삭제**했고 `Border_Frame` 배경도 투명화(BrushColor Alpha=0)했다. **현재 화면에 표시되는 것은 `Bar_Hp`(HP 게이지 막대) 하나뿐**이다. `Txt_StatusTag`/`Img_StatusIcon`(2순위 예약, Collapsed)은 위 트리 그대로 보존됐다. 상세: [[U단계_HP게이지_UMG_실장]].
 
 **3-3a. 8인스턴스 배치(design_v2 좌표 그대로, §6-4 위치추적 방식 확인 필요와 함께 읽을 것)**:
 
@@ -307,7 +309,7 @@ v1의 스킬 섹션 킥커 `UI_BATTLE_SKILL`("스킬")은 v2에서 리스트 헤
 |---|---|---|
 | `WBP_UnitFrame.Txt_Name` | `GetLocalizedString(Job.<JobName>)` + `" " + 로마숫자(동일직업 내 순번)` — ⚠ 로마숫자(I/II)는 로컬라이즈 키 아님, 동일 Job 유닛 구분용 서수 포맷 로직(§6-2 확인 필요) | 유닛 스폰 시 1회 |
 | `WBP_UnitFrame.Bar_Hp` / `Txt_HpValue` | `Unit.Hp` / `Unit.MaxHp`(F3에서 이미 로드된 액터 멤버 변수, `DT_JobStats` 기원) | `TakeHit` 결과 반영 시(이벤트 기반 권장, Tick 폴링 지양) |
-| `WBP_UnitFrame` 위치(Canvas Slot Position) | 유닛의 3D 월드 위치 → `Project World To Screen Location` | §6-4 참고(정적 vs 동적 확인 필요) |
+| `WBP_UnitFrame` 위치(Canvas Slot Position) | 유닛의 3D 월드 위치 → `Project World To Screen Location` | §6-4 참고(정적 vs 동적 확인 필요) — ⚠(무효 — §6-4 재확정 참조) |
 | `WBP_UnitFrame.Txt_StatusTag`/`Img_StatusIcon`(2순위) | `Unit.ActiveStatuses[0]`(`F_ActiveStatus`: statusToken/value/remainingTurns) | 상태 APPLY/EXPIRE 시(`StatusLog` 이벤트) |
 | `WBP_SkillMenu.HBox_Header` | 현재 `ActiveUnit`(AwaitCommand 상태의 행동 유닛) | 턴 전환 시(`EnterAwaitCommand` 진입) |
 | `WBP_SkillMenu` 전체 Visibility | `BattleState == AwaitCommand`일 때만 Visible, 그 외(`AwaitTarget`/`Executing`/상대 턴) Collapsed 또는 Hit-Test Invisible | 상태 전이마다 |
@@ -330,7 +332,7 @@ v1의 스킬 섹션 킥커 `UI_BATTLE_SKILL`("스킬")은 v2에서 리스트 헤
 | 6-1 | **`row-cd` 숫자의 의미** | 목업은 "베기"(사용가능, CD1)와 "막기"(쿨다운중, CD2) 둘 다 `DT_Skills.CooldownTurns` 정의값과 정확히 일치하는 숫자를 보여줌 — 스냅샷만으론 "정의값 상시표시"와 "잔여값표시"가 구분 안 됨(막 사용 직후엔 둘이 같은 값이라서). **권장**: 사용 가능(쿨다운 0) 상태면 `DT_Skills.CooldownTurns`(정의/예고값), 쿨다운 중이면 `GetSkillCooldown(unit,skillId)`(실제 잔여값) 표시 — 플레이어에게 더 유용. **✅ 확정(gameplay-engineer, 2026-07-14)**: 권장안 그대로 채택. `WBP_SkillMenuRow.SetCooldown(CooldownText, bInOnCooldown)` 골격에서 값 산출(정의값 vs 잔여값 분기)은 **호출부**(`WBP_SkillMenu`의 행 리바인드 로직, §B 5단계 배선 시 구현) 책임으로 설계 — Row는 이미 포맷된 텍스트만 받는다. |
 | 6-2 | **동일 Job 중복 유닛 표기(전사 I/II)** | "I"/"II" 로마숫자는 어느 필드에서 오는가 — 현재 DT_JobStats/스폰 로직에 순번 필드 없음(F0③ 배정표는 JobId만 규정). UI 표시용 파생 로직(같은 팀 내 동일 Job 등장 순서로 서수 계산) 신설 필요 — 로컬라이즈 키가 아니라 **표시 로직**임을 gameplay-engineer 확인 요청. |
 | 6-3 | **기본 선택 행(메뉴 오픈 시 커서 위치)** | 목업은 "베기"(2번째 행)가 기본 선택 상태로 그려짐 — 우연인지 의도인지 불명. **권장**: 메뉴 오픈 시 기본 선택 = 첫 번째 사용 가능(쿨다운 0 & 유효타겟 有) 스킬 행. 첫 스킬(공격)은 CooldownTurns=0 고정이라 "전부 쿨다운 중" 엣지는 발생 안 함(안전). UX 확정은 qa-critic/오너 확인 요청. |
-| 6-4 | **WBP_UnitFrame 위치추적 방식(정적 vs 동적) — ★설계 결정 필요** | 기존 F3 임시 HP(`HpGaugeText`)는 **액터 부착 월드공간**이라 카메라 상태(DefaultCamera/ActionCam 근접컷)와 무관하게 항상 유닛 위에 붙어 있다. 이 문서 §3-3a의 좌표(예: A1=150,358)는 design_v2 목업의 **정적 스냅샷**일 뿐이다. WBP_BattleHUD를 CanvasPanel 화면 오버레이로 만들면서 위치를 고정 px로 박으면, ActionCam 근접컷 등 카메라 변화 시 유닛과 프레임이 어긋나는 **회귀** 가능성이 있다([[전투완성/plan]] F3 TC-F3-04가 이미 이 이슈로 "부분 PASS·이월"). **권장**: `Project World To Screen Location`으로 매 틱(또는 카메라 전환/유닛 이동 이벤트 시)마다 각 `UnitFrame_*`의 Canvas Slot Position을 갱신 — §3-3a 좌표는 기본 카메라 기준 참고값으로만 사용. **✅ 확정(gameplay-engineer, 2026-07-14)**: 권장안(동적 PWTS) 채택. 골격 단계에서 훅 포인트 선배치 — `WBP_UnitFrame.UpdateScreenPosition(WorldLocation: Vector)`(자기 Slot을 CanvasPanelSlot으로 캐스트해 Position 갱신, self-contained) + `WBP_BattleHUD.RefreshAllUnitFramePositions()`(오너가 8개 UnitFrame을 배치해 `UnitFrame_A1~B4` 변수가 생긴 뒤 루프 구현, §B 5단계). Tick 기반이냐 카메라 전환 이벤트 기반이냐(성능 트레이드오프)는 5단계 구현 시 확정. |
+| 6-4 | **WBP_UnitFrame 위치추적 방식(정적 vs 동적) — ★설계 결정 필요** | 기존 F3 임시 HP(`HpGaugeText`)는 **액터 부착 월드공간**이라 카메라 상태(DefaultCamera/ActionCam 근접컷)와 무관하게 항상 유닛 위에 붙어 있다. 이 문서 §3-3a의 좌표(예: A1=150,358)는 design_v2 목업의 **정적 스냅샷**일 뿐이다. WBP_BattleHUD를 CanvasPanel 화면 오버레이로 만들면서 위치를 고정 px로 박으면, ActionCam 근접컷 등 카메라 변화 시 유닛과 프레임이 어긋나는 **회귀** 가능성이 있다([[전투완성/plan]] F3 TC-F3-04가 이미 이 이슈로 "부분 PASS·이월"). **권장**: `Project World To Screen Location`으로 매 틱(또는 카메라 전환/유닛 이동 이벤트 시)마다 각 `UnitFrame_*`의 Canvas Slot Position을 갱신 — §3-3a 좌표는 기본 카메라 기준 참고값으로만 사용. **✅ 확정(gameplay-engineer, 2026-07-14)**: 권장안(동적 PWTS) 채택. 골격 단계에서 훅 포인트 선배치 — `WBP_UnitFrame.UpdateScreenPosition(WorldLocation: Vector)`(자기 Slot을 CanvasPanelSlot으로 캐스트해 Position 갱신, self-contained) + `WBP_BattleHUD.RefreshAllUnitFramePositions()`(오너가 8개 UnitFrame을 배치해 `UnitFrame_A1~B4` 변수가 생긴 뒤 루프 구현, §B 5단계). Tick 기반이냐 카메라 전환 이벤트 기반이냐(성능 트레이드오프)는 5단계 구현 시 확정. **재확정(Director, 2026-07-14 U-v5)**: 동적 PWTS 폐기 → per-unit WidgetComponent(Space=Screen) 채택. `BP_BattleSpawnPoint.HpGaugeWidget`(F3b)의 widgetClass를 `WBP_UnitFrame_C`로 교체; 위치추적·카메라정면·off-screen클램프는 엔진 보장, 골격 스텁 삭제(死코드0). → §2 Panel_Battlefield 8-UnitFrame 자식 및 §5 "WBP_UnitFrame 위치←PWTS" 행은 무효(UnitFrame은 HUD캔버스 밖 액터별 WidgetComponent 거주; 데미지숫자·타겟커서의 프레임기준 위치는 액터 월드위치 PWTS로 재귀속). **구현 완료(2026-07-15, U단계)**: ProjectWorldToScreen 동적 갱신 방식은 최종 미채택 — WidgetComponent(Screen space) 단일 경로로 확정 구현됐다. 위치추적·빌보드는 엔진이 보장해 별도 Tick 갱신 로직이 불요함을 실증했고, 스텁 `WBP_UnitFrame.UpdateScreenPosition`·`WBP_BattleHUD.RefreshAllUnitFramePositions`는 삭제 완료. 상세: [[U단계_HP게이지_UMG_실장]]. |
 | 6-5 | **미분류 요소 우선순위 귀속** | 오너 지시의 2순위 리스트(턴순서바/광폭화배지/상태이상아이콘/데미지부동숫자)에 `WBP_TargetCursor`·머리위화살표·지면다이아가 명시적으로 없음. 이 문서는 TargetCursor를 "2순위에 준함"으로 잠정 분류(§0 표) — **Director/오너 확인 요청**, 다른 처리를 원하면 정정. |
 | 6-6 | **동시 다중 상태이상 아이콘 슬롯 1개 한정** | 목업은 유닛당 상태이상 아이콘 슬롯 1개만 설계(`Img_StatusIcon` 단수). 한 유닛이 STUN+ATK_DOWN을 동시에 가질 수 있는지는 [[상태이상_확정]](상태이상 SSOT) 확인 필요 — 가능하다면 아이콘 다중표시(가로나열) 또는 우선순위 1개만 표시 중 선택 필요. **2순위 착수 시** balance-designer/qa-critic 확인 요청(지금 결정 불요). |
 | 6-7 | **전투 메뉴와 전열 적 프레임 겹침(v2 자체 인지 사항)** | design_v2 spec-note 원문: 우하단 이동한 메뉴가 전열 적 유닛(x:1010~1102) 상단과 세로 약 16px 내외 겹칠 수 있음 — 반투명+z-index로 가독성 문제는 없다고 판단되나, UMG 구현 시 실측 재확인 권장(§3-1 Position 확정 후 `UnitFrame_B1` 실제 렌더 위치와 겹침 여부 재확인). |

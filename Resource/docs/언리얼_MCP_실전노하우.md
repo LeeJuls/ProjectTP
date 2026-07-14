@@ -1,7 +1,7 @@
 ---
 type: reference
 project: projectTP
-updated: 2026-07-14
+updated: 2026-07-15
 ---
 
 # 🛠️ 언리얼 MCP 실전 노하우
@@ -473,3 +473,24 @@ winget install Microsoft.DotNet.Framework.DeveloperPack_4
 - **`bluecode_*`**(BP 배선 — apply/connect/compile/read_function/read_variables/apply_variables 등): [[UI_화면_규약]] §B-3이 "미검증"으로 남겨둔 5단계(배선) 자동화 가능성을 열지만, **이번 세션엔 미실증**(다음 UMG 제작 착수 시 최우선 검증 대상).
 - **`animation_*`**, **`hlsl_*`**: 이번 세션엔 미사용, 존재만 확인.
 - UmgMcp는 공식 MCP(포트 8000, HTTP)와 **별도 discovery registry**(stdio, `uv run`)를 쓰므로 두 서버가 충돌하지 않는다 — `Resource\.mcp.json`에 동시 등록해도 안전.
+
+---
+
+## 22. 전투완성 U단계(HP게이지 UMG 실장)에서 확정된 노하우 (2026-07-15)
+
+> 배경: 3회 실패한 F3b(액터부착 월드공간 TextRenderComponent) 방식을 폐기하고 UMG WidgetComponent(Screen space)로 재구현해 F3(HP 게이지)를 완결한 세션. 상세 구현 기록은 [[U단계_HP게이지_UMG_실장]].
+
+### 함정 ㉖ 레벨에 이미 배치된 액터 인스턴스의 컴포넌트 `RelativeLocation`은 MCP `set_properties`/`reset_properties`로 수정 불가 — CDO 세팅도 Construction Script도 안 먹히고 **BeginPlay만 유일하게 작동**
+함정㉔(§20)이 `bAbsoluteLocation/Rotation/Scale` 세팅의 CDO→인스턴스 미전파를 확정했는데, 이번엔 더 근본적인 사례가 추가로 확인됐다: `HpGaugeWidget`(WidgetComponent)의 `RelativeLocation` 값 자체를 `ObjectTools.set_properties`/`reset_properties`로 레벨 인스턴스에 직접 세팅해도 **호출은 `true`를 반환하지만 실제 값은 전혀 바뀌지 않는다**(4회 재시도 전부 동일 결과로 실측 확인). CDO(`BP_BattleSpawnPoint_C:HpGaugeWidget_GEN_VARIABLE`) 자체는 정상적으로 수정되지만, 레벨에 이미 배치된 8개 인스턴스가 **개별 per-instance 오버라이드를 계속 붙들고 있어 CDO 값이 상속되지 않는다.** 한 걸음 더 나아가 Construction Script(`UserConstructionScript`)에 `SetRelativeLocation` 노드를 넣어 실행해도 실패했다 — 액터 재구성(construction) 순서상 **인스턴스 오버라이드가 Construction Script 실행 이후에 다시 한 번 덮어써지는 것으로 추정**된다. **해법**: **`BeginPlay`에서 `SetRelativeLocation`을 호출**하는 것이 유일하게 작동하는 경로다 — BeginPlay는 모든 재적용(construction·오버라이드 복원)이 끝난 뒤 실행되므로 그 무엇도 이 호출 결과를 덮어쓰지 못한다. PIE에서 8기 전원 값이 정상 반영됨을 실측 확인했다(아래 함정㉗ 값 기준).
+
+### 함정 ㉗ WidgetComponent가 비균등 스케일+회전된 스프라이트 부모에 붙어있으면 로컬축이 화면 방향과 어긋나고, 좌우로 마주보게 회전된 두 그룹(아군/적군)엔 팀 공통 단일 오프셋이 성립하지 않는다
+`HpGaugeWidget`의 부모가 HD-2D 스프라이트 컨벤션의 `Sprite`(루트, yaw 정렬됨 + 스케일 `(6.48, 2.59, 1)`인 비균등 스케일)라 §7 함정②·§18 함정㉒ 계열의 로컬축 예측불가 문제가 다시 나타났다 — 다만 이번엔 "완전 소실" 대신 **축 자체가 직관과 다르게 매핑**되는 형태였다. 실측 확정: **Z가 "위"가 아니고, Y가 화면 수직축(음수 방향이 위)이다.** 게다가 **아군/적군 스프라이트가 서로 마주보도록 반대로 회전돼 있어 로컬 X축의 부호가 팀마다 반전**된다 — 즉 "머리 위" 오프셋을 팀 공통 단일 벡터 하나로 표현하는 것이 원리적으로 불가능하고, `bIsParty`(또는 `bIsAlly`) 분기가 반드시 필요하다. **최종 확정값**(오너가 PIE에서 F8로 빙의 해제한 뒤 기즈모로 직접 맞춘 값을 Director가 MCP로 실측 채집): **아군 `(-7.716049, -34.722008, 0)` / 적군 `(+7.716049, -27.0, 0)`**(전부 `RelativeLocation`, 함정㉖의 BeginPlay 경로로 주입). 배선은 `수학|벡터|SelectVector` 노드로 `bIsParty` 분기해 두 리터럴 벡터 중 하나를 선택하는 방식. PIE 라이브 값 재조회로 8기 전원 검증 완료(아래 확정 항목의 PIE 월드 경로 조회 방식 사용).
+
+### 확정 — PIE 실행 중에는 `save_assets`가 차단된다(조회는 정상 동작) — 저장은 PIE 종료 후에 할 것
+U단계 작업 중 PIE를 띄운 채로 `save_assets`를 호출하면 **"Asset does not exist" 에러**가 반환됐다 — 같은 애셋에 대한 조회(`get_properties` 등)는 PIE 중에도 정상 동작하므로, 애셋이 실제로 없는 게 아니라 **저장 동작만 선택적으로 차단**되는 것으로 보인다(근본 메커니즘 미규명, PIE가 애셋 패키지를 점유해서로 추정). PIE를 종료하면 동일 호출이 즉시 정상 저장된다. **실무 규칙**: PIE 중 값을 바꿔 실측 확인한 뒤, 저장이 필요하면 반드시 PIE를 먼저 끝낼 것.
+
+### 확정 — BeginPlay가 런타임에 바꾼 값을 확인하려면 에디터 월드 경로가 아니라 **PIE 월드 경로**로 조회해야 한다
+에디터 월드 경로(예: `/Game/Stages/map_battle_octopath...`)에 대고 `get_properties`를 호출하면 **직렬화된(저장된) 초기값만** 돌아온다 — `BeginPlay`가 런타임에 계산해 바꾼 실제 값은 반영되지 않는다. PIE를 실행한 상태에서 **PIE 월드 경로**(같은 경로에 `UEDPIE_0_` 접두어가 붙은 형태, 예: `/Game/Stages/UEDPIE_0_map_battle_octopath...`)로 다시 조회해야 BeginPlay가 실제로 세팅한 런타임 값을 볼 수 있다. 함정㉖·㉗의 위치 확정 전 과정에서 이 구분을 놓치면 "BeginPlay 로직이 반영 안 됐다"는 오판을 하기 쉽다(사실은 조회 경로가 틀린 것).
+
+### 함정 ㉘ UmgMcp `bluecode_apply`/`bluecode_connect`는 함수 파라미터 참조·위젯 액션 매칭에서 반복 실패한다 — `unreal-mcp` `BlueprintTools`의 저수준 노드 API로 대체할 것
+U단계에서 `WBP_UnitFrame.SetHp`/`SetUnitInfo` 배선과 `BP_BattleSpawnPoint`의 Cast 재타깃을 `bluecode_apply`/`bluecode_connect`(§21이 "미실증"으로 남겨둔 배선 자동화)로 시도했으나 **반복적으로 실패**했다 — 함수 파라미터를 참조하려 하면 "No Blueprint action matched"류 에러가 나거나, 파라미터를 심볼릭 참조가 아니라 **리터럴 값으로 오파싱**하는 사례가 나왔다(예: 위젯 `SetText` 액션에 파라미터를 연결하려는 시도가 매칭 실패). **대체 경로**: §7~§20에서 이미 검증된 **`unreal-mcp`(공식 서버) `BlueprintTools`의 저수준 노드 API** — `create_node`/`connect_pins`/`set_pin_value`/`get_node_infos`/`delete_node`/`retarget_node_class` — 를 그대로 사용하면 전부 정상 작동했다. **핵심 요령**: 함수 파라미터는 이름 문자열로 매칭시키려 하지 말고, **`FunctionEntry` 노드가 노출하는 출력 핀에 `connect_pins`로 직접 연결**할 것 — 이 경로가 U단계 배선 전체(SetHp/SetUnitInfo/Cast 재타깃/SelectVector 분기)에서 예외 없이 성공했다.
