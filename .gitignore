@@ -40,6 +40,9 @@
 # ===== UE auto-generated project copies (e.g. "projectTP 5.8") =====
 /projectTP */
 
+# ===== 단계별 롤백용 UE 애셋 스냅샷 (로컬 전용 — .uasset은 git 대상 아님) =====
+/_savepoints/
+
 # ===== Local tooling / editor state =====
 **/.claude/settings.local.json
 /Resource/docs/.obsidian/workspace.json
