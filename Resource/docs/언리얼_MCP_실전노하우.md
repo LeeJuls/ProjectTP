@@ -494,3 +494,59 @@ U단계 작업 중 PIE를 띄운 채로 `save_assets`를 호출하면 **"Asset d
 
 ### 함정 ㉘ UmgMcp `bluecode_apply`/`bluecode_connect`는 함수 파라미터 참조·위젯 액션 매칭에서 반복 실패한다 — `unreal-mcp` `BlueprintTools`의 저수준 노드 API로 대체할 것
 U단계에서 `WBP_UnitFrame.SetHp`/`SetUnitInfo` 배선과 `BP_BattleSpawnPoint`의 Cast 재타깃을 `bluecode_apply`/`bluecode_connect`(§21이 "미실증"으로 남겨둔 배선 자동화)로 시도했으나 **반복적으로 실패**했다 — 함수 파라미터를 참조하려 하면 "No Blueprint action matched"류 에러가 나거나, 파라미터를 심볼릭 참조가 아니라 **리터럴 값으로 오파싱**하는 사례가 나왔다(예: 위젯 `SetText` 액션에 파라미터를 연결하려는 시도가 매칭 실패). **대체 경로**: §7~§20에서 이미 검증된 **`unreal-mcp`(공식 서버) `BlueprintTools`의 저수준 노드 API** — `create_node`/`connect_pins`/`set_pin_value`/`get_node_infos`/`delete_node`/`retarget_node_class` — 를 그대로 사용하면 전부 정상 작동했다. **핵심 요령**: 함수 파라미터는 이름 문자열로 매칭시키려 하지 말고, **`FunctionEntry` 노드가 노출하는 출력 핀에 `connect_pins`로 직접 연결**할 것 — 이 경로가 U단계 배선 전체(SetHp/SetUnitInfo/Cast 재타깃/SelectVector 분기)에서 예외 없이 성공했다.
+
+---
+
+## 23. 전투완성 S0~F4(DT 재임포트+ResolveHit 스캐폴드)에서 확정된 노하우 (2026-07-15)
+
+> 배경: `DT_Skills` 상태이상 데이터 재반영(S0)부터 §8 판정 코어를 `ResolveHit` 함수로 구현하고(F4) 베기 검증 스캐폴드를 정리하던 중 신규 함정 5건이 발견된 세션. F4 자체는 디스크 저장까지 완료됐으나, 스캐폴드 정리 중 그래프 손상 사고(아래 함정㉜)가 나 에디터 재시작 대기 상태로 세션이 종료됐다 — 상세 경위는 [[F4_중단_인수인계]] 참고.
+
+### 함정 ㉙ 이미 존재하는 DataTable은 `import_file` 단독 호출로도 덮어쓰기가 안 된다 — 기존 F2 노하우는 "신규 생성" 케이스 한정이었다
+전투완성 plan.md §2-3이 F2 시점에 확정해둔 "`DataTableTools.create()` 병용 금지, `import_file()` 단독 호출이 정답"은 **DT가 아직 없는 신규 생성 케이스에서만 유효한 결론**이었다.
+
+**실측(S0)**: F2에서 이미 만들어둔 `DT_Skills`에 상태이상 데이터(EffectChance 등)를 반영하려고 같은 경로로 `import_file`을 호출하면 **`"DT_Skills at /Game/Data already exists"` 에러**가 즉시 난다. `create()`+`import_file()` 병용 실패(§F2)와 표면 증상은 같지만 트리거가 다르다 — 이번엔 `import_file` 하나만 불러도, **MCP 래퍼 자체에 "대상이 이미 존재하면 거부"하는 명시적 존재-체크 가드가 박혀 있어** 막힌다.
+
+**해결(실증됨)**: `get_referencers`로 해당 DT를 참조하는 애셋이 0건임을 먼저 확인 → `AssetTools.delete(경로)`로 삭제 → `DataTableTools.import_file()` 재호출(이제 신규 생성 경로와 동일해짐). S0 시점 `DT_Skills`는 참조 0건이라 이 절차가 안전했다.
+
+**부작용 주의**: delete-recreate 경로를 타면 **애셋 GUID가 새로 발급된다.** 참조가 있는 DT에 같은 절차를 쓰면 그 하드참조가 끊길 위험이 있다 — 실제로 F4_TC.md가 "같은 절차를 `DT_JobStats`에 적용하면 즉시 파국(`BP_BattleSpawnPoint.BeginPlay`가 하드참조 중이라 끊기면 8기 즉사)"이라고 별도로 못박은 이유가 이것이다. **기존 DT를 갱신해야 할 땐 먼저 `get_referencers`로 위험도를 가늠할 것** — 참조가 있으면 delete-recreate 대신 행 단위 갱신이나 오너 수동 편집을 검토한다.
+
+### 함정 ㉚ `K2Node_GetDataTableRow`(BP 팔레트의 "Get Data Table Row")를 `create_node`로 생성할 수 없는 사례 확인 — §20의 성공 사례와 표면적으로 상충, 그래프 종류 차이가 원인일 가능성(미확정)
+**증상(F4)**: `ResolveHit`(§8 판정 함수, **Function Graph**) 안에서 `DT_Skills`를 SkillId로 조회하려고 RowName 기반 typed 단일행 조회 노드를 `create_node`로 만들려 했으나, 시도한 어떤 type_id 문자열도 전부 실패했다(다수 방법 시도 후 확정).
+
+**§20과의 관계(주의해서 읽을 것)**: 이 문서 §20("전투완성 F3에서 확정된 노하우")은 정확히 같은 계열 노드(`Utilities|데이터테이블행가져오기`, exec 출력이 `then`/`RowNotFound` 2개)를 `create_node`로 **성공적으로 생성**했다고 이미 기록하고 있다 — 다만 그건 `DT_JobStats`를 `BeginPlay`(**EventGraph**) 컨텍스트에서 조회하는 용도였다. 이번 실패는 `DT_Skills`를 **Function Graph** 컨텍스트에서 조회하려던 시도다. **그래프 종류(EventGraph vs Function Graph) 차이가 성패를 가른 원인일 가능성이 있으나, 이번 세션에서 §20의 성공 문자열을 Function Graph에서 재시도해 이 가설을 확정 검증하지는 않았다**(후속 조사 과제로 이월). **"이 노드는 MCP로 무조건 생성 불가"로 일반화하지 말 것** — 다음에 필요해지면 먼저 §20의 정확한 성공 문자열부터 그래프 종류를 바꿔가며 재시도해볼 가치가 있다.
+
+**회피(F4에서 채택, 실동작 확인)**: `GetDataTableRowNames`(전체 RowName 배열) + `Utilities|Array|FindItem`(대상 RowName의 인덱스 획득) + `GetDataTableColumnAsString`(컬럼별 문자열 추출) × N회 + `StringToInt`/`StringToFloat`(타입 변환) 조합으로 동등한 조회를 구현했다. 기능은 동일하나 **그래프가 컬럼 수만큼 선형으로 커진다.**
+
+**파급**: F7(스킬 4종 확장)에서도 스킬 데이터 조회가 반복된다 — 착수 전에 이 우회를 그대로 재사용할지, §20 방식 재시도부터 할지 미리 정해둘 것.
+
+### 함정 ㉛ `Format Text`에 리터럴 포맷 문자열을 세팅하면 인자 핀이 자동 생성된다 — 이미 자동생성된 상태에서 `add_node_pin`을 추가로 부르면 orphan(고아) 핀이 생긴다
+**증상(F4)**: `ResolveHit`의 전투로그 조립용 `Format Text` 노드에 `set_pin_value`로 `{0}/{1}/{2}...`가 포함된 포맷 문자열을 세팅하면 **UE가 그 즉시 인자 핀을 자동 생성**한다(§15가 이미 확인한 "FormatText는 `add_node_pin`을 지원한다"는 사실 자체는 그대로 유효하다). 이걸 모르고 그 뒤에 **`add_node_pin`을 추가로 호출**하면, 이미 생성된 인덱스 핀과 별개로 **중복된 orphan 핀**이 생긴다.
+
+**결과**: 컴파일은 에러 없이 통과한다(orphan 핀은 조용히 무시됨) — 그런데 **런타임에 로그 라인의 여러 필드가 공백으로 찍힌다**(실제 배선이 orphan 핀 쪽으로 가 있어서). 1차 PIE 실행에서 실측 발견되어 4개소를 수정했다.
+
+**교훈**: `Format Text`에 리터럴 포맷 문자열을 세팅할 계획이면 **문자열만 먼저 세팅하고 `get_node_infos`로 자동생성된 인자 핀을 재조회해 거기에 배선**할 것 — **`add_node_pin`을 별도로 부르지 마라.**
+
+**연관(리터럴 vs 동적 — 혼동 금지)**: [[언리얼5.8_기술카탈로그]] §1-3의 UE 공식 문서 조사에서 대칭 함정이 확인됐다 — **포맷 핀이 다른 노드에 "연결"(동적)돼 있으면 반대로 인자 핀이 자동 생성되지 않고, Details 패널에서 수동 선언해야 한다.** F7의 스킬 설명(`DescKey`가 DataTable에서 런타임에 오는 동적 포맷)이 정확히 이 케이스다. **리터럴 포맷 = 인자 핀 자동 생성(`add_node_pin` 추가 금지) / 동적 포맷(핀 연결) = 인자 핀 수동 선언 필요(Details 패널)** — 두 경우를 반드시 구분할 것.
+
+### 함정 ㉜ ★`delete_node`가 노드를 지우지 않고 그래프 전역의 핀 연결만 파괴하는 부작용 — 이 문서에 기록된 사고 중 가장 파괴적
+**증상(F4, 이번 세션 최대 사고)**: 베기 검증 스캐폴드를 정리하던 중 존재를 확인하지 않고 추측한 refPath로 `delete_node`를 호출했다. 그 노드는 삭제되지 않았고, 대신 **그래프 전역에서 exec/데이터 연결이 다발적으로 끊기는 부작용**이 났다 — 재조회로 확인된 것만 **11곳 단선**: `SetbInputLocked→PrintString→ForEachLoop`, `HighlightOff`, `ForEachLoop.Completed→PlayAttack→Sequence` 등, 스캐폴드와 무관한 기존 정상 배선까지 광범위하게 끊어졌다.
+
+**2차 피해**: 끊어진 연결을 `connect_pins`로 재배선하려 했으나 **`Internal compiler error inside CreateExecutionSchedule (site 2)`**로 컴파일 자체가 되지 않았다 — 그래프 구조 자체가 통상적 재배선으로는 복구 불가능한 수준까지 손상됐다.
+
+**대응(올바르게 수행됨)**: 손상을 인지한 즉시 **저장하지 않고 작업을 중단·보고**했다 — 이 판단 덕분에 디스크상의 F4 완료본은 무사했다.
+
+**★예방 규칙(반드시 지킬 것)**:
+1. `delete_node` 호출 전 **반드시 `find_nodes`/`get_node_infos`로 그 refPath가 실재하는지 먼저 확인**한다 — 노드 번호(인덱스)를 추측해서 넣지 않는다.
+2. 스캐폴드(임시 검증용 노드)는 **생성 직후 그 refPath를 별도로 기록**해두고, 정리할 때는 그 기록만 근거로 삭제한다 — §15가 이미 "삽입 시점에 원래 대상 refPath를 보존"을 권장했는데, 그 습관을 스캐폴드 자신의 refPath에도 적용하지 않았을 때 실제로 벌어지는 최악의 결과가 이번 사고다.
+3. 큰 그래프(수십~백여 노드)를 수술하기 전엔 **BP 애셋(.uasset)을 파일 복사로 미리 백업**한다 — `Content/`는 `.gitignore` 대상이라 git으로는 복구되지 않는다(§18 함정㉑에서 이미 확인된 사실과 같은 선상).
+
+**복구법**: 저장 전이라면 **에디터 재시작**으로 디스크 버전이 복원된다(메모리상의 손상만 버려진다). 그러나 `AssetTools`에 애셋을 디스크에서 강제로 재로드하는 API는 **없다** — `load_asset`은 이미 메모리에 있는 캐시를 반환할 뿐 디스크와 재동기화하지 않는다. 즉 **"저장하기 전에 손상을 알아채는 것"이 유일한 방어선**이며, 한 번 저장하면 손상이 디스크로 그대로 번져 복구 수단이 없다.
+
+### 함정 ㉝ MCP 툴은 게임 스레드에서 직렬 실행된다(병렬 호출 불가) — §8 함정⑤가 버그가 아니라 문서화된 설계 제약이었음이 확인됨
+공식 Unreal MCP 플러그인 문서(5.8 Experimental)에 **"calls run serially on the game thread (no overlapping tool calls)"**가 명시돼 있다 — MCP 툴 호출은 게임 스레드에서 **직렬로만** 실행되고 겹쳐 부를 수 없다.
+
+**소급 확인**: §8 함정⑤(`add_event`를 병렬 호출하면 `event_name`이 무시되고 기본 이름 `커스텀이벤트`로 생성되는 현상)를 당시엔 원인 미규명의 "버그"로 기록해뒀는데, 이번에 공식 문서와 대조해보니 **버그가 아니라 문서화된 설계 제약**이었음이 확인됐다. §19가 보고한 "특정 `asset_type`으로 `BlueprintTools.create`를 병렬 호출했을 때 공유 MCP 브릿지 전체가 마비된 사고"도, 여러 클라이언트가 같은 직렬 큐를 공유하는 이 구조 위에서 벌어진 일로 재해석할 수 있다.
+
+**규칙**: MCP 툴, 특히 **그래프·애셋을 바꾸는 쓰기 계열 호출은 항상 순차(1개씩) 호출**한다. "독립적인 일은 한 메시지에서 여러 에이전트 병렬 호출"이라는 워크플로우 원칙은 **에이전트 레벨의 병렬성**이지, 그 에이전트들이 **같은 unreal-mcp 세션으로 보내는 개별 툴 호출**에는 적용되지 않는다 — 같은 UE 에디터를 공유하는 여러 에이전트를 한 메시지로 병렬 launch하지 말라는 §19의 규칙이 이 제약의 직접적인 귀결이다.
+
+**출처**: [[언리얼5.8_기술카탈로그]] §1-4.
