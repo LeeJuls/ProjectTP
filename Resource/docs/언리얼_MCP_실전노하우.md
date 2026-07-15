@@ -627,3 +627,23 @@ U단계에서 `WBP_UnitFrame.SetHp`/`SetUnitInfo` 배선과 `BP_BattleSpawnPoint
 **해결**: 함정㊴의 SkillId 원복으로 기본공격(쿨다운 0)이 라이브 경로가 되면서 이 가드에 걸리지 않게 됐다 — 쿨다운 감소 로직(TS3) 자체는 여전히 F5의 정식 구현 대상으로 남아 있다([[F5_착수지시서]] B4).
 
 **일반 교훈**: "가드(차단 조건)는 넣었는데 그 가드를 해제하는 소비/감소 로직은 아직 안 넣은" 반쪽 구현은 **결정론적 지뢰**다 — 조건이 맞아떨어지는 순간 100% 재현되고, 게다가 유닛 수·라운드 경계처럼 겉보기엔 무관해 보이는 수치와 맞아떨어져 원인 추적을 어렵게 만든다. 회피책 둘: (a) 가드와 소비 로직을 **한 세트로만** 커밋한다(반쪽만 먼저 넣지 않는다), 또는 (b) 부득이 반쪽만 먼저 넣어야 한다면 **그 가드를 트리거하는 데이터(쿨다운>0인 스킬)를 라이브 경로에서 완전히 격리**한다(이번 사고는 정확히 이 격리가 깨지면서 터졌다).
+
+---
+
+## 26. 전투완성 F5-2(죽은 유닛 처리) 배선에서 확정된 노하우 (2026-07-15)
+
+> 배경: F5-2(턴스킵·DYING·ClickBox·ResetForBattle) 3청크를 BP로 배선하며 발견한 MCP 그래프 편집 함정 2건. 둘 다 "MCP가 보여주는 표기와 실제 편집 대상이 어긋나는" 계열(§L130 엔진 자동네이밍과 같은 선상)이다. 상세 경위는 [[F5-2_완료]] 참고.
+
+### 함정 ㊶ — `EnterTurnEnd` "함수" 그래프는 컴파일 스텁(프록시)일 뿐, 실제 로직은 EventGraph의 CustomEvent에 있다
+**증상(F5-2)**: `EnterTurnEnd`의 TE 파이프라인(δ틱·`Branch(bBattleOver)` 등)을 수정하려고 `list_graphs`/`find_nodes`로 `BP_BattleManager:EnterTurnEnd` 그래프를 열었더니 **`FunctionEntry → ExecuteUbergraph` 두 노드뿐**이었다 — 편집하려던 실제 로직(MarkerOff·Delay·CurrentIndex 증가 등)이 그 그래프에 없다.
+
+**원인**: `EnterTurnEnd`는 이름은 "함수"처럼 보이지만 **Delay(latent)를 보유**해야 하므로(Function Graph는 latent 불가 — §7 함정④/⑨) 실제로는 **EventGraph의 CustomEvent로 구현**돼 있다. MCP가 `:EnterTurnEnd`라는 이름으로 노출하는 그래프는 그 CustomEvent를 호출하는 **컴파일 스텁(프록시)** — FunctionEntry에서 곧장 ExecuteUbergraph로 넘기는 껍데기다. 진짜 편집 대상은 EventGraph 안에 있는 동명 CustomEvent 노드와 거기서 뻗어나가는 체인이다.
+
+**회피(실동작 확인)**: `EnterTurnEnd`(및 같은 이유로 CustomEvent로 구현됐을 법한 다른 "함수" — Delay/RetriggerableDelay를 쓰는 것들)를 수정할 때는 **`:함수명` 그래프가 아니라 EventGraph를 열어 동명 CustomEvent를 찾아라.** `:함수명` 그래프에 FunctionEntry→ExecuteUbergraph만 있으면 그건 스텁이라는 신호다. F5-2에서 이 구분을 놓쳐 처음엔 "EnterTurnEnd에 로직이 없다"고 오판할 뻔했다.
+
+### 함정 ㊷ — bool 변수의 Get/Set 노드는 노드 검색 시 "b" 접두어가 탈락한다(`bAlive` → `GetAlive`)
+**증상(F5-2)**: 유닛의 `bAlive`(bool) 게터 노드를 `create_node`/`find_node_types`로 만들거나 찾으려고 검색어를 `GetbAlive`(= `get_node_infos`가 표기하는 이름 그대로)로 넣으면 **매칭 실패**한다.
+
+**원인**: 언리얼의 bool 변수는 노드 팔레트/네이밍 계층에서 **헝가리안 "b" 접두어가 벗겨진 형태**로 노출된다 — `bAlive`의 게터는 검색상 **`GetAlive`**, 세터는 **`SetAlive`**로 잡아야 한다. 그런데 정작 `get_node_infos`가 생성된 노드를 **재조회**할 때의 표시 이름은 `GetbAlive`(접두어 유지)라, **생성 시 검색어와 조회 시 표기가 서로 다르다.** 이 불일치가 §L130(`SetScalarParameterValue`의 `declaring_class` 미명시 무음 실패)과 같은 "MCP 표기 ≠ 실제 매칭 키" 계열 함정이다.
+
+**회피**: bool 변수 노드를 `create_node`/`find_node_types`로 다룰 때는 **"b" 접두어를 뗀 이름**(`GetAlive`/`SetAlive`/`GetbBlockActive`→`GetBlockActive` 등)으로 검색하라. 조회 결과가 `Getb…`로 돌아와도 당황하지 말 것 — 같은 노드다. 검색이 안 되면 접두어 유무를 먼저 바꿔보는 것이 1순위 진단이다.

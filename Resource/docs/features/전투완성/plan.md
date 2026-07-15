@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 전투완성
 stage: F
-status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]]). F3(HP 게이지)는 U단계로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]]). F5-1(사망·승패 판정) 게이트 통과(2026-07-15, [[F5-1_완료]] — bBattleOver 단일관문 · TS1~TS6 턴스킵·시체클릭차단·DYING연출은 F5-2 이월)
+status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]]). F3(HP 게이지)는 U단계로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]]). F5-1(사망·승패 판정) 게이트 통과(2026-07-15, [[F5-1_완료]] — bBattleOver 단일관문). F5-2(죽은 유닛 처리) 게이트 통과(2026-07-15, [[F5-2_완료]] — 턴스킵·DYING·ClickBox·ResetForBattle 3청크+스킵즉시화, 오너 실플레이 검증. End버튼 재전투 배선 이월)
 updated: 2026-07-15
 ---
 
@@ -401,6 +401,17 @@ EnterTurnEnd() [기존 함수, 확장 — 2026-07-14 상태이상 δ틱 추가]:
 **실증(PIE 로그 대조)**: 아군 4명 전멸(A1 turn14 → A3 turn16 → A2 turn22 → A4 turn24), turn24에서 마지막 아군 A4 사망 순간 State 로그가 `turn24 TurnEnd`에서 종료(turn25 부재 = `EnterEnd` 발동·입력잠금), 적 B4가 8HP로 생존해 적팀 승리 — 오너 육안 승인. 시체 재타격 시에도 death 분기가 "살아있는 같은 팀 수"로 세므로 조기종료 안 됨(부수 확인). 상세: [[F5-1_완료]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §25.
 
 **F5-2 이월(버그 아님, 예상된 미구현)**: ① 죽은 유닛이 계속 턴을 받아 공격(TS1~TS6 턴스킵 미구현) ② 시체 클릭/타겟 가능(하이라이트는 이미 사망자 제외로 정상, `ClickBox` NoCollision만 미구현) ③ 쓰러짐 연출(DYING+`bFreeze`) 미구현. 따라서 아래 TC-F5-xx 중 턴스킵·시체타겟·DYING 계열은 F5-2 검증 대상으로 남는다(개별 행 상태는 verifier/Director 게이트에서 갱신).
+
+#### F5-2 결과 — 죽은 유닛 처리 게이트 통과 (2026-07-15)
+F5-1이 남긴 이월 3건(턴스킵·시체클릭·DYING연출)을 **3청크 + 스킵 즉시화**로 해소. [[F5_착수지시서]] BLOCKER/HIGH 판정대로 배선하고 Director가 노드 단위 검증 + 오너 실플레이 확인.
+- **청크1** `EnterTurnStart` TS1~TS6: 사망/STUN 턴스킵 + 쿨다운 스윕 + 막기 해제. H-1(TS1 < `SetTurnCounter`)·H-2(`EnterTurnEnd` 3-way merge 종단) 준수.
+- **청크2** `PlayHurtReaction` DYING 분기: `Row13/FC5 → Delay0.575 → bFreeze=1`. `declaring_class=MID` 4개 · G-A 재동결 가드(내곽 `Branch(bAlive)`) · `ClickBox` NoCollision(최상단).
+- **청크3** `ResetForBattle()` 신규 + `InitBattle` 리셋 확장 + `EnterEnd` HighlightOff: `SetScalar` 4개 MID · `Hp=MaxHp`(G-C) · IsValid 가드(G-G) · 기존 `CurrentIndex`/`TurnCounter` 리셋 보존(G-H).
+- **스킵 즉시화**: `bWasSkip` 플래그로 스킵 턴은 `EnterTurnEnd`의 `Delay(0.35)`→`Delay(0.0)` 우회(실제 턴 페이싱 불변).
+
+**실증**: 오너 실플레이(PIE)로 턴스킵·시체 클릭불가·쓰러져 고정·스킵 즉시화 전부 확인 + `InitBattle`→`ResetForBattle` 스모크(`Accessed None` 0, Init→TurnStart→AwaitCommand 정상). 상세: [[F5-2_완료]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §26.
+
+**이월**: #4 End 버튼 재전투(`ResetForBattle`을 버튼에 배선, 별도 작업) / orphan 노드 정리(무해) / `bWasSkip` "Is Not Valid" 초예외 경로는 이전 값 물려받음(정상 플레이 무해).
 
 
 #### TC — F5 (qa-critic 확정 · 판정방법 컬럼 필수)
