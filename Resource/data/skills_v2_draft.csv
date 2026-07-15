@@ -1,0 +1,8 @@
+Id,#id_txt,NameKey,DescKey,Kind,MotionRow,Target,PowerRate,Cost,CooldownTurns,EffectType,EffectValue,EffectDurationTurns,EffectChance,Memo,Category,HitCount,PrimaryTargetGroup,CastFX,ProjectileFX,ImpactFX,CastSFX,ImpactSFX
+31000000,skill_attack_basic,Skill.Attack,Skill.Attack.Desc,PHYS,5,ENEMY1,1.0,0,0,NONE,0,0,0,공용 기본공격 TTK기준,ATTACK,1,SINGLE_ENEMY,,,,,
+31001000,skill_slash_phys,Skill.Slash,Skill.Slash.Desc,PHYS,5,ENEMY1,1.3,0,1,STUN,0,1,0.25,전사 강타+기절25%,SKILL,1,SINGLE_ENEMY,,,,,
+32001000,skill_fireball_magic,Skill.Fireball,Skill.Fireball.Desc,MAG,10,ENEMY1,1.7,0,2,ATK_DOWN,0.25,2,0.35,마법사 버스트+공약화(감소율0.25=최종배율×0.75)35%,MAGIC,1,SINGLE_ENEMY,,,,,
+33001000,skill_block_def,Skill.Block,Skill.Block.Desc,DEF,15,SELF,0.0,0,2,DMG_REDUCE,0.5,1,1.0,다음1턴 받는피해 50퍼 감소(시전형=롤 미경유),DEFEND,1,SELF,,,,,
+34001000,skill_heal_restore,Skill.Heal,Skill.Heal.Desc,HEAL,11,ALLY1,0.8,0,3,HEAL,0,0,1.0,회복량 Atk곱0.8,MAGIC,1,SINGLE_ALLY,,,,,
+31002000,skill_buffattack_phys,Skill.BuffAttack,Skill.BuffAttack.Desc,PHYS,5,ENEMY1,1.0,0,1,NONE,0,0,0,전사 자버프+공격 콤보(Timing프루브 PRE ATK_UP 이후 ON DAMAGE),SKILL,1,SINGLE_ENEMY,,,,,
+31003000,skill_focusstrike_phys,Skill.FocusStrike,Skill.FocusStrike.Desc,PHYS,5,ENEMY1,1.0,0,2,NONE,0,0,0,대상HP50%이상 시 데미지2배(Condition프루브),SKILL,1,SINGLE_ENEMY,,,,,

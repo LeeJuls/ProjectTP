@@ -1,0 +1,7 @@
+StatusId,NameKey,DescKey,IconKey,Family,Channel,StatTarget,DefaultValue,DefaultDuration,TickTiming,StackPolicy,Memo
+STUN,Status.Stun,Status.Stun.Desc,,ON_HIT,SKIP_TURN,NONE,0,1,NONE,REFRESH,1턴 행동 스킵(SKIP_TURN 값 없음)
+BURN,Status.Burn,Status.Burn.Desc,,ON_HIT,DOT,NONE,6,3,TURN_START,REFRESH,고정6피해×3턴 트루데미지(Def/막기/광폭화 무시) STUB
+ATK_DOWN,Status.AtkDown,Status.AtkDown.Desc,,ON_HIT,OUT_MULT,ATK,-0.25,2,NONE,REFRESH,발신 공격배율×0.75로 감소
+DEF_DOWN,Status.DefDown,Status.DefDown.Desc,,ON_HIT,IN_MULT,DEF,0.25,2,NONE,REFRESH,수신 피해배율×1.25로 증가 STUB(알파 미사용)
+ATK_UP,Status.AtkUp,Status.AtkUp.Desc,,SELF_BUFF,OUT_MULT,ATK,0.25,1,NONE,REFRESH,발신 공격배율×1.25로 증가 캐스트 한정(Duration=1 자연해소 8-7b)
+DMG_REDUCE,Skill.Block,Skill.Block.Desc,,SELF_BUFF,IN_MULT,DEF,-0.5,1,NONE,REFRESH,수신 피해배율×0.5로 감소 기존 막기 재분류 레거시 bBlockActive 경로
