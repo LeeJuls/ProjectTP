@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 전투완성
 stage: F
-status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]]). F3(HP 게이지)는 U단계로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]])
+status: F0 문서화 완료 — F0 TC(qa-critic) 대기, F1~F9 미착수. 상태이상+AoE 계약 F4/F5/F7 선병합 완료(2026-07-14, [[상태이상_확정]]). F3(HP 게이지)는 U단계로 완결(2026-07-15, [[U단계_HP게이지_UMG_실장]]). F5-1(사망·승패 판정) 게이트 통과(2026-07-15, [[F5-1_완료]] — bBattleOver 단일관문 · TS1~TS6 턴스킵·시체클릭차단·DYING연출은 F5-2 이월)
 updated: 2026-07-15
 ---
 
@@ -394,6 +394,13 @@ EnterTurnEnd() [기존 함수, 확장 — 2026-07-14 상태이상 δ틱 추가]:
 
 #### 5-5. 타겟팅 제외
 `EnterAwaitTarget`의 하이라이트 대상 필터에 `bAlive==true` 조건 추가(사망자는 하이라이트도 클릭도 안 됨 — `ClickBox` 콜리전이 잔존하지 않는지 별도 확인 필요, 사망 시 `ClickBox`도 `NoCollision`으로 전환 권장).
+
+#### F5-1 결과 — 사망·승패 판정 게이트 통과 (2026-07-15)
+`EnterTurnEnd`에 `Branch(bBattleOver)` 단일 관문을 추가해 한 팀 전멸 시 무한반복(소프트락)을 해소했다. `bBattleOver`는 `ResolveHit` 사망 분기에서 "같은 팀 생존수==0"일 때만 세팅(레이스 방지, [[F5_착수지시서]] B1 정정 기준). True→`EnterEnd`(입력잠금+`BattleFinished` 디스패처), False→기존 Delay0.35→다음턴.
+
+**실증(PIE 로그 대조)**: 아군 4명 전멸(A1 turn14 → A3 turn16 → A2 turn22 → A4 turn24), turn24에서 마지막 아군 A4 사망 순간 State 로그가 `turn24 TurnEnd`에서 종료(turn25 부재 = `EnterEnd` 발동·입력잠금), 적 B4가 8HP로 생존해 적팀 승리 — 오너 육안 승인. 시체 재타격 시에도 death 분기가 "살아있는 같은 팀 수"로 세므로 조기종료 안 됨(부수 확인). 상세: [[F5-1_완료]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §25.
+
+**F5-2 이월(버그 아님, 예상된 미구현)**: ① 죽은 유닛이 계속 턴을 받아 공격(TS1~TS6 턴스킵 미구현) ② 시체 클릭/타겟 가능(하이라이트는 이미 사망자 제외로 정상, `ClickBox` NoCollision만 미구현) ③ 쓰러짐 연출(DYING+`bFreeze`) 미구현. 따라서 아래 TC-F5-xx 중 턴스킵·시체타겟·DYING 계열은 F5-2 검증 대상으로 남는다(개별 행 상태는 verifier/Director 게이트에서 갱신).
 
 
 #### TC — F5 (qa-critic 확정 · 판정방법 컬럼 필수)
