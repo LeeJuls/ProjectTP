@@ -2,7 +2,7 @@
 type: raw
 feature: 걸어나오기연출
 stage: W2
-updated: 2026-07-07
+updated: 2026-07-16
 ---
 
 # W2 구현 기록 — Manager Executing 개편(재배선 2곳+마커 OFF 신규)
@@ -73,7 +73,8 @@ BeginPlay → Delay(설정값, 세션 중 0.3→2.0→4.0으로 조정) → Noti
   → Delay(2.4) → NotifyAttackButtonClicked() → Delay(0.2) → [동일 타겟 탐색 루프 2회차] → NotifyUnitClicked(...)
 ```
 - **함정 발견 1 — 중복 InitBattle**: 최초 스캐폴드는 `BeginPlay→Delay→InitBattle()→...`였으나, 로그 확인 결과 **레벨 자체(GameMode 등)가 이미 BeginPlay t=0에 InitBattle을 자동 호출**하고 있었다(`State:Init:t=0`이 스캐폴드의 자체 호출 이전에 이미 로그에 존재). 스캐폴드가 이를 모르고 InitBattle()을 중복 호출해 진행 중이던 AwaitTarget 상태를 리셋시키는 부작용 발생(`NotifyUnitClicked: ignored (same team or self)`, `ignored (not in AwaitTarget state)` 연쇄). **해법**: 스캐폴드에서 InitBattle() 호출 및 그 앞 Delay를 제거, BeginPlay.then을 곧바로 클릭 시퀀스로 연결.
-- **함정 발견 2 — 정적 인덱스 타겟팅 실패**: 최초 `GetArrayItem(TurnQueue, 4)`로 고정 인덱스를 타겟했으나 `NotifyUnitClicked: ignored (same team or self)` 발생 — TurnQueue 순서가 8기 전원 팀별 고정 배치가 아님(속도 정렬 등으로 추정, 미규명). **해법**: `ForEachLoopWithBreak`+`GetIsParty(Element)≠GetIsParty(ActiveUnit)` 런타임 탐색으로 교체해 항상 유효한 상대팀 타겟을 동적으로 확보.
+- **함정 발견 2 — 정적 인덱스 타겟팅 실패**: 최초 `GetArrayItem(TurnQueue, 4)`로 고정 인덱스를 타겟했으나 `NotifyUnitClicked: ignored (same team or self)` 발생 — ~~TurnQueue 순서가 8기 전원 팀별 고정 배치가 아님(속도 정렬 등으로 추정, 미규명)~~. **해법**: `ForEachLoopWithBreak`+`GetIsParty(Element)≠GetIsParty(ActiveUnit)` 런타임 탐색으로 교체해 항상 유효한 상대팀 타겟을 동적으로 확보.
+  > **※정정(2026-07-16, 파트1 착수 전 재검토)**: 위 취소선 부분은 **오진이었다.** TurnQueue는 속도 정렬된 적이 없다 — 실측 순서는 `[A1,B1,A2,B2,A3,B3,A4,B4]`(A·B 교대)이고, 레벨의 `BP_BattleManager` 액터 디테일 패널에 **손으로 꽂아둔 배열**이다(`Set`/`Add` 노드가 프로젝트 전체에 **0개**). 당시 스캐폴드가 `GetArrayItem(TurnQueue, 4)`로 "적"을 집으려다 `ignored (same team or self)`를 받은 것은 **index 4 = A3(아군)**이었기 때문일 뿐 — 즉 **정상 동작**이었고 정렬 여부와는 무관했다(당시 채택한 동적 탐색 해법 자체는 여전히 유효). 상세 경위: [[파트1_Start_진행]].
 
 ### WT 판정표
 

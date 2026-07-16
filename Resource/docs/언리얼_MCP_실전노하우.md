@@ -886,3 +886,63 @@ U단계에서 `WBP_UnitFrame.SetHp`/`SetUnitInfo` 배선과 `BP_BattleSpawnPoint
 **증상**: MCP 서버 플러그인 등이 떠 있는 상태로 에디터 종료를 시도하면 `CloseMainWindow` 이후에도 프로세스가 종료되지 못하고 **CPU를 계속 태우는 busy-hang** 상태에 빠질 수 있다.
 **해법**: `EnumWindows`로 해당 프로세스가 소유한 최상위 창이 **0개**(모달 대화상자가 남아있지 않아 메인창이 닫힌 상태이지 멈춘 게 아님)이고, 핵심 애셋 `is_dirty`가 전부 **false**(저장 안 해도 데이터 손실 없음)임을 확인하면 애셋 손상 위험은 0이므로 강제종료해도 안전하다(오너 승인 하에 실행). busy-hang과 정상 idle 대기를 가르려면 **20초 간격 CPU 시간 델타**를 측정한다 — 델타가 크면 busy-hang, 거의 0이면 정상 idle. 에디터 로그는 재시작 시 기존 로그가 backup으로 롤오버되므로 새 로그 파일에는 새 세션 내용만 남아 마커 기반 폴링이 쉬워진다.
 **출처**: [[F7b_struct부트스트랩_완료]].
+
+---
+
+## 34. 전투완성 파트1(Start 버튼) 착수 전 실측·에디터 재부팅 대응에서 확정된 노하우 (2026-07-16)
+
+> 배경: F9a 풀회귀 이후 착수한 파트1(Attack 박스→Start 버튼 전환, [[파트1_Start_TC]]) 착수 전 실측 단계·그 직전 에디터 재부팅 대응·이후 구현 단계에서 확정한 `call_tool` 호출형식·기존 오진 정정·StringTable 강제dirty 해소/한계·uasset 검증 계열 함정 6건. 근거: 계획서 `C:\Users\user\.claude\plans\humble-purring-glacier.md` §착수 전 필수 실측 + [[파트1_Start_진행]](구현 단계 실측, §9-8). §33에 이어 **(78)부터 번호를 매긴다.**
+
+### 함정 (78) — `call_tool` 호출 형식: 인자 배치를 재부팅 후 반드시 재확인할 것
+**증상**: 2026-07-16 에디터 재부팅 후 Director가 3회 연속 "Tool not found"로 실패했다.
+**원인**: `tool_name` 하나에 툴셋 경로까지 욱여넣거나(`tool_name="editor_toolset.toolsets.blueprint.BlueprintTools.find_nodes"`) 반대로 접두어 없이 함수명만 넣는(`tool_name="find_nodes"`) 두 형태 모두 실패한다 — 툴셋과 함수명은 **별도 파라미터**다.
+**해법**: 올바른 형태는 다음과 같다.
+```
+call_tool(
+  toolset_name = "editor_toolset.toolsets.blueprint.BlueprintTools",   # 툴셋은 여기
+  tool_name    = "list_graphs",                                        # 접두어 없이!
+  arguments    = {"blueprint": {"refPath": "/Game/Blueprints/BP_X.BP_X"}}
+)
+```
+객체 인자는 `{"refPath": "..."}` 형태(문자열이 아니라 dict)로 넣는다. 그래프 refPath 형식은 `"/Game/.../BP_X.BP_X:GraphName"`. 툴셋 이름은 `list_toolsets`로, 도구 이름·스키마는 `describe_toolset`으로 확인한다 — 단 `describe_toolset(BlueprintTools)`는 **69,000자**라 컨텍스트를 초과하므로, 파일로 저장한 뒤 grep으로 필요한 함수만 추출할 것. 재부팅 시 MCP 세션 id가 무효화되는 것도 관련 원인이다(로그: `Unknown session id ... client should reinitialize`) — 자동 재초기화되지만, 재부팅 직후 첫 호출이 실패하면 이것부터 의심할 것.
+**출처**: 2026-07-16 파트1(Start 버튼) 착수 세션.
+
+### 함정 (79) — ★기존 노하우 판단 2건이 오진이었다: 원인은 에디터 한국어 로캘 (정정 공지)
+**이 항목은 정정 공지다.** 이 문서에 정식 등재되기 전, 작업 중 판단으로 굳어 있던 다음 2건은 **사실이 아니다**(검색해도 이 문서 본문에는 해당 서술이 없다 — 기록으로 남기 전에 여기서 정정한다):
+- ❌ *"심볼릭 연산자(+,-,*,/,<,>,==)는 `create_node` 불가"* → **틀렸다.** 실제로는 가능하다 — `유틸리티|연산자|보다큼(>)`·`곱하기`·`추가`·`빼기`·`같음(==)` 등 10종이 실존한다.
+- ❌ *"BP에 배열 정렬 노드가 없다"* → **틀렸다.** `유틸리티|배열|정렬|SortIntegerArray`(`TargetArray`[by-ref]·`bStableSort`·`SortOrder`{Ascending/Descending})가 실존한다 — 리턴값 없이 제자리 정렬하는 노드다.
+
+**근본 원인**: 이 에디터는 **한국어 로캘**이라 `type_id`가 현지화돼 있다. 영문 `Utilities|Operators|`로 `find_node_types`를 검색하면 **0건**이 나오는데, 이 0건을 "도구 자체의 한계"로 오독한 것이 오진의 원인이었다.
+**교훈**: `find_node_types`가 0건을 반환하면 "존재하지 않는다"로 단정하지 말고 **"검색어(이름)가 다르다"를 먼저 의심**할 것 — 한국어 키워드(`유틸리티`·`수학`·`배열`·`연산자`)로 재검색해야 한다.
+**피해 실측**: 이 오진이 2026-07-16 SPD(속도) 턴 정렬 설계 검토 중 "삽입정렬을 노드로 직접 구현" 검토까지 이어졌다 — **문서(또는 굳어진 판단)의 오류가 그걸 읽는 후속 작업을 통해 그대로 증폭**된 사례다. §4(근본원인 진단 방법론)의 경계 대상인 "검증 없이 전제로 굳는 가설"의 실사례이므로, 노하우 자체도 주기적으로 라이브 재검증할 대상임을 남긴다.
+**출처**: 2026-07-16 파트1 착수 전 SPD 설계 검토(계획서 §착수 전 필수 실측 (C)).
+
+### 함정 (80) — `get_node_type_pins` 프리뷰는 신뢰하지 말 것 — 확인은 배선 후 `get_node_infos`로
+**증상**: 프로모터블(와일드카드) 연산자를 컨텍스트 없이 `get_node_type_pins`로 미리 보면 **엉뚱한 오버로드**가 나온다(`Timespan>Timespan`, `Seconds*FrameRate` 등 의도와 무관한 타입).
+**원인**: §9(프로모터블 오퍼레이터는 데이터 연결 후 자동 재해석)·§11(Array Get 출력 핀 자동 승격)이 이미 확인한 "생성 직후엔 미승격 상태" 패턴이 프리뷰 API에서도 동일하게 재현된다 — 프리뷰는 실제 데이터 핀 연결 컨텍스트가 없어 첫 매치 오버로드를 그대로 보여준다. §7 함정①(`get_node_type_pins`가 그래프에 dangling 노드를 실제로 만드는 부작용)과는 **별개의 함정**(이쪽은 "부작용", 이번 건은 "표시값 자체의 부정확성")이니 혼동하지 말 것.
+**해법**: 프리뷰 결과를 최종값으로 신뢰하지 말고, **`create_node`+`connect_pins`로 실제 배선한 뒤 `get_node_infos`로 재조회**해 확정한다. 실측 선례: `NotifyAttackButtonClicked`의 `PromotableOperator_0/1`은 배선 후 `Equal(Byte)`로, `InitBattle`의 `PromotableOperator_0`은 `Equal(Integer)`로 각각 자동 승격 확인됨.
+**출처**: 2026-07-16 파트1 착수 전 실측(계획서 §착수 전 필수 실측 (C) 각주).
+
+### 함정 (81) — 함정⑳의 이월 과제 해소: `update_metadata_tags`로 StringTable 강제 dirty 성공 — 단 PIE 중엔 이 경로마저 막힌다
+**배경**: §18 함정⑳(2026-07-08)이 "`StringTableTools.set_entry`는 dirty를 세우지 않아 `save_assets`가 `true`를 반환하며 무음으로 저장을 스킵한다"를 확정했었다. 당시 시도한 강제 dirty 수단(메타데이터 태그 세팅→제거)은 "확실히 검증하지 못했다"로 **이월**됐고, 유일하게 검증된 우회는 "`list_keys`+`get_entry`로 백업 후 `create`로 재생성"뿐이었다.
+**2026-07-16 재현**: 오너가 스크린샷으로 `<MISSING STRING TABLE ENTRY>` 3건을 확인 — 함정⑳과 **동일 메커니즘**이 재발(최소 2회 누적 확정).
+**해소**: 이번 세션에서 `update_metadata_tags` 호출로 **강제 dirty가 실제로 동작함을 확정**했다 — `set_entry` → `update_metadata_tags`(강제 dirty) → `is_dirty` **true 확인** → `save_assets` → **디스크 mtime + 바이너리 grep으로 실증**하는 절차가 유효하다. 실측: `ST_UI` 1721→3615 bytes, mtime 01:59→19:58로 갱신 확인. 이로써 §18의 이월 과제가 종결된다.
+**새 제약(PIE 중 예외)**: **PIE 중에는 StringTable 저장·리임포트 자체가 불가능**하다(로그: `The Editor is currently in a play mode.` / `External referencers: FStringTableEngineBridge`). 함정⑳의 대안이었던 delete+recreate 우회도 PIE 중에는 엔진 참조 때문에 원천 불가 — PIE 중에는 **`set_entry`+강제 dirty 경로만이 유일하게 유효**하다.
+**일반 원칙**: **저장 성공 여부는 API 반환값이 아니라 디스크 mtime(및 필요 시 바이너리 grep)으로만 판정한다** — 함정⑳이 이미 세운 원칙의 재확인.
+**출처**: 2026-07-16 파트1 착수 세션(오너 스크린샷 발단) · §18 함정⑳(원 결함).
+
+### 함정 (82) — uasset 백업본을 ASCII로 바이너리 grep하면 "그 작업이 디스크에 저장됐는가"를 값싸게 검증할 수 있다
+**배경**: BP는 `.gitignore`로 git 추적 밖에 있어, "이 작업이 실제로 디스크에 저장됐는가"를 git diff로 확인할 방법이 없어 보인다.
+**해법**: uasset 파일을 텍스트(ASCII)로 읽어 함수명·변수명을 grep하면 된다 — 바이너리 포맷이지만 함수·변수 이름 같은 문자열 리터럴은 원문 그대로 포함되어 있다.
+```powershell
+$t = [System.Text.Encoding]::ASCII.GetString([System.IO.File]::ReadAllBytes($uasset))
+$t.Contains("ApplySkillEffects")   # → 디스크본에 그 함수가 있는가
+```
+**실전 적용**: 2026-07-16 에디터의 "콘텐츠 저장" 확인 다이얼로그에서 저장 여부를 판단할 때 이 방법을 썼다 — F7b가 만든 4개 함수가 전부 디스크 파일에 이미 존재함을 확인해 **"저장 안 함"을 근거 있게 선택**할 수 있었다(에디터의 미저장 dirty 상태가 이미 디스크 반영 내용과 동일했다는 뜻). 보조 근거로 자동저장본과의 크기 비교도 유효했다 — 디스크본 2,389,751바이트 vs Autosave 2,389,823바이트로 **72바이트 차**밖에 없었고 여러 자동저장본의 크기가 서로 동일해, "그 사이 실제 작업이 없었다"는 방증으로 함께 썼다.
+**출처**: 2026-07-16 F7b 저장 판단(파트1 착수 직전 세션).
+
+### 함정 (83) — `update_metadata_tags`의 `remove_tags`는 `set_tags`를 함께 줘도 `set_tags:null`을 주입해 실패한다 — 강제 dirty 마커는 지우지 말고 존치할 것
+**배경**: 함정(81)이 확립한 강제 dirty 절차(`set_entry` → `update_metadata_tags`로 강제 dirty → `save_assets`)를 쓰면 마커 태그가 애셋에 남는다. 파트1 구현 세션에서 이 마커를 정리하려고 `remove_tags`를 호출했다.
+**증상**: `remove_tags` 호출 시 기존 태그를 보존하려고 `set_tags`를 함께 채워 넘겨도, 내부적으로 `set_tags:null`이 주입되어 UStruct 변환 에러로 실패한다 — `set_tags`를 명시했는데도 무시되고 null로 덮어써지는 것이 결함의 핵심.
+**해법**: 강제 dirty가 목적이라면 마커 태그를 **제거하지 말고 그대로 존치**하는 게 정석이다 — 마커 자체는 무해하고(유사 마커를 지우지 않고 남겨둔 선례가 이미 있음), `remove_tags` 버그를 우회하려 애쓰는 것이 오히려 낭비다. 파트1 세션도 이 결함에 부딪힌 뒤 제거를 포기하고 `_dirty_touch` 마커를 존치하는 쪽으로 처리했다(무해).
+**출처**: 2026-07-16 파트1(Start 버튼) 구현 세션([[파트1_Start_진행]] §9-8) · 함정(81)(원 강제 dirty 절차)과 연관.

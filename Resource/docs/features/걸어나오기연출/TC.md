@@ -2,7 +2,7 @@
 type: test-cases
 feature: 걸어나오기연출
 status: W1 8/8 통과, W2 4/4 판정 완료(3 통과+1 부분통과/명세편차 발견), W3 부분 판정(3/8 PASS + 5/8 이월/정적보증), W3fix WT-23 PASS(걸음 왜곡 핫픽스)
-updated: 2026-07-07
+updated: 2026-07-16
 ---
 
 # TC — 걸어나오기연출 (qa-critic 설계 22종, W0에서 전사·W1에서 W1분 실행)
@@ -57,7 +57,8 @@ updated: 2026-07-07
 
 ## W2 부가 발견 (plan 명시 외, 실측 확인 사항)
 - **PlayAttack 내부 RetriggerableDelay 체인 발견**(W2 비수정 대상, 기존 MVP 단계부터 존재) — Manager가 PlayAttack을 CallFunction으로 직접 호출하는 구조상 그 내부 latent 완료까지 Manager 자신의 exec가 대기됨(약 +0.58s). 1턴 총 길이가 plan 설계 시점(1.75/2.10s)보다 실측(2.333/3.0s)에서 유의하게 길어지는 근본 원인. TakeHit 정확 발동 시각의 직접 로그 실측은 이번 세션 미실시(그래프 위상으로 역산만 수행) — 후속 세션에서 필요시 TakeHit 자체 계측 권장.
-- 스캐폴드 설계 중 발견된 함정 2건(모두 W2 raw 문서에 상세 기록): ① 레벨이 이미 BeginPlay에서 InitBattle을 자동 호출 중이라 스캐폴드의 중복 InitBattle() 호출이 진행 중이던 상태를 리셋시킴(수정: 스캐폴드에서 InitBattle 호출 제거) ② TurnQueue가 팀별 고정 순서가 아니라서 정적 인덱스 타겟팅이 실패(수정: `ForEachLoopWithBreak`+`bIsParty` 런타임 비교로 동적 상대팀 탐색).
+- 스캐폴드 설계 중 발견된 함정 2건(모두 W2 raw 문서에 상세 기록): ① 레벨이 이미 BeginPlay에서 InitBattle을 자동 호출 중이라 스캐폴드의 중복 InitBattle() 호출이 진행 중이던 상태를 리셋시킴(수정: 스캐폴드에서 InitBattle 호출 제거) ② ~~TurnQueue가 팀별 고정 순서가 아니라서~~ 정적 인덱스 타겟팅이 실패(수정: `ForEachLoopWithBreak`+`bIsParty` 런타임 비교로 동적 상대팀 탐색).
+  > **※정정(2026-07-16, 파트1 착수 전 재검토)**: 취소선 부분은 **오진**이다. TurnQueue는 속도 정렬된 적이 없다 — 실측 순서는 `[A1,B1,A2,B2,A3,B3,A4,B4]`(A·B 교대, `BP_BattleManager` 디테일 패널에 손으로 꽂은 배열 — `Set`/`Add` 노드 프로젝트 전체 0개). 인덱스 4는 A3(아군)이라 `ignored`가 뜬 것뿐 — **정상 동작**이었다(채택한 동적 탐색 해법 자체는 유효, 결과 무변경). 상세: [[파트1_Start_진행]].
 
 ## W3 부가 발견
 - **스로틀(bThrottleCPUWhenNotForeground) 프로젝트 정책 확인 필요**: W2에서 스로틀 OFF로 측정했으나, 개발 기간 중 표준 설정이 ON인 경우 향후 PIE 검증에서 고려 필요. Director 2026-07-07 확정 필요.
