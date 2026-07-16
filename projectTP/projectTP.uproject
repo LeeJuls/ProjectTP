@@ -47,6 +47,10 @@
 		{
 			"Name": "TAPython",
 			"Enabled": true
+		},
+		{
+			"Name": "AllToolsets",
+			"Enabled": true
 		}
 	]
 }
