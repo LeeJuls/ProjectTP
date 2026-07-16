@@ -39,6 +39,14 @@
 		{
 			"Name": "UmgMcp",
 			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "TAPython",
+			"Enabled": true
 		}
 	]
 }

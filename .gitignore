@@ -30,6 +30,10 @@
 
 # ===== 서드파티 UE 플러그인 (오픈소스 클론 — 재현: git clone + UBT 빌드, 절차는 docs/언리얼_MCP_실전노하우.md) =====
 /projectTP/Plugins/UmgMcp/
+# TAPython (재현: GitHub cgerchenhp/UE_TAPython_Plugin_Release v1.3.3-ue5.8.0 zip 압축해제)
+/projectTP/Plugins/TAPython/
+# TAPython 런타임 산출 폴더(에디터 생성)
+/projectTP/TA/
 
 # ===== Blend / large source files =====
 /Resource/*.blend
