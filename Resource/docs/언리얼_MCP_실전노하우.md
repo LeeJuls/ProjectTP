@@ -849,3 +849,40 @@ U단계에서 `WBP_UnitFrame.SetHp`/`SetUnitInfo` 배선과 `BP_BattleSpawnPoint
 **원인**: Row의 `bEnabled=false`(1차 방어)가 **Slate 레벨에서 클릭 이벤트 자체를 소진**시켜, 함수 호출까지 아예 도달하지 않는다. 함수 내부의 거절 로그(2차 방어)는 정상 설계지만, 마우스 경로로는 실제로 도달할 수 없는 **순수 안전망**이다.
 **해법**: 쿨다운 방어의 검증은 함수 내부 로그가 아니라 **라이브 상태(`SkillCooldowns` 등)와 화면 증거(행 회색조·쿨다운 배지)**로 한다 — 1차 방어(행 비활성)가 함수 가드보다 먼저, 그리고 더 자주 작동하는 정상 구조임을 전제로 검증 지점을 고른다.
 **출처**: [[야간F7a_스킬메뉴_완료]] §3(판정표 — 쿨다운 재사용 차단).
+
+---
+
+## 33. 전투완성 F7b(TAPython struct 부트스트랩)에서 확정된 노하우 (2026-07-16)
+
+> 배경: F7b 3층 정규화의 struct 신설을 위해 오너가 TAPython 설치를 승인, 프로젝트 최초로 `UserDefinedStruct`를 프로그래매틱하게 생성·필드추가하며 확정한 함정 6건([[F7b_struct부트스트랩_완료]]). §32에 이어 **(72)부터 번호를 매긴다.**
+
+### 함정 (72) — UserDefinedStruct 필드 추가는 공식 Python API가 없다 — TAPython `PythonStructLib`가 유일한 경로
+**증상**: `UserDefinedStruct` 애셋 자체는 공식 Python(`AssetToolsHelpers.get_asset_tools().create_asset` + `StructureFactory`)으로 생성 가능하지만, 생성 후 **필드를 추가하는 공식 API가 없다** — `unreal.UserDefinedStructEditorLibrary` 등 예상되는 클래스명은 전부 404(존재하지 않음). unreal-mcp의 `DataTableTools`/`ObjectTools`에도 struct 필드 편집 기능은 없다.
+**해법**: TAPython 플러그인의 `unreal.PythonStructLib.add_variable`이 필드 추가를 지원하는 **유일한 경로**다. struct 신설·필드 추가 작업이 필요하면 TAPython 설치를 전제로 계획한다.
+**출처**: [[F7b_struct부트스트랩_완료]].
+
+### 함정 (73) — `PythonStructLib.add_variable` 시그니처: `friendly_name`은 맨 뒤 인자, 타입 토큰은 3종 고정
+**증상**: 시그니처는 `add_variable(struct, category, sub_category, sub_category_object, container_type_value, is_reference=False, friendly_name="")` 순서인데, `friendly_name`을 앞쪽 인자로 잘못 넣으면 `sub_category_object` 변환이 실패한다.
+**해법**: 타입 토큰은 string=`("string","")`, int=`("int","")`, float=`("real","double")` 3종으로 고정 사용(실측 캘리브레이션으로 확정). 신규 UDS는 태어날 때 기본 멤버(`MemberVar_*`)를 갖고 있으므로 `remove_variable_by_name`으로 정리해야 최종 필드 목록이 스펙과 일치한다.
+**출처**: [[F7b_struct부트스트랩_완료]].
+
+### 함정 (74) — `get_variable_names`는 `str` 배열이 아니라 `unreal.Name`(FName) 배열을 반환한다
+**증상**: 반환된 요소를 `"x" in name`처럼 문자열 포함 검사에 그대로 쓰면 **"Name is not iterable" TypeError**가 난다.
+**원인**: 요소 타입이 `str`이 아니라 `unreal.Name`. 또한 반환되는 이름 자체도 UI에 보이는 friendly name이 아니라 `"NameKey_7_GUID"` 형태의 **내부 표기**다.
+**해법**: 비교 전 `str(n)`으로 정규화한다. 필드 존재 확인은 정확일치 또는 `"name_"` 프리픽스 매칭으로 한다.
+**출처**: [[F7b_struct부트스트랩_완료]].
+
+### 함정 (75) — `init_unreal.py` startup은 애셋 레지스트리 스캔 완료 전에 실행된다 — struct 생성은 스캔 완료 후로 지연시켜야 한다
+**증상**: startup 스크립트에서 즉시 struct를 생성하면 애셋 레지스트리가 아직 완전히 스캔되지 않은 상태라 실패 위험이 있다.
+**해법**: `register_slate_post_tick_callback`으로 매 틱 `AssetRegistryHelpers.get_asset_registry().is_loading_assets()`를 확인하다가 `false`가 되는 시점에 1회만 struct 생성을 실행한다.
+**출처**: [[F7b_struct부트스트랩_완료]].
+
+### 함정 (76) — `ProgrammaticToolset`은 `import unreal`이 불가능하다 — struct 작업은 `init_unreal.py` startup 경로로만 가능
+**증상**: §2가 소개한 `ProgrammaticToolset`(`execute_tool`)은 등록된 MCP 툴 호출과 `{math, json, time, copy, datetime, re}` 임포트만 허용한다. 임의의 `unreal` 모듈이나 `PythonStructLib`를 직접 호출할 수 없다.
+**해법**: struct 신설·필드 추가처럼 `unreal` 모듈 직접 호출이 필요한 작업은 `ProgrammaticToolset`으로 우회할 수 없고, `Content/Python/init_unreal.py`의 에디터 startup 경로로만 실행 가능하다.
+**출처**: [[F7b_struct부트스트랩_완료]] · §2(ProgrammaticToolset import 제한)와 연관.
+
+### 함정 (77) — 에디터 종료가 hang되고 창이 안 보이면: 프로세스 소유 최상위 창 0개 + dirty=0 확인 후 강제종료가 안전하다
+**증상**: MCP 서버 플러그인 등이 떠 있는 상태로 에디터 종료를 시도하면 `CloseMainWindow` 이후에도 프로세스가 종료되지 못하고 **CPU를 계속 태우는 busy-hang** 상태에 빠질 수 있다.
+**해법**: `EnumWindows`로 해당 프로세스가 소유한 최상위 창이 **0개**(모달 대화상자가 남아있지 않아 메인창이 닫힌 상태이지 멈춘 게 아님)이고, 핵심 애셋 `is_dirty`가 전부 **false**(저장 안 해도 데이터 손실 없음)임을 확인하면 애셋 손상 위험은 0이므로 강제종료해도 안전하다(오너 승인 하에 실행). busy-hang과 정상 idle 대기를 가르려면 **20초 간격 CPU 시간 델타**를 측정한다 — 델타가 크면 busy-hang, 거의 0이면 정상 idle. 에디터 로그는 재시작 시 기존 로그가 backup으로 롤오버되므로 새 로그 파일에는 새 세션 내용만 남아 마커 기반 폴링이 쉬워진다.
+**출처**: [[F7b_struct부트스트랩_완료]].

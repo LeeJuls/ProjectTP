@@ -7,3 +7,5 @@ Id,#id_txt,TableName,Domain,Version,OwnerSystem,CycleException,Memo
 90000900,vocab_grades,grades,어휘,1,캐릭터,,등급(성) 정의
 90001000,entity_jobstats,job_stats,개체,1,캐릭터,,직업x등급 기본 스탯
 90001100,entity_motions,motions,개체,1,연출,,모션행 참조(프레임수·루프·공격계열). skills.MotionRow→RowIndex
+90001200,entity_statuseffects,status_effects,개체,1,전투,,상태이상 정의(카탈로그 6종)
+90001300,entity_skilleffects,skill_effects,개체,1,전투,,스킬 이펙트 엔트리(레고 조립식 3층 카탈로그 10행)
