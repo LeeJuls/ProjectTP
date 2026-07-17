@@ -10,7 +10,7 @@ Id,#id_txt,RowIndex,NameKey,FrameCount,IsLoop,IsAttackFamily,EndBehavior,Memo
 60080000,motion_airatk1,8,Motion.AirAtk1,6,FALSE,TRUE,REVERT_IDLE,공격계열/미사용
 60090000,motion_airatk2,9,Motion.AirAtk2,4,FALSE,TRUE,REVERT_IDLE,공격계열/★4프레임 주의/미사용
 60100000,motion_casting1,10,Motion.Casting1,5,FALSE,TRUE,REVERT_IDLE,공격계열(마법)/cast loop 65-67/F7 파이어볼
-60110000,motion_casting2,11,Motion.Casting2,5,FALSE,FALSE,REVERT_IDLE,공격계열(마법)/cast loop 70-72/F7 치유/파트3 결정②(b): 참격잔상 게이팅 오탐 방지로 FALSE 전환(소비처 0)
+60110000,motion_casting2,11,Motion.Casting2,5,FALSE,FALSE,REVERT_IDLE,공격계열(마법)/cast loop 70-72/F7 치유/파트3 결정②(b): 참격잔상 게이팅 오탐 방지로 FALSE 전환(소비처 1개: BreakStruct_1.IsAttackFamily → IfThenElse_10 = 런지+잔상 동시 게이트, 파트4에서 신규 소비처 발생)
 60120000,motion_hurt,12,Motion.Hurt,4,FALSE,FALSE,REVERT_IDLE,피격(현행 사용)
 60130000,motion_dying,13,Motion.Dying,5,FALSE,FALSE,FREEZE_LAST,사망/F5 사용/F0⑥ Freeze 파라미터 필요(정지 없으면 시체 루프 재생)
 60140000,motion_dash,14,Motion.Dash,8,FALSE,FALSE,REVERT_IDLE,dash loop 84-86 부분/미사용

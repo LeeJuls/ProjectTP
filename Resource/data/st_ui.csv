@@ -17,3 +17,7 @@ Skill.Heal,치유
 Skill.Heal.Desc,아군 1명의 HP를 시전자 공격력의 80퍼센트만큼 회복. 쿨다운 3턴.
 Battle.TurnOwner.Party,아군
 Battle.TurnOwner.Enemy,적군
+Job.Warrior,전사
+Job.Mage,마법사
+Battle.UnitLabel,{0} | {1}
+Battle.TurnLabel,턴
