@@ -21,3 +21,4 @@ Job.Warrior,전사
 Job.Mage,마법사
 Battle.UnitLabel,{0} | {1}
 Battle.TurnLabel,턴
+Battle.TurnCount,턴 {0}
