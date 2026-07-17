@@ -1,0 +1,4 @@
+Id,#id_txt,NameKey,Memo
+90400100,pos_tank,Position.Tank,탱 선공버스트흡수·앞라인유지(HP·Def·막기) — 밸런스중심축
+90400200,pos_dealer,Position.Dealer,딜 선공버스트로제거(Atk·Spd·버스트) — 밸런스중심축
+90400300,pos_support,Position.Support,서포터 변수창출(힐·버프·디버프·유틸) — 밸런스중심축

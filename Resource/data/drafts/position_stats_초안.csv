@@ -1,0 +1,4 @@
+PositionId,#id_txt,Hp,Atk,Def,Spd,CritRate,SpdBandMin,SpdBandMax,Memo
+90400100,posbase_tank,108,34,11,80,0,76,84,탱기준(등급배율1.0). 미러평타TTK5. Spd등급미스케일. 파이어볼흡수(78-11=67<108)
+90400200,posbase_dealer,84,46,6,120,0,116,124,딜기준. 미러평타TTK3. 파이어볼무원킬마진12(72<84). 물몸
+90400300,posbase_support,88,38,8,100,0,96,104,서포터기준. 미러평타TTK3. 반응자

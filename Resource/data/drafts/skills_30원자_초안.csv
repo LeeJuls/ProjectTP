@@ -1,0 +1,31 @@
+Id,#id_txt,NameKey,DescKey,Kind,MotionRow,Target,PowerRate,Cost,CooldownTurns,EffectType,EffectValue,EffectDurationTurns,EffectChance,Layer,PositionTag,Status,Memo
+31000000,skill_attack_basic,Skill.Attack,Skill.Attack.Desc,PHYS,5,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,LIVE,공용기본공격 TTK기준(ATK1)
+31010000,skill_ba_cleave,Skill.Cleave,Skill.Cleave.Desc,PHYS,6,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,내려베기(ATK2)
+31011000,skill_ba_flurry,Skill.Flurry,Skill.Flurry.Desc,PHYS,7,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,연타(ATK3 4프레임주의)
+31012000,skill_ba_leap,Skill.LeapStrike,Skill.LeapStrike.Desc,PHYS,8,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,도약참(AIRATK1)
+31013000,skill_ba_plunge,Skill.Plunge,Skill.Plunge.Desc,PHYS,9,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,낙하타(AIRATK2 4프레임주의)
+31014000,skill_ba_thrust,Skill.Thrust,Skill.Thrust.Desc,PHYS,5,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,찌르기(ATK1재사용·무기텍스처차별)
+31015000,skill_ba_swipe,Skill.Swipe,Skill.Swipe.Desc,PHYS,6,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,후려치기(ATK2재사용)
+32010000,skill_ba_bolt,Skill.ManaBolt,Skill.ManaBolt.Desc,MAG,10,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,마력탄(CAST1)
+32011000,skill_ba_spirit,Skill.SpiritShot,Skill.SpiritShot.Desc,MAG,11,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,정령타(CAST2)
+32012000,skill_ba_orb,Skill.ElementOrb,Skill.ElementOrb.Desc,MAG,10,ENEMY1,1.0,0,0,NONE,0,0,0,BASIC,SHARED,DRAFT,원소구(CAST1재사용)
+33001000,skill_block_def,Skill.Block,Skill.Block.Desc,DEF,15,SELF,0.0,0,2,DMG_REDUCE,0.5,1,1.0,COMMON,SHARED,LIVE,막기 버스트하드카운터(다음1턴받는피해-50%)
+31001000,skill_slash_phys,Skill.Slash,Skill.Slash.Desc,PHYS,5,ENEMY1,1.3,0,1,STUN,0,1,0.25,COMMON,SHARED,LIVE,베기 강타+기절25%
+31020000,skill_cm_heavyblow,Skill.HeavyBlow,Skill.HeavyBlow.Desc,PHYS,6,ENEMY1,1.4,0,2,NONE,0,0,0,COMMON,SHARED,DRAFT,강타 공용최대넉(딜무원킬 64-6=58<84)
+31021000,skill_cm_quickjab,Skill.QuickJab,Skill.QuickJab.Desc,PHYS,7,ENEMY1,1.1,0,1,NONE,0,0,0,COMMON,SHARED,DRAFT,속공 저쿨필러+
+31022000,skill_cm_crippling,Skill.Crippling,Skill.Crippling.Desc,PHYS,5,ENEMY1,1.0,0,2,ATK_DOWN,0.25,2,1.0,COMMON,SHARED,DRAFT,둔화타 적버스트약화(발신×0.75)
+33010000,skill_cm_guard,Skill.GuardStance,Skill.GuardStance.Desc,DEF,15,SELF,0.0,0,3,DMG_REDUCE,0.3,2,1.0,COMMON,SHARED,DRAFT,방어태세 2턴약감소(-30%)
+34010000,skill_cm_firstaid,Skill.FirstAid,Skill.FirstAid.Desc,HEAL,11,ALLY1,0.6,0,3,HEAL,0,0,1.0,COMMON,SHARED,DRAFT,응급치유 공용소힐(아웃힐불가)
+32020000,skill_cm_suppress,Skill.Suppress,Skill.Suppress.Desc,MAG,10,ENEMY1,1.0,0,2,STUN,0,1,0.4,COMMON,SHARED,DRAFT,제압사격 원거리제어(기절40%)
+32021000,skill_cm_focus,Skill.Focus,Skill.Focus.Desc,MAG,11,SELF,0.0,0,2,ATK_UP,0.25,1,1.0,COMMON,SHARED,STUB,기력모으기 자버프ATK_UP(STUB·REFRESH). 버스트셋업 감시대상§8
+32022000,skill_cm_burnmark,Skill.BurnMark,Skill.BurnMark.Desc,MAG,10,ENEMY1,0.7,0,2,BURN,0,3,1.0,COMMON,SHARED,STUB,화염징표 소타+BURN트루(STUB·6x3턴). 막기터틀카운터
+33020000,skill_jb_bulwark,Skill.Bulwark,Skill.Bulwark.Desc,DEF,15,SELF,0.0,0,3,DMG_REDUCE,0.5,2,1.0,JOB,TANK,DRAFT,수호방벽 2턴강막기(-50%). 버스트카운터·탱시그니처
+31030000,skill_jb_retaliate,Skill.Retaliate,Skill.Retaliate.Desc,PHYS,6,ENEMY1,1.5,0,2,NONE,0,0,0,JOB,TANK,DRAFT,반격참 탱강타(51-6=45<84무원킬)
+31031000,skill_jb_intimidate,Skill.Intimidate,Skill.Intimidate.Desc,PHYS,5,ENEMY1,0.9,0,2,ATK_DOWN,0.25,2,1.0,JOB,TANK,DRAFT,위압 적딜러약화 팀보호
+32001000,skill_fireball_magic,Skill.Fireball,Skill.Fireball.Desc,MAG,10,ENEMY1,1.7,0,2,ATK_DOWN,0.25,2,0.35,JOB,DEALER,LIVE,파이어볼 시그니처버스트(최대PR상한1.7)
+31032000,skill_jb_execute,Skill.Execute,Skill.Execute.Desc,PHYS,7,ENEMY1,1.2,0,2,NONE,0,0,0,JOB,DEALER,DRAFT,처형 조건부×2(대상HP<=30%). 전HP무원킬49<84. Cond=DT_SkillEffects(LE30 MULT2.0)
+32030000,skill_jb_barrage,Skill.ArcaneBarrage,Skill.ArcaneBarrage.Desc,MAG,10,ENEMY1,1.6,0,2,NONE,0,0,0,JOB,DEALER,DRAFT,연속마격 2차버스트(73-6=67<84)
+34001000,skill_heal_restore,Skill.Heal,Skill.Heal.Desc,HEAL,11,ALLY1,0.8,0,3,HEAL,0,0,1.0,JOB,SUPPORT,LIVE,치유 지속(Atk곱0.8)
+32031000,skill_jb_blessing,Skill.Blessing,Skill.Blessing.Desc,MAG,11,ALLY1,0.0,0,3,ATK_UP,0.25,2,1.0,JOB,SUPPORT,STUB,축복 아군딜버프ATK_UP(STUB·REFRESH). 변수창출
+32032000,skill_jb_seal,Skill.Seal,Skill.Seal.Desc,MAG,10,ENEMY1,0.7,0,3,STUN,0,1,0.5,JOB,SUPPORT,DRAFT,봉인 적행동봉쇄(기절50%)
+31040000,skill_jb_signature,Skill.Signature,Skill.Signature.Desc,PHYS,8,ENEMY1,1.5,0,2,NONE,0,0,0,JOB,UNIVERSAL,DRAFT,필살의일격 공통직업기(각포지션4번째옵션·조합수충족용)
