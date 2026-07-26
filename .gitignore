@@ -20,8 +20,12 @@
 /projectTP/*.sdf
 /projectTP/*.suo
 
-# ===== heroes99 PAID asset pack — redistribution prohibited =====
-# Raw pack (originals + zip) must never be published, even in a private repo.
+# ===== PAID asset pack ORIGINALS — redistribution prohibited on PUBLIC repo =====
+# 유료 구매팩 원본은 이 공개 저장소에 절대 올리지 않는다(재배포 금지 라이선스).
+# 대신 별도 비공개 저장소로 백업: github.com/LeeJuls/ProjectTP-Resource-Assets (Git LFS)
+#   → _RawAssets/ 자체가 그 저장소의 워킹트리다(중첩 repo, Content/ 방식과 동일).
+#   → heroes99(캐릭터) · vfx(VFX팩) · tilesets(Winlu) · ui-packs(Pixel UI) 수용
+#   ★새 유료팩은 Resource 아무 데나 두지 말고 반드시 _RawAssets/ 아래에 둘 것.
 /Resource/_RawAssets/
 /Resource/*.zip
 
@@ -59,5 +63,4 @@ Desktop.ini
 .DS_Store
 *.tmp
 
-# ===== Paid VFX packs (reproduce: owner re-downloads; import via docs/features wiki) =====
-/Resource/vfx/
+# (구 /Resource/vfx/ 제외 규칙은 2026-07-26 _RawAssets/vfx/ 로 이관되어 삭제됨)

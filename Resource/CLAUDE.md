@@ -59,6 +59,21 @@
 - 이월(deferred)은 **사유·검증 예정 단계·승인자**를 같이 적는다. 사유 없는 이월은 잊혀진다.
 - 문서 정리 자체는 **sonnet 위임**(Director는 기준·방향만).
 
+## 저장소 배치 (사고 재발 방지 — 상세: `docs/저장소_구조_규약.md`)
+
+git 저장소가 **3개**다. 커밋 전 "어느 저장소인가"를 먼저 판단한다.
+
+| 워킹트리 | 저장소 | 공개 |
+|---|---|---|
+| `D:\unreal\` | ProjectTP | 🌐 **공개** |
+| `D:\unreal\projectTP\Content\` | ProjectTP-Assets | 🔒 비공개(LFS) |
+| `D:\unreal\Resource\_RawAssets\` | ProjectTP-Resource-Assets | 🔒 비공개(LFS) |
+
+- **🚨 유료 구매 에셋 원본은 공개 저장소 금지**(재배포 금지 라이선스). 압축 해제 위치 = **반드시 `Resource\_RawAssets\`** — `Resource` 직하에 두면 공개로 올라간다.
+- **uasset 수정한 세이브포인트마다 `Content\` 저장소도 push** — 로컬 `_savepoints\`는 같은 PC라 백업이 아니다.
+- 작업 종료 시 3개 저장소 **미push 확인**: `git -C <경로> log origin/main..HEAD --oneline`
+- 실제 발생: 공개 저장소 22커밋 미push 방치(2026-07-18) / 유료팩 원본 압축파일이 공개 추적 대상으로 방치(2026-07-26).
+
 ## 상속 규칙 (전역 CLAUDE.md 준수)
 
 - 커밋 접두사 `[C] type:`. push는 오너 확인.
