@@ -16,8 +16,8 @@ updated: 2026-07-15
 - 후속 작업자 주의: 이 임시 구현의 형태(유닛 BP에 이펙트 쿼드 부착 + SubUV 원샷)는 **아키텍처 선례가 아니다.** 재설계 시 풀링/나이아가라/전용 이펙트 매니저 등을 처음부터 검토할 것.
 
 ## 소재 (오너 구매·배치)
-- `D:\unreal\Resource\vfx\Smear VFX 01\` — 공격용. 48×48 셀 가로 스트립. Horizontal 3종(240×48, **5프레임**)·Vertical 3종(288×48, **5프레임+투명1셀**)
-- `D:\unreal\Resource\vfx\Hit Effect 01\` — 피격용. 336×48 스트립 3종(**6프레임+투명1셀**)
+- `D:\unreal\Resource\_RawAssets\vfx\Smear VFX 01\` — 공격용. 48×48 셀 가로 스트립. Horizontal 3종(240×48, **5프레임**)·Vertical 3종(288×48, **5프레임+투명1셀**)
+- `D:\unreal\Resource\_RawAssets\vfx\Hit Effect 01\` — 피격용. 336×48 스트립 3종(**6프레임+투명1셀**)
 - 프레임 수는 알파 실측값(가이드 아님 — 실전노하우 §6 원칙). 임시 통합은 각 1종(변형 1번)만 사용.
 
 ## 임시 구현 형태 (요약)
@@ -36,8 +36,8 @@ updated: 2026-07-15
 ### 임포트 애셋
 | 애셋 | 경로 | 원본 소스 |
 |---|---|---|
-| T_FX_Smear | `/Game/VFX/T_FX_Smear` | `D:\unreal\Resource\vfx\Smear VFX 01\Smear 01 Horizontal 1.png` |
-| T_FX_Hit | `/Game/VFX/T_FX_Hit` | `D:\unreal\Resource\vfx\Hit Effect 01\Hit Effect 01 1.png` |
+| T_FX_Smear | `/Game/VFX/T_FX_Smear` | `D:\unreal\Resource\_RawAssets\vfx\Smear VFX 01\Smear 01 Horizontal 1.png` |
+| T_FX_Hit | `/Game/VFX/T_FX_Hit` | `D:\unreal\Resource\_RawAssets\vfx\Hit Effect 01\Hit Effect 01 1.png` |
 
 두 텍스처 모두 재조회 확인된 픽셀퍼펙트 세팅:
 ```
