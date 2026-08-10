@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: D4.5 완료(2026-08-11) — D5 착수. 오너 결재 2건 대기(N6 Id / struct 배치)
+status: D5 PASS(2026-08-11) — 설계 트랙 종료. 오너 게이트 2건 + D5.5 struct 세션 대기
 ---
 
 # 스킬 4슬롯 구조 + 연출·이펙트·SFX 데이터화 설계

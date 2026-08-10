@@ -1,0 +1,5 @@
+StatusId,NameKey,DescKey,IconKey,Family,Channel,StatTarget,DefaultValue,DefaultDuration,TickTiming,StackPolicy,Memo
+PSV_ATK_UP,Status.PsvAtkUp,Status.PsvAtkUp.Desc,,SELF_BUFF,OUT_MULT,ATK,0.04,-1,NONE,REFRESH,패시브 전용 영구 발신배율 ×1.04 · ★ATK_UP 재사용 금지(REFRESH가 기력모으기와 서로 덮어씀) · 상한근거 딜미러 3타 보존
+PSV_ATK_UP_S,Status.PsvAtkUpS,Status.PsvAtkUpS.Desc,,SELF_BUFF,OUT_MULT,ATK,0.02,-1,NONE,REFRESH,균형형(UNIVERSAL P10) 절반값 ×1.02
+PSV_DEF_UP,Status.PsvDefUp,Status.PsvDefUp.Desc,,SELF_BUFF,IN_MULT,DEF,-0.04,-1,NONE,REFRESH,패시브 전용 영구 수신배율 ×0.96 · ★DMG_REDUCE 재사용 금지(막기 1턴이 영구값을 덮고 만료시키면 패시브 소실) · 상한근거 탱미러 5타 보존
+PSV_DEF_UP_S,Status.PsvDefUpS,Status.PsvDefUpS.Desc,,SELF_BUFF,IN_MULT,DEF,-0.02,-1,NONE,REFRESH,균형형(UNIVERSAL P10) 절반값 ×0.98

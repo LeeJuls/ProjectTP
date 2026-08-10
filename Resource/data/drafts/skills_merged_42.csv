@@ -1,0 +1,43 @@
+Id,#id_txt,#Layer,#PositionTag,#DevStatus,NameKey,DescKey,Kind,Category,MotionRow,Target,PrimaryTargetGroup,HitCount,Cost,CooldownTurns,StagingId,FxCastId,FxProjectileId,FxImpactId,SfxCastId,SfxImpactId,#TODO,Memo
+31000000,skill_attack_basic,BASIC,SHARED,LIVE,Skill.Attack,Skill.Attack.Desc,PHYS,ATTACK,5,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,LIVE 평타 앵커 PR1.0 cd0 · FxCast=0 → motions row5 폴백 63000100 → 회귀0
+31010000,skill_ba_cleave,BASIC,SHARED,DRAFT,Skill.Cleave,Skill.Cleave.Desc,PHYS,ATTACK,6,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,내려베기 ATK2 · 평타는 위력 동일 모션만 분산
+31011000,skill_ba_flurry,BASIC,SHARED,DRAFT,Skill.Flurry,Skill.Flurry.Desc,PHYS,ATTACK,7,ENEMY1,SINGLE_ENEMY,3,0,0,62000100,0,0,63000200,0,0,,연타 ATK3 · HitCount=3 은 연출 전용(D1 §3-4) 판정 1회 유지 · D1 §3-6 표본5 값 계승
+31012000,skill_ba_leap,BASIC,SHARED,DRAFT,Skill.LeapStrike,Skill.LeapStrike.Desc,PHYS,ATTACK,8,ENEMY1,SINGLE_ENEMY,1,0,0,62000200,0,0,63000200,0,0,,도약참 AIRATK1 · 도약 프로필 3원자 중 1
+31013000,skill_ba_plunge,BASIC,SHARED,DRAFT,Skill.Plunge,Skill.Plunge.Desc,PHYS,ATTACK,9,ENEMY1,SINGLE_ENEMY,1,0,0,62000200,0,0,63000200,0,0,,낙하타 AIRATK2 4프레임
+31014000,skill_ba_thrust,BASIC,SHARED,DRAFT,Skill.Thrust,Skill.Thrust.Desc,PHYS,ATTACK,5,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,찌르기 ATK1 재사용
+31015000,skill_ba_swipe,BASIC,SHARED,DRAFT,Skill.Swipe,Skill.Swipe.Desc,PHYS,ATTACK,6,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,후려치기 ATK2 재사용
+32010000,skill_ba_bolt,BASIC,SHARED,DRAFT,Skill.ManaBolt,Skill.ManaBolt.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,0,62000300,63000300,63000500,63000200,0,0,,마력탄 CAST1 · 투사 7원자
+32011000,skill_ba_spirit,BASIC,SHARED,DRAFT,Skill.SpiritShot,Skill.SpiritShot.Desc,MAG,MAGIC,11,ENEMY1,SINGLE_ENEMY,1,0,0,62000300,63000300,0,63000200,0,0,,정령타 CAST2 · 즉발(FxProjectileId=0) — 투사와 프로필 동일 차이는 이 셀 하나
+32012000,skill_ba_orb,BASIC,SHARED,DRAFT,Skill.ElementOrb,Skill.ElementOrb.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,0,62000300,63000300,63000500,63000200,0,0,,원소구 CAST1 재사용
+33001000,skill_block_def,COMMON,SHARED,LIVE,Skill.Block,Skill.Block.Desc,DEF,DEFEND,15,SELF,SELF,1,0,2,62000400,63000400,0,0,0,0,,LIVE 막기 버스트 하드카운터 · AdvanceRatio0 → run 1프레임 스침 해소 · ★FxCast 신규 추가(회귀 정직기록)
+31001000,skill_slash_phys,COMMON,SHARED,LIVE,Skill.Slash,Skill.Slash.Desc,PHYS,SKILL,5,ENEMY1,SINGLE_ENEMY,1,0,1,62000100,0,0,63000200,0,0,,LIVE 베기 강타+기절25% · 전 축 무변 회귀0
+31020000,skill_cm_heavyblow,COMMON,SHARED,DRAFT,Skill.HeavyBlow,Skill.HeavyBlow.Desc,PHYS,SKILL,6,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,강타 공용 최대넉 PR1.4
+31021000,skill_cm_quickjab,COMMON,SHARED,DRAFT,Skill.QuickJab,Skill.QuickJab.Desc,PHYS,SKILL,7,ENEMY1,SINGLE_ENEMY,2,0,1,62000100,0,0,63000200,0,0,,속공 저쿨 필러 · HitCount=2 연출 전용(판정 1회) — 저쿨 원자에 타격감 부여
+31022000,skill_cm_crippling,COMMON,SHARED,DRAFT,Skill.Crippling,Skill.Crippling.Desc,PHYS,SKILL,5,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,둔화타 ATK_DOWN 리더 · 칩락 실마진 산출의 좌변
+33010000,skill_cm_guard,COMMON,SHARED,DRAFT,Skill.GuardStance,Skill.GuardStance.Desc,DEF,DEFEND,15,SELF,SELF,1,0,3,62000400,63000400,0,0,0,0,,방어태세 2턴 약감소
+34010000,skill_cm_firstaid,COMMON,SHARED,DRAFT,Skill.FirstAid,Skill.FirstAid.Desc,HEAL,MAGIC,11,ALLY1,SINGLE_ALLY,1,0,3,62000400,63000400,0,0,0,0,,응급치유 공용 소힐 · FxImpact=0 (D1 §3-6 3차개정 ALLY 임팩트 알파 제외)
+32020000,skill_cm_suppress,COMMON,SHARED,DRAFT,Skill.Suppress,Skill.Suppress.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,2,62000300,63000300,63000500,63000200,0,0,,제압사격 원거리 제어 STUN40%
+32021000,skill_cm_focus,COMMON,SHARED,STUB,Skill.Focus,Skill.Focus.Desc,MAG,MAGIC,11,SELF,SELF,1,0,2,62000400,63000400,0,0,0,0,,기력모으기 ATK_UP 자버프 STUB · ★패시브 OUT_MULT와 곱연산 중첩 감시대상(§8 V2)
+32022000,skill_cm_burnmark,COMMON,SHARED,STUB,Skill.BurnMark,Skill.BurnMark.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,2,62000300,63000300,63000500,63000200,0,0,,화염징표 BURN 트루데미지 STUB · 방어 패시브 IN_MULT 관통 = 상성C 유지 근거
+33020000,skill_jb_bulwark,JOB,TANK,DRAFT,Skill.Bulwark,Skill.Bulwark.Desc,DEF,DEFEND,15,SELF,SELF,1,0,3,62000400,63000400,0,0,0,0,,수호방벽 2턴 강막기 탱 시그니처
+31030000,skill_jb_retaliate,JOB,TANK,DRAFT,Skill.Retaliate,Skill.Retaliate.Desc,PHYS,SKILL,6,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,반격참 탱 강타 PR1.5
+31031000,skill_jb_intimidate,JOB,TANK,DRAFT,Skill.Intimidate,Skill.Intimidate.Desc,PHYS,SKILL,5,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,위압 적 딜러 약화 팀보호
+32001000,skill_fireball_magic,JOB,DEALER,LIVE,Skill.Fireball,Skill.Fireball.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,2,62000300,63000300,63000500,63000200,0,0,,LIVE 파이어볼 PR상한1.7 · ★3축 변경(전진제거+캐스트FX오버라이드+투사추가) 오너 육안 게이트 대상
+31032000,skill_jb_execute,JOB,DEALER,DRAFT,Skill.Execute,Skill.Execute.Desc,PHYS,SKILL,7,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,처형 조건부×2(HP≤30%) · CondOp=LE 엔진지원 미검증(balance1 V4)
+32030000,skill_jb_barrage,JOB,DEALER,DRAFT,Skill.ArcaneBarrage,Skill.ArcaneBarrage.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,2,0,2,62000300,63000300,63000500,63000200,0,0,,연속마격 2차 버스트 · HitCount=2 (투사 프로필은 턴예산이 가장 길어 3 미채택)
+34001000,skill_heal_restore,JOB,SUPPORT,LIVE,Skill.Heal,Skill.Heal.Desc,HEAL,MAGIC,11,ALLY1,SINGLE_ALLY,1,0,3,62000400,63000400,0,0,0,0,,LIVE 치유 · FxImpact=0 확정(D1 §3-6 3차개정) · ★FxCast 신규 추가(회귀 정직기록)
+32031000,skill_jb_blessing,JOB,SUPPORT,STUB,Skill.Blessing,Skill.Blessing.Desc,MAG,MAGIC,11,ALLY1,SINGLE_ALLY,1,0,3,62000400,63000400,0,0,0,0,,축복 아군 ATK_UP STUB · 변수창출
+32032000,skill_jb_seal,JOB,SUPPORT,DRAFT,Skill.Seal,Skill.Seal.Desc,MAG,MAGIC,10,ENEMY1,SINGLE_ENEMY,1,0,3,62000300,63000300,63000500,63000200,0,0,,봉인 STUN50% · ON_TURN_START 패시브를 무는 유일 카운터 손잡이
+31040000,skill_jb_signature,JOB,UNIVERSAL,DRAFT,Skill.Signature,Skill.Signature.Desc,PHYS,SKILL,8,ENEMY1,SINGLE_ENEMY,1,0,2,62000200,0,0,63000200,0,0,,필살의일격 전 포지션 4번째 옵션 · MotionRow8 → 도약 프로필
+31002000,skill_buffattack_phys,PROBE,SHARED,PROBE,Skill.BuffAttack,Skill.BuffAttack.Desc,PHYS,SKILL,5,ENEMY1,SINGLE_ENEMY,1,0,1,62000100,0,0,63000200,0,0,,프루브 Timing(PRE ATK_UP → ON DAMAGE) · StagingId 배정 = D4.5 판정4(B1 30→32행)
+31003000,skill_focusstrike_phys,PROBE,SHARED,PROBE,Skill.FocusStrike,Skill.FocusStrike.Desc,PHYS,SKILL,5,ENEMY1,SINGLE_ENEMY,1,0,2,62000100,0,0,63000200,0,0,,프루브 Condition(TARGET HP_PCT GE 50 MULT 2.0) · 전 축 기본공격과 동일 → 회귀0
+#TODO:N6:P01,skill_pv_ironskin,PASSIVE,TANK,DRAFT,Skill.IronSkin,Skill.IronSkin.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35000000,강철피부 영구 IN_MULT DEF -0.04 (PSV_DEF_UP) · 상한근거 탱미러 23→22 유지 5타
+#TODO:N6:P02,skill_pv_endurance,PASSIVE,TANK,DRAFT,Skill.Endurance,Skill.Endurance.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35001000,인내 ON_TURN_START 자가회복 ATK×0.05 (탱 1/턴) · STUN이 무는 유일 패시브 축
+#TODO:N6:P03,skill_pv_momentum,PASSIVE,TANK,DRAFT,Skill.Momentum,Skill.Momentum.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35002000,기세 영구 OUT_MULT ATK +0.04 (PSV_ATK_UP) · 탱에게 공격 선택지 제공
+#TODO:N6:P04,skill_pv_keenedge,PASSIVE,DEALER,DRAFT,Skill.KeenEdge,Skill.KeenEdge.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35003000,예리함 영구 OUT_MULT ATK +0.04 · 상한근거 딜미러 3타 보존(floor(46×1.04)=47)
+#TODO:N6:P05,skill_pv_bloodthirst,PASSIVE,DEALER,DRAFT,Skill.Bloodthirst,Skill.Bloodthirst.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35004000,갈증 ON_TURN_START 자가회복 ATK×0.05 (딜 2/턴) · 물몸 딜의 유일 지속력
+#TODO:N6:P06,skill_pv_toughness,PASSIVE,DEALER,DRAFT,Skill.Toughness,Skill.Toughness.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35005000,강인함 영구 IN_MULT DEF -0.04 · 물몸 보완 선택지
+#TODO:N6:P07,skill_pv_meditation,PASSIVE,SUPPORT,DRAFT,Skill.Meditation,Skill.Meditation.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35006000,명상 ON_TURN_START 자가회복 ATK×0.05 (서 1/턴) · 아웃힐 불가 검산 §7-5 유지
+#TODO:N6:P08,skill_pv_insight,PASSIVE,SUPPORT,DRAFT,Skill.Insight,Skill.Insight.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35007000,통찰 영구 OUT_MULT ATK +0.04
+#TODO:N6:P09,skill_pv_ward,PASSIVE,SUPPORT,DRAFT,Skill.Ward,Skill.Ward.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35008000,가호 영구 IN_MULT DEF -0.04
+#TODO:N6:P10,skill_pv_equilibrium,PASSIVE,UNIVERSAL,DRAFT,Skill.Equilibrium,Skill.Equilibrium.Desc,PASSIVE,NONE,-1,NONE,NONE,0,0,0,0,0,0,0,0,0,N6 결재 대기 → Id=35009000,평정 영구 OUT+0.02 & IN-0.02 (PSV_ATK_UP_S+PSV_DEF_UP_S) · 3포지션 공용 4번째 옵션(X1 필살의일격 선례)
