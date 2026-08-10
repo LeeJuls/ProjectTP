@@ -275,7 +275,7 @@ system-ui-designer(원저자 검토)·qa-critic(안전성 검토, ST_UI 무백�
 | 컴포넌트 | 역할 | 사용처 | 우선순위 | 소관 |
 |---|---|---|---|---|
 | **WBP_TimerBar** | 카운트다운 바 | Draft(Roll 5s·Pick 30s·Ban 30s) | **높음** | 이 문서 |
-| **WBP_CharacterCard** | 캐릭터 카드(초상·이름키·포지션·**등급**·스킬3슬롯) — 등급 필드는 등급축 확정(2026-07-13)의 파급([[알파_개발계획]] §4.5 balance#4 해소 게이트: 카드가 role+grade 노출) | Draft(Roll/Pick/Ban 전 단계)·Result(최종4 변형) | **높음** | 이 문서 |
+| **WBP_CharacterCard** | 캐릭터 카드(초상·이름키·포지션·**등급**·**스킬 3+1 슬롯**) — 등급 필드는 등급축 확정(2026-07-13)의 파급([[알파_개발계획]] §4.5 balance#4 해소 게이트: 카드가 role+grade 노출). **스킬 슬롯은 2026-08-11 D1 확정으로 3→3+1 비대칭**(아래 각주) | Draft(Roll/Pick/Ban 전 단계)·Result(최종4 변형) | **높음** | 이 문서 |
 | **WBP_PopupFrame** | 9-slice 팝업 프레임(제목·본문·버튼 슬롯) | Options·Result·Matching 박스·확인 다이얼로그 | 중 | 이 문서 |
 | **WBP_GoldCounter** | 골드 표시(아이콘+수치) | Lobby·Draft(리롤 비용)·Result(보상) | 중 | 이 문서 |
 | **WBP_Button_Primary/Secondary** | 스타일 버튼 | 전역 | 낮음(공용 스타일로 대체 가능) | 이 문서 |
@@ -283,6 +283,17 @@ system-ui-designer(원저자 검토)·qa-critic(안전성 검토, ST_UI 무백�
 | WBP_UnitFrame | 전투 유닛 HP/상태 프레임 | BattleHUD | (후보) | **전투 HUD 명세** |
 
 > **미리 만들면 이득**: TimerBar·CharacterCard는 Draft 3단계가 공유하므로 **Draft 착수 전 우선 제작**. Draft를 이 둘의 조합으로 세우면 배치 노동(4단계)이 준다.
+
+> ### ★ `WBP_CharacterCard` 스킬 슬롯 = **3+1 비대칭** (2026-08-11 갱신, [[D1_4슬롯구조_확정]] §9-1)
+> 캐릭터는 **액티브 3(평타·공용·직업) + 패시브 0~1**을 갖는다. 카드 레이아웃은 **4칸 균등이 아니라 3+1 비대칭**이다:
+> - **액티브 3** = 가로 3칸 균등 아이콘 행 (구역 라벨 `UI_DRAFT_CARD_SLOT_ACTIVE`)
+> - **패시브 1** = 그 아래 **1행 전폭** (구역 라벨 `UI_DRAFT_CARD_SLOT_PASSIVE`, 배지 `UI_COMMON_PASSIVE_ALWAYS_ON`)
+>
+> **근거**: (a) 4칸 균등이면 *"4번째도 클릭해서 쓸 수 있다"* 고 오독된다 — 패시브는 전투 스킬 메뉴에 **노출되지 않는다**(메뉴 Row 3개 고정) (b) 밴픽에서 패시브는 *"항상 켜져 있음"* 이라 정보 가중치가 다르다 (c) **PvP 공정성** — 패시브가 카드에 미표시면 밴픽이 정보 불완전이 된다.
+>
+> ⚠ **패시브가 없는 캐릭터(`PassiveId = 0`)도 정상**이다(4슬롯은 *"3 필수 + 1 선택"*). 이때 **패시브 행을 숨기지 않고** 빈 슬롯 + `UI_COMMON_PASSIVE_NONE`을 표시한다 — 행을 숨기면 카드 높이가 흔들려 그리드 정렬이 깨지고, "패시브 없음"은 그 자체가 밴픽 판단 정보다.
+>
+> **신규 문자열 키 7종**(§G 등록 대상): `UI_DRAFT_CARD_SLOT_ACTIVE` · `UI_DRAFT_CARD_SLOT_PASSIVE` · `UI_COMMON_PASSIVE_LABEL` · `UI_COMMON_PASSIVE_ALWAYS_ON` · `UI_COMMON_PASSIVE_NONE` · `UI_BATTLE_PASSIVE_TRIGGERED` · `UI_BATTLE_STATUS_AURA_PREFIX`. (`UI_COMMON_` = Draft·Battle 양쪽에서 쓰이는 교차화면 문자열의 SCREEN 토큰 — §G `UI_<SCREEN>_<ELEMENT>` 준수.)
 
 ---
 
@@ -343,7 +354,9 @@ system-ui-designer(원저자 검토)·qa-critic(안전성 검토, ST_UI 무백�
 | Draft/Roll | `UI_DRAFT_ROLL_TITLE`·`UI_DRAFT_REROLL`·`UI_DRAFT_REROLL_COST`·`UI_DRAFT_ROLL_TIMER` |
 | Draft/Pick | `UI_DRAFT_PICK_TITLE`·`UI_DRAFT_PICK_CONFIRM`·`UI_DRAFT_PICK_COUNT`("{0}/5") |
 | Draft/Ban | `UI_DRAFT_BAN_TITLE`·`UI_DRAFT_BAN_CONFIRM`·`UI_DRAFT_BAN_WAIT`(상대 대기) |
-| BattleHUD | (상세 = 전투 HUD 명세) 예시: `UI_BATTLE_TURN`·`UI_BATTLE_SKILL`·`UI_BATTLE_ATTACK`·`UI_BATTLE_TARGET` — ★`UI_BATTLEHUD_`가 아닌 `UI_BATTLE_` 축약(의도적 — 정식 목록은 전투 HUD 명세에서 표준화) |
+| Draft/카드 슬롯 | `UI_DRAFT_CARD_SLOT_ACTIVE`·`UI_DRAFT_CARD_SLOT_PASSIVE` (2026-08-11 D1, §E 3+1 비대칭) |
+| **Common**(교차화면) | `UI_COMMON_PASSIVE_LABEL`·`UI_COMMON_PASSIVE_ALWAYS_ON`·`UI_COMMON_PASSIVE_NONE` — ★Draft 카드와 Battle HUD **양쪽**에서 쓰이는 문자열의 SCREEN 토큰 = `COMMON`(`common/` 위젯 폴더와 정합) |
+| BattleHUD | (상세 = 전투 HUD 명세) 예시: `UI_BATTLE_TURN`·`UI_BATTLE_SKILL`·`UI_BATTLE_ATTACK`·`UI_BATTLE_TARGET` — ★`UI_BATTLEHUD_`가 아닌 `UI_BATTLE_` 축약(의도적 — 정식 목록은 전투 HUD 명세에서 표준화). 2026-08-11 D1 추가: `UI_BATTLE_PASSIVE_TRIGGERED`·`UI_BATTLE_STATUS_AURA_PREFIX` |
 | Result | `UI_RESULT_WIN`·`UI_RESULT_LOSE`·`UI_RESULT_WALKOVER`(부전승)·`UI_RESULT_GOLD_REWARD`·`UI_RESULT_RESTART`·`UI_RESULT_TO_LOBBY` |
 
 ---
