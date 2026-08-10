@@ -1,0 +1,5 @@
+Id,#id_txt,AdvanceRatio,ApproachMotionRow,ApproachArcHeight,IsCameraCut,IsTargetFlinch,#TODO,Memo
+62000100,stg_melee_walk,1.0,-1,0.0,TRUE,TRUE,,근접 물리 전량. AdvanceRatio=1.0 → Lerp 종점=Anchor=현행 WalkForward 종점과 동일(회귀 0). ApproachMotionRow=-1 → DefaultLocomotionMotionRow(row2 Run1) 사용. ★IsTargetFlinch는 «타겟 Hurt 모션» 축만 소유한다 — 타겟 임팩트 VFX는 skills.FxImpactId(이펙트층)가 소유하는 별개 축(D1 §3-6b)
+62000200,stg_melee_leap,1.0,4,-1.0,TRUE,TRUE,ApproachArcHeight 미확정 — 캐릭터 시각높이 H(uu) 미실측 ∧ 정점비 k 미적판단. 닫는 법 = D4.5c §4-2 3항,도약 3원자. Motion.Jump(row4)의 첫 소비처. 종점은 stg_melee_walk와 동일하고 궤적만 다름. ArcHeight=-1.0은 미확정 sentinel(L14 FAIL 의도)
+62000300,stg_ranged_cast,0.0,-1,0.0,FALSE,TRUE,,원거리 전량 — 즉발·투사 공통 제자리 시전. 즉발/투사 차이는 skills.FxProjectileId 하나뿐(프로필 축 아님)
+62000400,stg_support_cast,0.0,-1,0.0,FALSE,FALSE,,자기·아군 대상. AdvanceRatio=0.0 → 접근·복귀 양방향 스킵(막기 run 1프레임 스침 구조적 해소). ★IsTargetFlinch=FALSE는 «회복 대상을 움찔시키지 않는다»는 뜻이며 임팩트 VFX 억제와 무관하다 — 이 행이 두 축이 실제로 갈리는 유일한 지점(D1 §3-6b (2)). 알파는 치유 3원자도 FxImpactId=0(D1 §3-6 3차 개정)

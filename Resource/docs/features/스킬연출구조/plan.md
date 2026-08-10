@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: D4 게이트 PASS(조건부, 2026-08-11) — D4.5 착수. D5는 C-1~C-4 해소 후
+status: D4.5 완료(2026-08-11) — D5 착수. 오너 결재 2건 대기(N6 Id / struct 배치)
 ---
 
 # 스킬 4슬롯 구조 + 연출·이펙트·SFX 데이터화 설계
@@ -247,7 +247,7 @@ balance의 독립 유도(*"+7% 보수 / +15% 절대, +16%면 1턴 원킬"*)와 *
 
 gameplay 실측이 3-way 분기와 3필드의 1:1 대응을 확인했다: `IfThenElse_4`(SELF→walk skip) ↔ `AdvanceRatio` / `IfThenElse_6` ↔ `IsCameraCut` / `IfThenElse_5` ↔ `IsTargetFlinch`. **Condition 입력 핀만 교체**하면 되고 exec 위상은 그대로.
 
-**주요 판정**: 색은 `vfx.csv`가 소유(Kind 유도 = 코드에 매핑 심는 하드코딩이라 기각) / 타이밍 오프셋 컬럼 없음, **지속시간만 `min(FrameCount/FPS, SlotBudgetSec)`** 유도 / 카메라는 **컷 여부만** / 캐릭터 연결 = **스킬ID 컬럼 직접**(킷 중간층은 1:1이라 순비용)
+**주요 판정**: 색은 `vfx.csv`가 소유(Kind 유도 = 코드에 매핑 심는 하드코딩이라 기각) / 타이밍 오프셋 컬럼 없음, ~~min(FrameCount/FPS, SlotBudgetSec)~~ → ❌ **철회.** 라이브에 이미 `FrameCount/FPS − 0.05` 공식이 있다(Smear `5/10−0.05=0.45` · Hit `6/10−0.05=0.55`, 리터럴과 소수점 일치). 원안을 쓰면 Smear가 0.50이 되어 **5스킬 전부 0.05s 증가 → MA-1 diff 붕괴, 육안 검출 불가**. 신규 상수는 `FxSafetyMarginSec = 0.05` 1개뿐 — 상세: [[D4.5_판정]] / 카메라는 **컷 여부만** / 캐릭터 연결 = **스킬ID 컬럼 직접**(킷 중간층은 1:1이라 순비용)
 
 **회귀 표현**: 기존 5스킬 전부 표현됨. **막기·치유 제자리** = `AdvanceRatio 0`. 파트3이 보류한 "막기 시 run 1프레임 스침"도 `AdvanceRatio==0 → WalkBack 스킵`으로 구조적 해소.
 
@@ -385,6 +385,9 @@ float 타입 유지는 **정당**하다(bool 전환 비용 = struct 편집 + DT 
 | **D3** | TC 확정 — **시드 17건 이미 산출됨**(qa) | qa-critic |
 | **D4** | **Director 게이트** → 커밋. ★진입 조건 = **극단 8표본 표현 실증** | Director |
 | **★D4.5** | **`vfx.csv`·`stagings.csv`·`sfx.csv` 행 목록 확정** + **9색 아틀라스 실작업 판단** | art-pipeline + system-ui |
+| ├ **D4.5-a** | VFX 재고 180장 전수 메타 추출 · "9색 아틀라스 실작업 불필요" 판정 | ✅ art-pipeline — [[D4.5a_VFX재고_실측]] |
+| ├ **D4.5-b** | `vfx.csv` 행 확정 (**legacy 2행 필수** · Q4·Q5 닫기 · Id 계열 `63xxxxxx`) | ⏳ art-pipeline |
+| └ **D4.5-c** | `stagings` 4행 · `sfx` 3행 확정 · `_tables` 등재 · `motions` 이관 작업본 | ✅ system-ui — [[D4.5c_연출SFX행확정]] |
 | **D5** | 값 배정(액티브 30 + 패시브 10) | balance-designer |
 | **D6** | 구현 — **F7b ⑦ 게이트 GREEN 이후** | gameplay-engineer |
 

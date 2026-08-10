@@ -1,0 +1,4 @@
+Id,#id_txt,SoundPath,VolumeMult,PitchMult,Memo
+64000100,sfx_slot_motion,NONE,1.0,1.0,모션 SFX 슬롯. 참조원=motions.SfxMotionId / 훅=PlayAttackMotion 시작. SoundPath=NONE은 미배정(알파 정상) — 공란과 구별되는 명시 sentinel
+64000200,sfx_slot_cast,NONE,1.0,1.0,캐스트 SFX 슬롯. 참조원=skills.SfxCastId / 훅=캐스트 FX와 동일 프레임. 알파 오디오 애셋 0개
+64000300,sfx_slot_impact,NONE,1.0,1.0,임팩트 SFX 슬롯. 참조원=skills.SfxImpactId / 훅=ResolveHit 직전. 알파 오디오 애셋 0개

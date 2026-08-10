@@ -9,3 +9,6 @@ Id,#id_txt,TableName,Domain,Version,OwnerSystem,CycleException,Memo
 90001100,entity_motions,motions,개체,1,연출,,모션행 참조(프레임수·루프·공격계열). skills.MotionRow→RowIndex
 90001200,entity_statuseffects,status_effects,개체,1,전투,,상태이상 정의(카탈로그 6종)
 90001300,entity_skilleffects,skill_effects,개체,1,전투,,스킬 이펙트 엔트리(레고 조립식 3층 카탈로그 10행)
+90001400,entity_stagings,stagings,개체,1,연출,,연출 프로필(접근·카메라·flinch). skills.StagingId→Id / 행 Id 계열 62xxxxxx
+90001500,entity_vfx,vfx,개체,1,연출,,VFX 시트 파라미터(경로·그리드·프레임·FPS). skills.Fx*Id·motions.FxMotionId→Id / 행 Id 계열 63xxxxxx 예약
+90001600,entity_sfx,sfx,개체,1,연출,,SFX 슬롯(경로·볼륨·피치). skills.Sfx*Id·motions.SfxMotionId→Id / 행 Id 계열 64xxxxxx / 알파=참조 0
