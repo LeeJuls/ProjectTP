@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: D1 산출 완료 · D4.5-a 실측 완료 — D3(TC) 진행 중, D4 게이트 대기
+status: D4 게이트 PASS(조건부, 2026-08-11) — D4.5 착수. D5는 C-1~C-4 해소 후
 ---
 
 # 스킬 4슬롯 구조 + 연출·이펙트·SFX 데이터화 설계
