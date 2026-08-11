@@ -129,7 +129,7 @@ Read 툴로 직접 열람(이미지는 UE·MCP 없이도 시각 확인 가능). 
 
 ### 3-3. 외부 Smear/Hit는 heroes99가 아니라 별개 팩
 
-- [[D4.5a_VFX재고_실측]]: `T_FX_Smear`/`T_FX_Hit`는 `_RawAssets\vfx\Free\`(itch.io류 범용 180장 팩, Part1~15) 소스. 5프레임(Smear, GridX=5)·6프레임(Hit, GridX=7 grid에 6프레임)짜리 서브UV 시트, 벤더 자체 색상행 9종 내장 — **heroes99와 폴더·명명·그리드 규약이 완전히 다르다**(heroes99는 8×17 캐릭터 그리드, vfx/Free는 64px 셀에 열 5~23·행 9 가변 그리드).
+- [[D4.5a_VFX재고_실측]]: ~~`T_FX_Smear`/`T_FX_Hit`는 `_RawAssets\vfx\Free\` 소스~~ → ★**정정(2026-08-12): 진짜 출처는 `Smear VFX 01/`·`Hit Effect 01/`**(§4-1 정정 블록 참조). `Free\`(itch.io류 범용 180장 팩, Part1~15)는 **신규 3종의 출처**다. 5프레임(Smear, GridX=5)·6프레임(Hit, GridX=7 grid에 6프레임)짜리 서브UV 시트, 벤더 자체 색상행 9종 내장 — **heroes99와 폴더·명명·그리드 규약이 완전히 다르다**(heroes99는 8×17 캐릭터 그리드, vfx/Free는 64px 셀에 열 5~23·행 9 가변 그리드).
 - [[E_TC]](`E-S5-06`, `E-H9`, CONFIRMED): **밀도 실측** — 캐릭터 스케일 기준 등가 uu/텍셀은 **6.48**, legacy Smear/Hit는 **5.00 uu/텍셀(0.77×, 즉 캐릭터보다 작게 그려짐)**, 신규 후보 3종은 **3.75 uu/텍셀(1.73× 필요)**. "전역 스케일 1값으로는 legacy와 신규를 동시에 6.48로 못 맞춘다"는 것도 이미 CONFIRMED 판정. → **같은 heroes99 팩이면 밀도가 저절로 맞았을 것**이라는 오너 가설의 반증 사례가 이미 실측으로 존재한다.
 - [[D4.5b_VFX행배정]]: `PlayAttack` 이벤트가 캐릭터 RowIndex 전환과 **같은 커스텀 이벤트 안에서** `SmearMID` 표시(`SetVisibility(TRUE)`→`RetriggerableDelay(0.45)`→`FALSE`)도 함께 트리거한다(`IsAttackFamily(모션)==TRUE` 게이트). `전투완성/BP정리_통합명세`(H18)는 `PlayAttack` 내부에 `0.70/0.55/0.45×2` 타이머가 섞여 있음을 재확인, H30은 **`SmearMID`/`HitMID`가 같은 `EffectQuad` 1장을 공유해 동시 표시가 물리적으로 불가능**한 구조적 결함까지 지적한다.
 
@@ -141,10 +141,26 @@ Read 툴로 직접 열람(이미지는 UE·MCP 없이도 시각 확인 가능). 
 
 | 팩 | 파일 수 | 용량 | 원본 흔적 | 현재 사용 |
 |---|---|---|---|---|
-| `Free/`(Part1~15) | 196 | 29M | 64px 셀, 9색×가변열 서브UV, `Free Preview All.gif` 벤더 카탈로그 | **사용 중** — `T_FX_Smear`(Part1/03.png 계열)·`T_FX_Hit`·신규 후보 3종(`T_FX_CastAtk`/`CastSupport`/`ProjectileArcane`) 전부 이 팩 |
-| `Hit Effect 01/` | 4 | 24K | `Hit Effect 1.aseprite` 원본 포함 | **미사용**(라이브 `T_FX_Hit`는 Free/Part13·14 소스, 이 폴더가 아님) |
-| `Holy VFX 01-02/` | 37 | 48K | Impact/Initial/Repeatable 3단 + `Separated Frames` 폴더 | **미사용** |
-| `Smear VFX 01/` | 7 | 18K | `Smear VFX 01.aseprite` 원본 포함, Horizontal/Vertical 6종 | **미사용**(이름이 유사해 헷갈리기 쉬우나 라이브 Smear의 원본이 아님) |
+| `Free/`(Part1~15) | 196 | 29M | 64px 셀, 9색×가변열 서브UV, `Free Preview All.gif` 벤더 카탈로그 | **사용 중** — **신규 3종**(`T_FX_CastAtk`/`CastSupport`/`ProjectileArcane`)만. ~~`T_FX_Smear`·`T_FX_Hit`도 이 팩~~ ← **정정, 아래 참조** |
+| `Hit Effect 01/` | 4 | 24K | `Hit Effect 1.aseprite` 원본 포함 | ★**사용 중** — 라이브 `T_FX_Hit`의 **진짜 원본**. ~~미사용(Free/Part13·14 소스)~~ |
+| `Holy VFX 01-02/` | 37 | 48K | Impact/Initial/Repeatable 3단 + `Separated Frames` 폴더 | **미사용** — ★**밀도 최근접 후보**([[_RawAssets_전수카탈로그]] §0) |
+| `Smear VFX 01/` | 7 | 18K | `Smear VFX 01.aseprite` 원본 포함, Horizontal/Vertical 6종 | ★**사용 중** — 라이브 `T_FX_Smear`의 **진짜 원본**. ~~이름이 유사해 헷갈리기 쉬우나 원본이 아님~~ |
+
+> ★**정정 (2026-08-12) — legacy 2종의 출처를 틀리게 적었다.**
+> 원안은 `T_FX_Smear`/`T_FX_Hit`가 `Free/` 팩에서 왔다고 썼는데(위 취소선), **실측으로 반증됐다.** 진짜 출처는 **폴더 이름 그대로** `Smear VFX 01/`과 `Hit Effect 01/`이다.
+>
+> **근거 3중**:
+> | | Smear | Hit |
+> |---|---|---|
+> | 원본 파일 | `Smear 01 Horizontal 1.png` **240×48** | `Hit Effect 01 1.png` **336×48** |
+> | 48px 셀 환산 | **5프레임** (240/48) | **7그리드** (336/48) |
+> | `vfx_draft.csv` 실제 값 | `GridX=5` `FrameCount=5` ✅ | `GridX=7` `FrameCount=6` ✅ |
+>
+> **원인**: `Free/` 180장 전수 조사 중 legacy도 거기서 왔다고 **실측 없이 추정**했다. 폴더명이 `Smear VFX 01`·`Hit Effect 01`로 명백했는데 *"이름이 유사해 헷갈리기 쉽다"*며 오히려 **반대로 결론냈다.**
+>
+> ★**교훈**: 이름이 정확히 일치하는 후보를 *"헷갈리기 쉬우니 아닐 것"*으로 배제하려면 **배제할 실측 근거**가 있어야 한다. 없으면 그 후보가 정답일 가능성이 가장 높다.
+>
+> 신규 3종(`63000300`~`500`)의 `Free/` 출처 서술은 **맞다** — 혼동은 legacy 2개뿐이다.
 
 ### 4-2. heroes99 — 현재 쓰는 것 / 안 쓰는 것
 
