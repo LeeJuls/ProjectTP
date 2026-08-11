@@ -56,6 +56,10 @@
 /Resource/docs/.obsidian/workspace.json
 /Resource/docs/.obsidian/workspace-mobile.json
 /Resource/docs/.obsidian/cache
+# 서드파티 플러그인 코드(5.7MB). 2026-08-11 `git add -A`로 28,668줄이 문서 커밋에
+# 혼입되는 사고가 있었다. 플러그인 "목록"(community-plugins.json)은 추적하되
+# 코드 자체는 각자 Obsidian이 재설치한다.
+/Resource/docs/.obsidian/plugins/
 
 # ===== OS junk =====
 Thumbs.db
