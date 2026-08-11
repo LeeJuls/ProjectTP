@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: S0 완료 — 대역 액터 전환. S1 착수
+status: S1 PASS — S2 착수
 ---
 
 # E단계 — 데이터 구동 연출 스파이크 (동작 확인 + 연출 실험대)
@@ -193,7 +193,7 @@ status: S0 완료 — 대역 액터 전환. S1 착수
 | # | 내용 | 담당 |
 |---|---|---|
 | ~~**S0**~~ | ✅ **완료** — B1·B4·B5 FAIL → 대역 액터 전환 확정 | ✅ |
-| **S1** | 레벨 복제 + 3액터 삭제 + **DoF baseline 적용**. ★`BP_AttackPoint`는 **삭제 금지**(앵커 계산에 필요) | MCP |
+| ~~**S1**~~ | ✅ **PASS** — 라이브 git diff 0 · 8기 렌더 확인 · DoF baseline 적용 | ✅ |
 | **S2** | `BP_FxLabQuad` + `PlayVfx`(표시시간 **계산식**) | MCP |
 | **S2'** | 텍스처 3장 임포트 (S2와 **병렬**) | art-pipeline |
 | **S3** | Director + stagings 해석 + 자동 배터리 + **카메라 컷 신규 구현**(E-H2 — 매니저 삭제로 원본 코드가 사라진다) | MCP |

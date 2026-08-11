@@ -1023,3 +1023,21 @@ $t.Contains("ApplySkillEffects")   # → 디스크본에 그 "이름"의 함수�
 **원인**: 이전 조사에서 "검출 실패 → 폴링(`IsInputKeyDown`) 대체 필요"로 내린 판정이 실제로는 **도구 한계가 아니라 검색어 문제**였다 — `find_node_types`는 기능명이 아니라 팔레트 카테고리명 기준으로 매칭된다(§34 함정(79)가 확인한 "0건 = 검색어 문제" 패턴과 동일 계열).
 **해법**: "검출 안 됨"을 "존재하지 않음"으로 결론 내리기 전에 **카테고리명으로 재검색**할 것. 이번 사례로 폴링 대체가 불필요해졌다.
 **출처**: 2026-08-11 스킬연출구조 E-S0(노드 프로브) B6, [[E-S0_노드프로브_결과]] · §34 함정(79)(동형 함정, 다른 세션).
+
+---
+
+## 36. 스킬연출구조 E-S1(레벨구축)에서 확정된 노하우 (2026-08-11)
+
+> 배경: 스파이크 레벨(`map_battle_fxlab`) 구축 + DoF baseline 적용([[E-S1_레벨구축_결과]])에서 확정된 함정 2건. `S3_룩패스`가 측정해 둔 DoF 값을 그대로 켜려다 **PostProcessVolume `Settings` struct의 값/override 이원 구조**와 **`set_properties`의 nested struct 쓰기 방식**을 둘 다 처음 실측했다. §35에 이어 **(89)부터 번호를 매긴다.**
+
+### 함정 (89) — PostProcess 값이 있어도 `bOverride_*`가 false면 렌더에 안 걸린다
+**증상**: `get_properties`로 PPV `Settings`를 조회하면 원하는 값이 이미 들어 있는데, 화면에는 전혀 반영되지 않는다.
+**원인**: PPV `Settings`의 각 항목은 **값 필드**와 **override 플래그**가 쌍이다. 값만 세팅하고 `bOverride_<Name>`을 안 켜면 **조회 시 값은 보이는데 화면은 안 바뀐다.** 실증: 2026-08-11 E-S1. DoF 7개 값이 이미 들어 있었으나 override가 전부 false여서 꺼진 상태였다 — 이전 세션의 *"적용 후 원복"*이 값이 아니라 override만 되돌린 것이었다.
+**해법**: 값과 `bOverride_*`를 **항상 쌍으로** 세팅할 것. ★추가로 `depthOfFieldEnabled` 같은 **마스터 스위치가 별도로 있는 항목은 그것까지 켜야** 나머지 값이 유효해진다. 명명 규칙: 값은 camelCase(`depthOfFieldFocalDistance`), 플래그는 `bOverride_DepthOfFieldFocalDistance`(PascalCase).
+**출처**: 2026-08-11 스킬연출구조 E-S1(레벨구축), [[E-S1_레벨구축_결과]] · 선행: [[S3_룩패스]].
+
+### 함정 (90) — `set_properties`의 nested struct는 전체교체가 아니라 부분 merge (확인 후 쓰라)
+**증상**: PPV `Settings`처럼 **200개 넘는 필드를 가진 struct**에 `set_properties`를 쓸 때, 지정하지 않은 나머지 필드가 날아갈지 보존될지가 문서화돼 있지 않다.
+**원인**: 확인 없이 쓰면 전체교체 방식일 경우 Bloom·Vignette·AO·ColorGrading 등 **미지정 필드 전부가 기본값으로 리셋**될 위험이 있다.
+**해법**: 실증: 2026-08-11 E-S1. **no-op 라운드트립 테스트**(같은 값을 다시 써넣고 나머지 필드 비교)로 **부분 patch(merge)임을 먼저 확인한 뒤** DoF를 적용했다 — Bloom·Vignette·AO·ColorGrading 등 나머지 200+ 필드가 온전했다. ★**대형 struct를 건드리기 전에 no-op 라운드트립으로 동작을 먼저 확인하는 것**을 관례로 삼는다. 확인 없이 썼다가 룩 세팅이 통째로 날아가면 복구가 비싸다.
+**출처**: 2026-08-11 스킬연출구조 E-S1(레벨구축), [[E-S1_레벨구축_결과]].
