@@ -1,5 +1,5 @@
 Id,#id_txt,#Layer,#PositionTag,#DevStatus,NameKey,DescKey,Kind,Category,MotionRow,Target,PrimaryTargetGroup,HitCount,Cost,CooldownTurns,StagingId,FxCastId,FxProjectileId,FxImpactId,SfxCastId,SfxImpactId,#TODO,Memo
-31000000,skill_attack_basic,BASIC,SHARED,LIVE,Skill.Attack,Skill.Attack.Desc,PHYS,ATTACK,5,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,LIVE 평타 앵커 PR1.0 cd0 · FxCast=0 → motions row5 폴백 63000100 → 회귀0
+31000000,skill_attack_basic,BASIC,SHARED,LIVE,Skill.Attack,Skill.Attack.Desc,PHYS,ATTACK,5,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,LIVE 평타 앵커 PR1.0 cd0 · FxCast=0=외부FX없음(스윙트레일 모션내장) → motions row5 FxMotionId=0(정정 2026-08-12: 오너판정 오버레이 폐지 · 舊63000100 참조 삭제) · 회귀0
 31010000,skill_ba_cleave,BASIC,SHARED,DRAFT,Skill.Cleave,Skill.Cleave.Desc,PHYS,ATTACK,6,ENEMY1,SINGLE_ENEMY,1,0,0,62000100,0,0,63000200,0,0,,내려베기 ATK2 · 평타는 위력 동일 모션만 분산
 31011000,skill_ba_flurry,BASIC,SHARED,DRAFT,Skill.Flurry,Skill.Flurry.Desc,PHYS,ATTACK,7,ENEMY1,SINGLE_ENEMY,3,0,0,62000100,0,0,63000200,0,0,,연타 ATK3 · HitCount=3 은 연출 전용(D1 §3-4) 판정 1회 유지 · D1 §3-6 표본5 값 계승
 31012000,skill_ba_leap,BASIC,SHARED,DRAFT,Skill.LeapStrike,Skill.LeapStrike.Desc,PHYS,ATTACK,8,ENEMY1,SINGLE_ENEMY,1,0,0,62000200,0,0,63000200,0,0,,도약참 AIRATK1 · 도약 프로필 3원자 중 1
