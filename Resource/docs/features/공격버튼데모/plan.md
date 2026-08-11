@@ -32,7 +32,7 @@ PIE에서 화면 하단 "Attack" 버튼 클릭 → **A1이 ATTACK1(Row5, 실측 
 | 단계 | 내용 | 담당 | 모델 | 상태 |
 |---|---|---|---|---|
 | D1 | 마스터 TimeOffset(8스텝 절차)+MI 상속·village 렌더 회귀 | art-pipeline | sonnet | 완료 |
-| D2 | BP 2종+스트링테이블+레벨 배선+문서 반영 | gameplay-engineer | sonnet | 완료 — ⚠ Label(TextRenderComponent) 에디터 뷰포트 미표시 발견, PIE 실증 필요(D2_구현.md 함정5) |
+| D2 | BP 2종+스트링테이블+레벨 배선+문서 반영 | gameplay-engineer | sonnet | 완료 — ~~⚠ Label(TextRenderComponent) 에디터 뷰포트 미표시 발견, PIE 실증 필요~~ → ✅ **해소**(2026-08-11 확인): 원인은 Show flag가 아니라 **회전+WorldSize**였다. 근거: [[raw/D3_게이트기록]] |
 | D3 | 게이트: PIE 실클릭 실증+에디터/village 회귀 | verifier+Director(클릭) | haiku | **완료 — 10/10 PASS** ([[raw/D3_게이트기록]]. 복귀"결함"은 idle 기준 오판으로 정정, Label은 회전+LOCTABLE로 해결) |
 
 ## TC 미니 목록

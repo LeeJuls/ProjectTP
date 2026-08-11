@@ -3,7 +3,7 @@ type: qa
 project: projectTP
 feature: 전투완성
 stage: 파트1(Start 버튼)
-status: 게이트 PASS 2026-07-16 23시경 — TC 46건 verifier 실행 완료(T1 실증 확인, GRAPH 핀 원문 Director 직접검증). P1-R01(F9a 23턴 diff-0)은 오너 결정으로 파트2 이월. P1-G13 문구 정정 반영. 오너 육안 5건(P1-V01~05) 전부 PASS. 상세: [[파트1_Start_진행]] §9
+status: 게이트 PASS 2026-07-16 23시경 — ~~TC 46건 verifier 실행 완료~~ → ❌ **2026-08-11 정정**(frontmatter 자기모순 — 바로 다음 문장이 R01 이월을 밝힘): **46건 중 T1 실증+오너육안 5건(P1-V01~05)+GRAPH 일부 핀검증(Director 직접검증)으로 게이트 PASS**, P1-R01(F9a 23턴 diff-0) 등 다수는 파트2 이월(파트2~4 문서와 동일 표기법으로 통일). P1-G13 문구 정정 반영. 오너 육안 5건(P1-V01~05) 전부 PASS. 상세: [[파트1_Start_진행]] §9
 updated: 2026-07-16
 ---
 

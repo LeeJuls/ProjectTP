@@ -15,11 +15,11 @@ updated: 2026-07-06
 | 단계 | 내용 | 담당 | 모델 | 상태 |
 |---|---|---|---|---|
 | P0 | 복제(map_battle_octopath)+상속스냅샷+문서정정 | Director+scene-builder | opus/sonnet | 완료 |
-| P1 | 좌표표+카메라 A/B 설계(무이동 수치검증) / flip 명세(아래 §2) | scene-builder / Director | sonnet | 진행중 |
-| P2 | 단계별 TC | qa-critic | opus | 대기 |
-| S1 | FlipX 마스터 파라미터 + flip MI 4종 신규 | art-pipeline | sonnet | 대기 |
-| G1 | flip 게이트(렌더 육안·비대칭·셀경계·**정면레벨 회귀**) | verifier→Director | haiku | 대기 |
-| S2 | 사선 배치(유니크Y)+오블리크 카메라 → 오너 A/B 선택 | scene-builder | sonnet | 대기 |
+| P1 | 좌표표+카메라 A/B 설계(무이동 수치검증) / flip 명세(아래 §2) | scene-builder / Director | sonnet | 완료(§3 확정) |
+| P2 | 단계별 TC | qa-critic | opus | 완료([[P2_TC설계]]) |
+| S1 | FlipX 마스터 파라미터 + flip MI 4종 신규 | art-pipeline | sonnet | 완료([[raw/S1_flip구현]]) |
+| G1 | flip 게이트(렌더 육안·비대칭·셀경계·**정면레벨 회귀**) | verifier→Director | haiku | 완료(PASS 11/11) |
+| S2 | 사선 배치(유니크Y)+오블리크 카메라 → 오너 A/B 선택 | scene-builder | sonnet | 개발완료·오너 A안(6°) 확정 |
 | S3 | 룩: KeySun 정면-상단(C2)·PPV·진영 명암대조 | hd2d | sonnet | 완료(KeySun pitch-60/yaw90, DoF는 오너 A안=off 확정) |
 | **S2'** | **오너 직접 배치 도구**(BP_BattleSpawnPoint) — S2 좌표는 "초기 배치"로 유지, 최종 배치는 오너 | gameplay-engineer | sonnet | **도구 완료·G게이트 8/8 PASS → 오너 배치 진행 중** |
 | T4 | 오너 배치 후 검증(z-fight·프레임·접지) | verifier | haiku | 대기 |
@@ -41,6 +41,8 @@ updated: 2026-07-06
 - 도구 주의: `get_expression_inputs` 반환 부정확 → 배선은 `connect_expressions` 명시 + 재조회 이중검증.
 
 ## 3. 좌표·카메라 (P1 확정 — Director 판정 반영)
+> 🚫 **이 좌표표는 폐기됐다(2026-08-11 확인).** 오너가 수동 배치 도구로 재배치했고, **현재 유효한 유일한 좌표는 [[raw/배치_1]]**이다. 아래 표는 초기 배치 기록으로만 보존한다. 근거: [[raw/나무제거_백업]]
+
 > 원설계 [[P1_좌표카메라설계]]에서 **사선 방향을 레퍼런스 정합으로 수정**: 앞열=바깥쪽(외곽), 뒤열=중앙(소실점 쪽). 진영 내 Y 역순 스왑. Z는 S2 배치 시 재트레이스(+129.5).
 
 | 라벨 | X | Y | 비고 |
@@ -72,7 +74,7 @@ updated: 2026-07-06
 - 이월: [TC-15 마주봄] → S2.
 
 ### S2 — 사선 배치 게이트 (개발완료 · **오너 A안(6°) 확정** · 잔여 독립검증은 S3 게이트에 통합)
-- Crit [TC-15] 마주봄 | PASS 예비(Director 육안: A안 캡처에서 적 우향·아군 좌향 확인)
+- Crit [TC-15] 마주봄 | PASS 예비(Director 육안: A안 캡처에서 적 좌향·아군 우향 확인 (2026-08-11 정정 — 반전 확정 반영 누락분))
 - Crit [TC-23] village 불변 | PASS 예비(scene-builder is_dirty=false — S3 게이트서 verifier 재확인)
 - High [TC-12/13/16/19] 좌표·유니크Y·프레임 안(0.173~0.868)·앞열=바깥 | PASS(scene-builder 계측)
 - High [TC-17] 미겹침 / Med [TC-14/18/22] 접지·뒤열≤30%·z-fight | S3 게이트서 verifier 확정
@@ -80,6 +82,7 @@ updated: 2026-07-06
 - 캡처: [[raw/S2_A안.png]](채택) · [[raw/S2_B안참고.png]](기각 — 진영 비대칭·겹침)
 
 ### S3 — 룩 게이트
+> ⚠ **미해결 이월**: fence_47 AABB 교차(Party_A3/A4·Enemy_B1). S3 게이트에서 재확인 예정이었으나 [[raw/S3_룩패스]]에 기록 없음 — **미검증 상태로 이월**(확인: Director 2026-08-11). 배경 배치 재개 시 최우선.
 - High [TC-24] KeySun 정면-상단(측면광 금지) / [TC-25] PPV 상속 유지 | 대기
 - Med [TC-26/27] 워시아웃 없음·랜턴 그림자 베이스라인 / [TC-M-대조] 진영 명암대조(**오너육안**) | 대기
 
@@ -90,8 +93,8 @@ updated: 2026-07-06
 
 ## 진행 체크리스트
 - [x] P0
-- [ ] P1 → plan §3 확정
-- [ ] P2 TC
-- [ ] S1 → G1 게이트
-- [ ] S2 → 오너 앵글 선택
+- [x] P1 → plan §3 확정
+- [x] P2 TC
+- [x] S1 → G1 게이트
+- [x] S2 → 오너 앵글 선택
 - [ ] S3 → F

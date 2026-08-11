@@ -39,13 +39,15 @@ updated: 2026-07-16
 
 ## 3. 남은 청크 (순서 · 위험도)
 
+> ⚠ **[2026-08-11 각주] 아래 청크 정의(④~⑩)는 [[F7b_재개계획_초안]] v2(2026-07-18)로 supersede됐다 — 착수 전 반드시 v2를 먼저 읽을 것.** 특히 ⑤·⑦·⑩은 이후 실측/판정으로 내용이 바뀌었다(근거: [[BP정리_통합명세_2026-08-11]] §5-7, [[BP정리_Director판정_2026-08-11]]). 이 문서는 2026-07-16 시점 스냅샷으로 보존한다.
+
 - **④ [최고위험] 애플리케이터 실연결**: `ApplyEffectEntry`의 `DAMAGE`→`ResolveHit`(=§8 damage core 통짜, `DamageCoeff = Value × Mult` 인자화) · `HEAL`→회복 · `STATUS`→`ApplyStatus`(채널 케이스, 막기=`bBlockActive`). ★[[F7_스킬아키텍처_확정]] §4·§8 준수. `ResolveHit` 수술은 원래 컬럼제거와 동세션 원칙이나, **우리는 additive-only(`Effect*` 병존)라 인라인 F7a 판정이 여전히 작동 중 — 수술 강제성 없음**, 신중히 진행. 가짜GREEN 방어(비기본값 관통 테스트) · 핀 원문 확인 필수.
-- **⑤** 쿨다운 게이트/세팅을 `ApplySkillEffects` 최상위로 이동(캐스트당 1회, 멀티히트 자충돌 예방) + `BattleLog` 방출을 캐스트 레벨로.
+- ~~**⑤** 쿨다운 게이트/세팅을 `ApplySkillEffects` 최상위로 **이동**(캐스트당 1회, 멀티히트 자충돌 예방) + `BattleLog` 방출을 캐스트 레벨로.~~ → ❌ **2026-08-11 정정**: v2가 "**추가만**(additive) — `ResolveHit`의 인라인 쿨다운·BattleLog 방출은 ⑦까지 유지, 제거 금지"로 확정. "이동"이 아니라 "병존 후 ⑦에서 절단". 근거: [[F7b_재개계획_초안]] ⑤ · [[BP정리_통합명세_2026-08-11]] §5-7
 - **⑥** `TS4` · `GetOutgoingAtkMult`의 `"STUN"`/`"ATK_DOWN"` 리터럴 → `LookupChannel`(`DT_StatusEffects.Channel` 조회)로 제네릭화.
-- **⑦** `EnterExecuting` 재배선: `ResolveHit` 콜 → `ApplySkillEffects` 콜(`PendingSkillId`). ★이 시점이 인라인→인터프리터 전환 지점(가장 큰 회귀 표면).
+- ~~**⑦** `EnterExecuting` 재배선: `ResolveHit` 콜 → `ApplySkillEffects` 콜(`PendingSkillId`). ★이 시점이 인라인→인터프리터 전환 지점(가장 큰 회귀 표면).~~ → ❌ **2026-08-11 정정**: **⑦-1**(exec 절단·인라인 노드 보존)/**⑦-2**(물리 삭제) **2분할로 Director 채택** — ④a가 `DAMAGE→ResolveHit`을 연결해 ⑦ 이후에도 인라인이 인터프리터와 함께 발화, `BattleLog`가 캐스트당 2줄이 되어 오라클-diff가 행수부터 FAIL하는 구조였기 때문. 근거: [[BP정리_Director판정_2026-08-11]] 판정1
 - **⑧** 프루브 2종 E2E(버프후공격=Timing · 집중일격=`HP_PCT` MULT) + 기존 5스킬 정답지 회귀(30/42/61/막기15/힐-33 · 23턴 원장).
 - **⑨** Category 탭 (F7a 이월분).
-- **⑩** 구 `Effect*` 컬럼 제거(인터프리터 검증 완료 후 최종 단계) + 스캐폴드(`Hp`·`TurnCounter` Instance Editable) 원복.
+- ~~**⑩** 구 `Effect*` 컬럼 제거(인터프리터 검증 완료 후 최종 단계) + 스캐폴드(`Hp`·`TurnCounter` Instance Editable) **원복**.~~ → ❌ **2026-08-11 정정**: v2가 ⑩을 **⑩a**(구컬럼 제거, 비가역·스톱)와 **⑩b**(스캐폴드 처분, 기본=**존치** — A2 마감 시 재판정)로 분할 확정. "원복"이 기본 방침이 아니게 됨. 근거: [[F7b_재개계획_초안]] ⑩ · [[BP정리_통합명세_2026-08-11]] §5-7
 
 ## 4. 정답지 (회귀 기준)
 
