@@ -39,7 +39,21 @@ status: 스크립트 준비 완료 — 오너 실행 대기
 
 ## 실행
 
-에디터 상단 메뉴 → **Window → Output Log** → 하단 입력창의 드롭다운을 **`Cmd` → `Python`** 으로 바꾸고, 아래 한 줄을 붙여넣고 Enter:
+에디터 상단 메뉴 → **Window → Output Log** → 하단 입력창의 드롭다운을 **`Cmd` → `Python`** 으로 바꾼다.
+
+### ★먼저 — 틱 스로틀 해제 (한 줄, 5초)
+
+```
+s = unreal.get_default_object(unreal.EditorPerformanceSettings); s.set_editor_property('throttle_cpu_when_not_foreground', False); s.save_config()
+```
+
+**왜 여기서 하나**: 이 설정이 켜져 있으면 PIE가 **초당 3틱**으로 제한돼 `Delay`·비동기 로딩이 사실상 진행되지 않는다. E-S2에서 이것 때문에 검증 5건이 막혔고, 에이전트가 *"타이밍 로직을 MCP로 검증할 수 없다"*는 잘못된 결론까지 갔다([[E-S2_틱스로틀_진단]]).
+
+콘솔을 어차피 여시는 김에 같이 처리하면 **이후 전 단계의 타이밍 검증이 살아난다.** 부작용은 에디터가 백그라운드일 때 CPU를 더 쓰는 것뿐이다.
+
+> `save_config()`가 빠지면 이번 세션만 적용되고 재시작 시 되돌아간다. 위 한 줄에 포함돼 있다.
+
+### 본 작업 — 6필드 추가
 
 ```
 exec(open(r"D:/unreal/projectTP/Content/Python/s4a_add_skillsrow_fx_fields.py", encoding="utf-8").read())
