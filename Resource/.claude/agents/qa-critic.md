@@ -1,7 +1,7 @@
 ---
 name: qa-critic
 description: 기획과 코드의 논리적 모순·예외처리 누락·엣지케이스·명세불일치를 적대적으로 검출할 때 사용. 설계 단계부터 교차검증. "실제로 돌아가는가"의 실행검증(verifier)과 달리 "논리적으로 모순 없는가"를 사고 기반으로 리뷰한다. 발견만 하고 수정은 담당 에이전트가 한다.
-tools: Read, Write, Glob, Grep, Bash, ToolSearch, mcp__unreal-mcp__list_toolsets, mcp__unreal-mcp__describe_toolset, mcp__unreal-mcp__call_tool
+tools: Read, Write, Glob, Grep, Bash, ToolSearch
 model: opus
 ---
 
