@@ -9,13 +9,13 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 # INDEX — projectTP 옵시디언 볼트 전체 목록
 
 > ★자동생성 문서. 손으로 편집하지 마라 — 다음 `generate_index.py --apply` 실행에서 덮어써진다.
-> 총 213개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
+> 총 214개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
 > 없으면 문서 첫 헤딩 다음 문장을 썼다(둘 다 200자 상한 — 표시용 절삭이며 frontmatter 원문은 무수정).
 > 둘 다 없으면 빈칸이다(추측해서 채우지 않는다). 전문은 각 문서의 frontmatter/본문에서 확인.
 
 | 항목 | 값 |
 |---|---|
-| 총 문서 수 | 213 |
+| 총 문서 수 | 214 |
 | 요약 빈칸 | 0 |
 | type 그룹 수 | 10 |
 
@@ -138,7 +138,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/전투완성/raw/파트4_라벨힐_TC\|파트4_라벨힐_TC]] | PASS | 게이트 PASS(Director, 2026-07-17) — 오너 육안 4항목 PASS + Director 핀검증(작업1 라벨 GRAPH 8건) PASS + P4C-15(런타임조인 8기) PASS + 컴파일0·디스크저장 실증. |
 | [[로그시스템_점검_2026-08-12\|로그시스템_점검_2026-08-12]] | PASS | 점검 완료 — 구현 없음(발주 대기). |
 
-## 기록·로그 (record) (85)
+## 기록·로그 (record) (86)
 
 | 문서 | status | 요약 |
 |---|---|---|
@@ -225,6 +225,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/턴제전투MVP/raw/F_라이브결함\|F_라이브결함]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] · 선행: [[E3_게이트]] |
 | [[features/턴제전투MVP/raw/전투로그\|전투로그]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] |
 | [[야간작업_2026-08-12\|야간작업_2026-08-12]] | AWAIT_OWNER | 완료 — 오너 확인 대기 |
+| [[야간작업_2026-08-13\|야간작업_2026-08-13]] | PASS | 문서구조 개선 1~6·9·10단계 완료. |
 | [[작업로그_HD2D아트검증_플레이북\|작업로그_HD2D아트검증_플레이북]] |  | 목적: 이번 S0(아트 선검증) 전 과정을 **재현 가능하게** 기록. |
 | [[포트폴리오_projectTP\|포트폴리오_projectTP]] |  | 사용법: `---`가 슬라이드 구분선입니다. |
 
