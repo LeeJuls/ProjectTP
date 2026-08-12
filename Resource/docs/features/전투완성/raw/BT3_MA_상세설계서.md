@@ -4,7 +4,7 @@ project: projectTP
 feature: 전투완성
 stage: BT3
 updated: 2026-08-12
-status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반영 / PM 확인 요청 4건 / 미확인 8건 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — §9-1 신설: 착수 순서 확정(FT1이 S1보다 먼저, MA-1a가 기준선). 설계 내용(§1~§8) 변경 없음 · ★★★2026-08-12 qa-critic 개정 6건 반영(AT4-b-2 실측 대조) — 훅 삽입 위치 C-2 확정(§4-4)·`NotifySkillSelected` 무인자 주장 정정(§2)·`Delay(0.1)` 하드 요구사항 격상(§4-2)·자동시작 가드 강화(§4-2)·`IsValid(bool)`→`Branch` 표기 정정(§4-1·§4-2)·FT1-1b/1c 부착점 충돌 경고 신설(§4-2·§4-3). §9-0 화이트리스트 갱신(§9-0). §10에 차단 미확인 2건 추가(FT1-1a/1b 착수 차단). §1~§3·§5~§8 설계 내용 불변
+status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반영 / PM 확인 요청 4건 / 미확인 8건 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — §9-1 신설: 착수 순서 확정(FT1이 S1보다 먼저, MA-1a가 기준선). 설계 내용(§1~§8) 변경 없음 · ★★★2026-08-12 qa-critic 개정 6건 반영(AT4-b-2 실측 대조) — 훅 삽입 위치 C-2 확정(§4-4)·`NotifySkillSelected` 무인자 주장 정정(§2)·`Delay(0.1)` 하드 요구사항 격상(§4-2)·자동시작 가드 강화(§4-2)·`IsValid(bool)`→`Branch` 표기 정정(§4-1·§4-2)·FT1-1b/1c 부착점 충돌 경고 신설(§4-2·§4-3). §9-0 화이트리스트 갱신(§9-0). §10에 차단 미확인 2건 추가(FT1-1a/1b 착수 차단). §1~§3·§5~§8 설계 내용 불변 · ★★★★2026-08-12 [[FT1_착수조회_2026-08-12]] 실측 반영 — §10 #9·#10 **닫힘**(FT1-1a/1b 착수 차단 **해소**) / §2 표 1행 "무인자" 정정을 **확정**으로 갱신(§6-2 액터 레퍼런스 근거 명기) / §4-2 `Sequence` 필요 사유 정정("기존 체인 보호" → "FT1-1b/1c 상호 충돌 방지") / §10 #7 부분 해소(`BP_BattleManager`엔 부재 확정, 타 BP는 미확인 유지). 설계 내용(§1~§9) 불변
 ---
 
 # BT3 — MA(Method A) 상세 설계서
@@ -49,7 +49,7 @@ status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반�
 | 항목 | 실측 근거 | 확정 여부 |
 |---|---|---|
 | `EnterAwaitCommand`/`EnterAwaitTarget`은 Function Graph다 | F7b v2 [MA] "gameplay 실측" 인용(원 실측 세션 문서는 본 조사 범위 밖) | ★**F7b v2 문서를 근거로 승계** — 본 세션 재실측 안 함(MCP 금지) |
-| ~~`NotifySkillSelected`/`NotifyAttackButtonClicked`는 무인자 커스텀 함수~~ | [[전진로직_실체_확정]] §7 핀 원문(`execute`+`self` 2핀뿐) | ❌ **정정(2026-08-12, qa-critic)** — ★**인용 범위 초과**: §7이 실측한 건 **`NotifyAttackButtonClicked` 하나뿐**이다(§4-1은 정작 `NotifySkillSelected(SkillId)`로 인자를 넘긴다 — 자기모순). `NotifySkillSelected`/`NotifyUnitClicked`의 파라미터 핀은 ★**미확인**, FT1-1a 착수 전 조회 필수(§10 #10). ★위험: 무인자로 배선하면 **MA가 스킬을 못 고르고 `PendingSkillId` 잔값으로 매턴 발화 → 에러 없이 원장만 오염** |
+| ~~`NotifySkillSelected`/`NotifyAttackButtonClicked`는 무인자 커스텀 함수~~ | [[전진로직_실체_확정]] §7 핀 원문(`execute`+`self` 2핀뿐) · [[FT1_착수조회_2026-08-12]] 조회2(`get_node_infos` 실측) | ✅ **확정(2026-08-12, FT1_착수조회)** — ★**인용 범위 초과 정정이 실측으로 닫힘**: §7이 실측한 건 **`NotifyAttackButtonClicked` 하나뿐**이었다(§4-1은 정작 `NotifySkillSelected(SkillId)`로 인자를 넘겨 자기모순이었음). ~~`NotifySkillSelected`/`NotifyUnitClicked`의 파라미터 핀은 미확인, FT1-1a 착수 전 조회 필수(§10 #10)~~ → FT1_착수조회가 두 함수를 직접 조회해 **파라미터 1개씩 확정**: `NotifySkillSelected(SkillId: Integer)`, `NotifyUnitClicked(ClickedUnit: BP_BattleSpawnPoint 오브젝트 레퍼런스)`(§10 #10 닫힘). ★`ClickedUnit`이 **액터 레퍼런스**로 확정되어 §6-2("슬롯→액터 해석 후 전달" 설계)가 핀 타입으로 정당화된다 |
 | `NotifySkillSelected`의 SELF 스킵 분기 | [[전투BP_현황도_2026-08-11]] §상태표 4행 — "SELF면 `SelectedTargets=[Caster]` 즉시 세팅 후 AwaitTarget 스킵 → Executing 직행" | ✅ 확정 |
 | `NotifyUnitClicked`의 유효성 가드 | 〃 §상태표 6행 — "`BattleState==3` 가드 + `ResolveTargetPool` 결과 포함 여부(`ContainsItem`) 확인" | ✅ 확정 |
 | `PlayAttack`은 턴 흐름을 블로킹하지 않는다(H18 부정) | [[턴길이_실측확정_2026-08-12]] — 60fps 4회 전부 `1.750`=`0.55+0.75+0.45` | ✅ 확정(간접 — 턴길이 산술로 증명, `PlayAttack` 자체의 enter/exit 로그는 아직 없음) |
@@ -156,6 +156,8 @@ ReceiveBeginPlay 종단 → Delay(0.1)
 둘 다 *"`ReceiveBeginPlay` 종단"*에 붙는다. ★**`connect_pins`는 출력 exec 핀의 기존 배선을 덮어쓴다**(fan-out이 아니라 **교체** — [[../../스킬연출구조/raw/AT4-b-2_결과_2026-08-12|AT4-b-2_결과]] 46행 실측, `BP_FxLabQuad`에서 실제로 밟았다).
 → 나중에 배선하는 쪽이 앞의 것을 **무음으로 끊는다**.
 **완화**: 빈 종단에 `Sequence` 1개를 먼저 심고 `Then_0`/`Then_1`로 분기(이것도 additive) + 배선 후 `get_node_infos` **재조회 필수**.
+
+★**Sequence 필요 사유 정정(2026-08-12, [[FT1_착수조회_2026-08-12]] 실측)** — ~~"기존 체인 보호"~~는 틀렸다. FT1_착수조회가 `get_node_infos`+`get_connected_subgraph`로 `ReceiveBeginPlay`(`K2Node_Event_0`) 종단을 직접 조회한 결과 `then` 핀이 **애초부터 완전 미배선**이고 도달 가능한 하류 노드가 0개 — 보호할 기존 체인 자체가 없다. 정정된 사유는 ★**"FT1-1b와 FT1-1c의 상호 충돌 방지"**다: 종단이 지금은 비어 있지만 **첫 번째(예: 1b)가 붙는 순간 "배선됨" 상태가 되어**, 나중에 붙는 두 번째(1c)가 `connect_pins`로 같은 `then`에 다시 이으면 함정107(교체, fan-out 아님)로 **첫 번째를 무음으로 끊는다.** → 권고: **FT1-1b 구현 시점부터 처음부터 `Sequence`를 심고** `Then_0`(1b)/`Then_1`(1c 예약)로 나눌 것.
 
 ### 4-3. FT1-1c — SCF 호출기
 
@@ -376,10 +378,10 @@ C-2 채택(§4-4)으로 위 "신설 노드의 이름과 개수" 조건이 확정
 | 4 | MA-2 "EventGraph 노드수 무변" 문언의 정확한 원 의도 | 원문 작성자(director) 의도 미확인, 본 문서는 해석만 제안 | §9-1 PM/qa 확인 |
 | 5 | `bLogStage`/`bLogFlow` 등 [[../../스킬연출구조/raw/FT1-0_TC|FT1-0_TC]] 로그 카테고리 4bool이 MA-1b의 상태 전이 토큰(`State:AwaitCommand→…`)을 이미 커버하는지 | FT1-0(LOG-A) 트랙과 FT1-1(MA) 트랙의 교차점이 이번 조사 범위 밖 | FT1-1a 착수 전 FT1-0 진행 상태 확인 필요 |
 | 6 | 시나리오 데이터(슬롯ID/CharName 시퀀스)를 어느 자산에 담을지(DataTable? 배열 변수? CSV?) | plan v2/F7b v2 모두 "런타임 리졸버"만 요구하고 저장 형식은 미지정 | FT1-1a 구현 착수 시 결정(설계 범위 밖으로 판단 — 세부 구현 선택) |
-| 7 | `ResolveSlotToActor` 류 리졸버 함수가 이미 존재하는가, 신규 작성해야 하는가 | 전역 `find_nodes` 조회 필요(MCP 금지로 미실시) | §9-3과 같은 조회 세션에서 함께 확인 권고 |
+| 7 | ~~`ResolveSlotToActor` 류 리졸버 함수가 이미 존재하는가, 신규 작성해야 하는가~~ → ★**부분 해소(2026-08-12, FT1_착수조회)**: `list_functions(BP_BattleManager)` 25개 함수 전수에 `ResolveSlotToActor`/`SlotToActor`/`GetUnitBySlot` 류 이름 **없음** — **`BP_BattleManager`엔 부재 확정(신규 작성 필요)** | ~~전역 `find_nodes` 조회 필요(MCP 금지로 미실시)~~ → `BP_BattleManager` 국한 확인 완료. ★단 `BP_BattleSpawnPoint` 등 **타 BP는 이번 세션에서 미조회**라 "완전 부재"는 아님 | ~~§9-3과 같은 조회 세션에서 함께 확인 권고~~ → **BP_BattleManager 부분은 해소, 타 BP 확인은 이월 유지** |
 | 8 | `D1 §9-3`(R-9 `EstimatedTurnSec`) 0.55 어긋남의 실질 영향 범위 | AT6/D6(FX 예산 린트 L27) 소관이라 MA 설계 자체엔 직접 영향 없다고 판단했으나, FT1-1c(SCF)로 FX 타이밍 관련 함수를 검증할 때 이 어긋남이 재발할 수 있다 — 미검토 | AT6/D6 착수 전 별도 정정 필요(plan v2가 이미 지시함, §11 참조) |
-| 9 | ★**`ReceiveBeginPlay` 종단 exec 핀이 실제로 미배선인가** — FT1-1b/1c 부착점인데 미조회. 비어 있지 않으면 `connect_pins`가 기존 체인을 무음 교체(§4-2 부착점 충돌 경고) | AT4-b-2는 `EnterAwaitCommand`/`EnterAwaitTarget`만 조회했다. `BP_BattleManager`의 `ReceiveBeginPlay` 종단은 이번 조사 범위 밖(2026-08-12 qa-critic 신규 지적) | ★**FT1-1b 착수 차단** — 조회 세션 필요 |
-| 10 | ★**`NotifySkillSelected`/`NotifyUnitClicked` 파라미터 핀 원문** — §2 표 1행 정정(2026-08-12 qa-critic)의 해소용 | [[전진로직_실체_확정]] §7은 `NotifyAttackButtonClicked`(무인자)만 실측했다. `NotifySkillSelected`/`NotifyUnitClicked`은 §4-1이 인자를 넘기는 것으로 전제하지만 이 둘은 미조회 | ★**FT1-1a 착수 차단** — 조회 세션 필요 |
+| 9 | ~~`ReceiveBeginPlay` 종단 exec 핀이 실제로 미배선인가~~ → ★★**닫힘(2026-08-12, FT1_착수조회)**: **미배선 확정**. `K2Node_Event_0`(BeginPlay 이벤트)의 `then` 핀 `connected_pins: []`, `get_connected_subgraph` 재확인 시 도달 가능 노드 0개(자기 자신뿐) — 매니저 액터의 BeginPlay에는 원래 로직이 0개다 | ~~AT4-b-2는 EnterAwaitCommand/EnterAwaitTarget만 조회했다. ReceiveBeginPlay 종단은 조사 범위 밖~~ → FT1_착수조회가 `find_nodes`+`get_node_infos`+`get_connected_subgraph`로 직접 조회 완료 | ★**FT1-1b 착수 차단 해소.** 단 신규 제약 1건 추가 — FT1-1b/1c가 같은 종단에 순차로 붙으므로 함정107 방지용 `Sequence` 선제 배치 필요(사유 정정: §4-2 참조) |
+| 10 | ~~`NotifySkillSelected`/`NotifyUnitClicked` 파라미터 핀 원문~~ → ★★**닫힘(2026-08-12, FT1_착수조회)**: **확정**. `NotifySkillSelected(SkillId: Integer)`(기본값 없음, 1홉: `GetSkillCooldown`/`SetPendingSkillId`/`ToString(Integer)`) · `NotifyUnitClicked(ClickedUnit: BP_BattleSpawnPoint 오브젝트 레퍼런스)`(1홉: `GetbIsParty`/`GetDisplayName`/`MakeArray`/`ContainsItem`) | ~~[[전진로직_실체_확정]] §7은 NotifyAttackButtonClicked(무인자)만 실측했다. 이 둘은 미조회~~ → FT1_착수조회가 두 함수를 `get_node_infos`로 직접 조회 완료 | ★**FT1-1a 착수 차단 해소.** §2 표 1행 정정 확정, §6-2 설계(액터 레퍼런스 전달)가 핀 타입으로 뒷받침됨 |
 
 ---
 
