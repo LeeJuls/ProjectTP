@@ -48,7 +48,7 @@ updated: 2026-07-15
 
 ### [BLOCKER-2] 로그 방출 지점 — 현행 구현은 `EnterExecuting` 진입 직후, §8은 `TakeHit` step9 (CONFIRMED)
 
-**모순**: [[전투로그]] "구현 위치" = **`EnterExecuting` 진입 직후(`SetBattleState(4)` 이전)** 에 PrintString. 즉 **Delay 0.25 이전, 데미지가 존재하기 전**에 로그가 나간다. 반면 [[features/전투완성/plan|plan]] §4-2 step9 = "BattleLog 로그 방출 → Return"(TakeHit 말미, HP 적용 후). plan §4-3은 "기존 포맷·기존 TurnCounter 재사용 / 파서 호환 유지"라고만 써서 **"기존 PrintString 노드를 그 자리에서 확장하라"로 읽힌다** — 이 오독이 기본값이다.
+**모순**: [[전투로그]] "구현 위치" = **`EnterExecuting` 진입 직후(`SetBattleState(4)` 이전)** 에 PrintString. 즉 **Delay 0.25 이전, 데미지가 존재하기 전**에 로그가 나간다. 반면 [[features/전투완성/plan|plan]] §4-2 step9 = "BattleLog 로그 방출 → Return"(TakeHit 말미, HP 적용 후). [[features/전투완성/plan|plan]] §4-3은 "기존 포맷·기존 TurnCounter 재사용 / 파서 호환 유지"라고만 써서 **"기존 PrintString 노드를 그 자리에서 확장하라"로 읽힌다** — 이 오독이 기본값이다.
 
 **재현**: 기존 노드에 `dmg`/`hp` 인자만 추가하면, 그 시점엔 이번 턴의 dmg가 아직 계산되지 않았다.
 - turn1: `dmg=0|hp=90`(피격 전 HP) — 실제로는 30을 맞았는데 로그는 0.
@@ -305,7 +305,7 @@ S0에서 `DT_Skills`를 delete 후 재임포트해 **애셋 GUID가 바뀌었다
 - **null/참조**: 빈 타겟 풀 → Accessed None(N04) · DT found=false(N06) · DT GUID 교체 후 dangling(N08) · `CachedUnitFrame` null(N11)
 - **상태 누수**: mock Def 복원(F4-05) · ActiveStatuses 영구 잔류(N25) · 쿨다운 InitBattle 미리셋(N19/QA15) · SelectedTargets 누적(N02)
 - **이중 소스/이중 쓰기**: HP writer 2곳(BLOCKER-1/N09) · 로그 방출 지점 2곳(BLOCKER-2/N01) · 이름 충돌(BLOCKER-5/N05)
-- **명세-구현 불일치**: plan §8 step8(Manager가 HP 쓰기) vs Director 지시(유닛이 HP 쓰기) · [[전투로그]](EnterExecuting 로그) vs plan §8 step9(TakeHit 로그) · plan §4-1(Manager 멤버) vs §15-4(유닛 소유) · §8 step0/9(쿨다운 함수) vs §15(멤버·함수 목록에 부재)
+- **명세-구현 불일치**: [[features/전투완성/plan|plan]] §8 step8(Manager가 HP 쓰기) vs Director 지시(유닛이 HP 쓰기) · [[전투로그]](EnterExecuting 로그) vs [[features/전투완성/plan|plan]] §8 step9(TakeHit 로그) · [[features/전투완성/plan|plan]] §4-1(Manager 멤버) vs §15-4(유닛 소유) · §8 step0/9(쿨다운 함수) vs §15(멤버·함수 목록에 부재)
 - **무증상 실패(silent)**: min1이 step4 버그를 1로 은폐(N17) · PR 절삭 시 **기본공격만 정답**(N13, TC-F4-01/02가 PASS하는 위양성) · 로그는 맞는데 화면/실HP가 틀림(N09/N10) · `found=false` 조용한 무피해(N06)
 
 ---

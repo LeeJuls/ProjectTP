@@ -18,7 +18,7 @@ updated: 2026-07-15
 ## 소재 (오너 구매·배치)
 - `D:\unreal\Resource\_RawAssets\vfx\Smear VFX 01\` — 공격용. 48×48 셀 가로 스트립. Horizontal 3종(240×48, **5프레임**)·Vertical 3종(288×48, **5프레임+투명1셀**)
 - `D:\unreal\Resource\_RawAssets\vfx\Hit Effect 01\` — 피격용. 336×48 스트립 3종(**6프레임+투명1셀**)
-- 프레임 수는 알파 실측값(가이드 아님 — 실전노하우 §6 원칙). 임시 통합은 각 1종(변형 1번)만 사용.
+- 프레임 수는 알파 실측값(가이드 아님 — [[언리얼_MCP_실전노하우]] §6 원칙). 임시 통합은 각 1종(변형 1번)만 사용.
 
 ## 임시 구현 형태 (요약)
 기존 검증 파이프라인 재활용: 픽셀퍼펙트 임포트 → `M_Sprite_Flipbook_Lit` 자식 MI(GridY=1, 행 선택 없음) → 유닛 BP에 빌보드 이펙트 쿼드(기본 숨김) → PlayAttack 시 Smear / TakeHit 시 Hit을 TimeOffset frame0 재생 → 지속시간 후 숨김.

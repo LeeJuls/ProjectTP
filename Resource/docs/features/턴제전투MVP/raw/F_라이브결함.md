@@ -22,7 +22,7 @@ updated: 2026-07-07
 
 **검증**: `get_node_infos` 재조회로 체인 `SetCollisionResponseToChannel → SetCollisionEnabled(Sprite) → SetCollisionEnabled(TurnMarker)` 정확히 배선됨 확인. 에디터 동작(End키 스냅 등)은 BeginPlay 미실행이라 이 변경으로 무영향 유지.
 
-이 함정은 실전노하우 §10 함정⑧로 신규 등재(투명 스프라이트 쿼드가 클릭 방패가 되는 함정).
+이 함정은 [[언리얼_MCP_실전노하우]] §10 함정⑧로 신규 등재(투명 스프라이트 쿼드가 클릭 방패가 되는 함정).
 
 ## ② [치명] BP_AttackButton의 LabelCancel 미설정
 
@@ -91,7 +91,7 @@ textRenderColor: {r:1, g:0.9490196704864502, b:0.60000002384185791, a:1}
 ## 검증 절차 실행 기록
 
 1. **compile_blueprint(warnings_as_errors=true) 3 BP 전부 에러 0** — BP_BattleSpawnPoint/BP_AttackButton/BP_BattleManager 개별 확인.
-2. **StartPIE(warmup 2s) → GetLogEntries**: 1차 시도에서 로그가 수 시간 전 타임스탬프에 멈춰 최신 반영이 확인 안 되는 현상 발생(원인 불명, 재현조건 미확정 — 실전노하우 §10에 별도 기록). StopPIE 후 `get_current_level` 정상 반환으로 로그 시스템 자체 이상은 배제. **재시도(StartPIE warmup 3s)에서 정상 반영 확인**: `Registered:1~8 → State:Init:t=0 → State:TurnStart:t=0 → State:AwaitCommand:t=0` 순서대로 정확히 로그 발생. 화면 출력(Screen=false) 자체의 시각 확인은 지시서에 따라 스캐폴드하지 않고 오너 실플레이로 이월.
+2. **StartPIE(warmup 2s) → GetLogEntries**: 1차 시도에서 로그가 수 시간 전 타임스탬프에 멈춰 최신 반영이 확인 안 되는 현상 발생(원인 불명, 재현조건 미확정 — [[언리얼_MCP_실전노하우]] §10에 별도 기록). StopPIE 후 `get_current_level` 정상 반환으로 로그 시스템 자체 이상은 배제. **재시도(StartPIE warmup 3s)에서 정상 반영 확인**: `Registered:1~8 → State:Init:t=0 → State:TurnStart:t=0 → State:AwaitCommand:t=0` 순서대로 정확히 로그 발생. 화면 출력(Screen=false) 자체의 시각 확인은 지시서에 따라 스캐폴드하지 않고 오너 실플레이로 이월.
 3. **LabelCancel 재조회**: 위 ②절 표 참고 — 레벨 인스턴스·CDO 양쪽 6개 필드 전부 Label 기준값과 일치 확인.
 4. **StopPIE → save_assets**(`BP_BattleSpawnPoint`·`BP_AttackButton`·`BP_BattleManager`·`map_battle_octopath`·`ST_UI`) → `is_dirty` 재조회 5개 전부 `false`. `map_battle_village`(village 회귀 확인용)도 `is_dirty=false` 확인(변경 없음).
 
@@ -103,6 +103,6 @@ textRenderColor: {r:1, g:0.9490196704864502, b:0.60000002384185791, a:1}
 
 ## 이월 항목 (Director 보고)
 
-1. **StartPIE 직후 GetLogEntries가 한 번 최신 로그를 반영하지 않은 현상** — 재시도로 해결됐으나 근본 원인 미규명. 실전노하우 §10에 조건부 관찰로 기록, 후속 세션에서 재현 시도 권장.
+1. **StartPIE 직후 GetLogEntries가 한 번 최신 로그를 반영하지 않은 현상** — 재시도로 해결됐으나 근본 원인 미규명. [[언리얼_MCP_실전노하우]] §10에 조건부 관찰로 기록, 후속 세션에서 재현 시도 권장.
 2. **화면 출력(Screen=false 적용분) 시각 확인**은 지시서 지침에 따라 스캐폴드하지 않음 — 오너가 다음 실플레이에서 화면에 State 텍스트가 안 뜨는지 직접 확인 필요.
 3. **클릭 경로(①의 실제 클릭 성공 여부) 시각 확인**도 동일하게 오너 실플레이 확인 필요(지시서 명시 사항, 스캐폴드로 대체하지 않음 — 함정⑥ 그림자 액터 회피 원칙 준수).

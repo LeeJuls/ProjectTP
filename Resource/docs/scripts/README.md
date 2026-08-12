@@ -48,6 +48,8 @@
 | `assets/inventory_row_coverage_result.json` | assets | 종료 | 2026-07-08 | 실행 파일 아님 — 위 스크립트의 산출물(원자료, 재사용 가능) | 2(스크립트와 공유) |
 | `assets/decode_capture.py` | assets | 현행 | 2026-07-06 | `python docs/scripts/assets/decode_capture.py <tool-results.txt> <out.png>` — MCP `CaptureViewport` base64 결과를 PNG로 디코드하는 범용 유틸(특정 기능에 종속되지 않고 필요할 때마다 계속 호출됨) | 6 |
 | `vaultfix/normalize_status_type.py` | vaultfix | 현행(2026-08-13 1회 실행 완료, 재실행 가능) | 2026-08-13 | `python docs/scripts/vaultfix/normalize_status_type.py [--apply] [--json-report <path>] [--text-report <path>]` — 기본은 dry-run. BT-DOC2(`features/전투완성/raw/BT-DOC2_status매핑규칙.md`) §3~§8 규칙을 그대로 실행해 frontmatter `status`(7종 enum)·`type`(9종 enum)을 정규화한다. 멱등(이미 enum인 값은 스킵) | 0(문서에 실행경로 아직 미기재) |
+| `vaultfix/convert_section_refs.py` | vaultfix | 현행(2026-08-13 1회 적용 완료, 재실행 가능) | 2026-08-13 | `python docs/scripts/vaultfix/convert_section_refs.py [--apply] [--text-report <path>]` — 기본은 dry-run. 문서구조_개선plan v4 4단계: 다른 파일을 가리키는 `<약칭/파일명> §N` 텍스트 참조를 `[[파일]] §N` 위키링크로 변환(197건 적용, 2건 자기참조 스킵, 36건 판단 보류 — `features/전투완성/raw/vaultfix_stage4_적용결과_2026-08-13.txt` 참고). 접두사 매핑은 파일명 규칙에서 기계적으로 생성하고 최소 1개 ASCII 숫자를 요구해 오탐을 막는다. 멱등(이미 `[[..]]`인 참조는 마스킹되어 재매칭 안 됨) | 0(문서에 실행경로 아직 미기재) |
+| `vaultfix/generate_index.py` | vaultfix | 현행(2026-08-13 신설) | 2026-08-13 | `python docs/scripts/vaultfix/generate_index.py [--apply]` — 기본은 dry-run(통계만 출력). 문서구조_개선plan v4 5단계: `docs/INDEX.md`를 frontmatter(`type`·`status`·`status_note`)에서 자동생성한다. 손으로 편집 금지 — 재실행 시 덮어써진다. 멱등(같은 날 재실행 시 바이트 단위 동일) | 0(문서에 실행경로 아직 미기재) |
 
 ## 이번 재편(2026-08-13) 메모
 

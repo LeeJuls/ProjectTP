@@ -30,7 +30,7 @@ qa-critic 원 답변은 **"TC 47건"**이라 적었다. 본 문서로 옮기며 
 
 ---
 
-## 1. 표기 규약 (D3 §1-2 계승)
+## 1. 표기 규약 ([[D3_TC_확정]] §1-2 계승)
 
 ```
 [단계][ID] 조건 → 기대결과 | 상태(대기/PASS/FAIL/이월)
@@ -210,7 +210,7 @@ qa-critic 원 답변은 **"TC 47건"**이라 적었다. 본 문서로 옮기며 
 
 ## 4. plan 적대 검증 — Critical 4건
 
-### [Critical] E-C1 — plan §3대 불일치 ① × `skills_merged_42.csv` + `stagings_draft.csv`: 밀도 해법의 적용 대상이 0개다
+### [Critical] E-C1 — [[features/스킬연출구조/plan|plan]] §3대 불일치 ① × `skills_merged_42.csv` + `stagings_draft.csv`: 밀도 해법의 적용 대상이 0개다
 
 plan은 밀도 문제(신규 VFX 0.58×)의 답을 **"액션 캠 컷에서만 크게"**로 확정했다. 데이터 대조 결과 **컷이 켜진 스킬과 신규 VFX를 쓰는 스킬의 교집합이 공집합**이다.
 

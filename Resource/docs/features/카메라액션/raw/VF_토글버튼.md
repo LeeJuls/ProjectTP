@@ -53,7 +53,7 @@ NotifyCamToggleClicked.then → Branch(Condition=GetbInputLocked)
            .then → PrintString(FormatText("CamToggle:{0}", ToString(새값)), bPrintToScreen=false, bPrintToLog=true)
         [Is Not Valid] → (미배선)
 ```
-`CamToggleButtonRef`의 타입이 이미 `BP_CamToggleButton`(구체 타입)이라 별도 `CastTo` 불필요 — 지시서 §1이 "IsValid(ref)→Cast→UpdateCamToggleVisual"이라 명시했으나, 실제 변수 타입 확인 후 Cast를 생략함(자기 자신으로의 무의미한 캐스트, C1_구현.md §5의 SelectObject 사례와 달리 여기선 타입이 이미 정확했음).
+`CamToggleButtonRef`의 타입이 이미 `BP_CamToggleButton`(구체 타입)이라 별도 `CastTo` 불필요 — 지시서 §1이 "IsValid(ref)→Cast→UpdateCamToggleVisual"이라 명시했으나, 실제 변수 타입 확인 후 Cast를 생략함(자기 자신으로의 무의미한 캐스트, [[C1_구현]] §5의 SelectObject 사례와 달리 여기선 타입이 이미 정확했음).
 
 ### ③ 레벨 배치 — UI_CamToggle
 `add_to_scene_from_asset`로 `BP_CamToggleButton_C_0`(라벨 `UI_CamToggle`) 생성, location(-650,-7300,260)·rotation(pitch90,yaw84,roll0)·scale(2.2,1.2,1) 정확히 적용(재조회로 확인). 폴더 `BattleStage/UI`로 이동. `UI_CamToggle.ManagerRef`↔`BP_BattleManager_C_0.CamToggleButtonRef` 양방향 참조 설정(개별 `set_properties`+재조회로 확인).

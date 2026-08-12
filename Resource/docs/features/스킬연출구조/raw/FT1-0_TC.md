@@ -96,7 +96,7 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 |---|---|---|---|---|---|
 | **AU-F0c-01** ★★설계확정 | — | **심는 위치와 의미론이 문서에 확정**돼 있을 것 | 4항 전부: (i) ★**진입점 2개 전부 커버** — `BP_BattleManager.NotifySkillSelected`(메뉴 경로) **와** `NotifyAttackButtonClicked`(월드 버튼 경로). 근거: 현황도 §3-3·§8-1 **이중 진입점** (ii) ★`WBP_SkillMenu.NotifySkillSelected`는 Manager로 위임하는 **얇은 relay**이므로 **둘 다 심으면 1회 선택에 2줄** — 어느 한쪽만 심는다고 명기 (iii) `NotifyAttackButtonClicked`가 겸하는 **4역할**(Start / 기본공격 선택 / AwaitTarget 취소 / End 재시작)을 **`state=`(전이 이전 `BattleState`) 필드로 구분** (iv) 거부 경로(쿨다운 잔여 / 상태 가드 불일치)도 로그를 남기는지 명기 | M | 대기 |
 | **AU-F0c-02** ★게이트 | AU-F0c-01 | 오너 런 — 메뉴 선택 n회 | `SkillSelected\|` **n줄** ∧ **1회 선택 = 정확히 1줄**(relay 이중 방출 0) | **V+O** | 대기 |
-| **AU-F0c-03** ★게이트 | AU-F0c-01 | 오너 런 — **AwaitTarget에서 Cancel 재클릭 → AwaitCommand 복귀 → 다른 스킬 선택** | 취소 1줄 ∧ 재선택 1줄이 **서로 구분 가능**(`state=` 또는 `event=` 값이 다름). 근거: 취소 경로는 실재한다 — [[../../../features/턴제전투MVP/plan\|턴제전투MVP/plan]] §상태3 *"버튼 재클릭 시 취소(AwaitCommand 복귀)"* ∧ 청사진 §3 *"라벨 Cancel로 전환"* | **V+O** | 대기 |
+| **AU-F0c-03** ★게이트 | AU-F0c-01 | 오너 런 — **AwaitTarget에서 Cancel 재클릭 → AwaitCommand 복귀 → 다른 스킬 선택** | 취소 1줄 ∧ 재선택 1줄이 **서로 구분 가능**(`state=` 또는 `event=` 값이 다름). 근거: 취소 경로는 실재한다 — [[../../../features/턴제전투MVP/plan\|턴제전투MVP/plan]] §상태3 *"버튼 재클릭 시 취소(AwaitCommand 복귀)"* ∧ [[features/스킬연출구조/청사진\|청사진]] §3 *"라벨 Cancel로 전환"* | **V+O** | 대기 |
 | **AU-F0c-04** ★★무음 커버리지 | AU-F0c-01 | 오너 런에서 **월드 Attack 버튼만으로 진행한 구간**의 `SkillSelected\|` 카운트 | ★**0줄이면 FAIL.** 근거: S1 오라클 런은 전 행 `action=31000000` 기본공격(`AU-B2-04`)이고, 그 경로는 `NotifySkillSelected`를 **경유하지 않는다**(현황도 §3-3: 월드버튼은 `PendingSkillId=31000000` 리터럴 직접 세팅). 메뉴 경로에만 심으면 **가장 중요한 런에서 커버리지가 0**이 된다 | **V+O** | 대기 |
 | **AU-F0c-05** ★★Critical 방어 | AU-F0c-01 | 로그 문자열에 들어가는 **모든 오브젝트 참조의 null 안전성**을 정적 확인 + Start 클릭 1회 실증 | `SkillSelected\|` 포맷 인자에 `ActiveUnit`·`SelectedTargets[0]`·`ManagerRef` 등 **참조 역참조가 0개**이거나, 있으면 **`IsValid` 가드 경유**. ∧ 실증: **PIE 최초 Start 클릭 1회**(이때 `BattleState=0`·`ActiveUnit` 미설정) 후 로그에 **`Accessed None` 0건** | V(정적)+**O**(실증) | 대기 |
 
@@ -192,7 +192,7 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 - **확신도**: **CONFIRMED**
 - **처분 권고**: **5번째 카테고리 `ERROR`(수명 영구 · 기본 ON · 끄기 금지)** 신설, 또는 fail-loud 3종을 LEDGER로 이관. 어느 쪽이든 *"끌 수 있는 오류 신호"*를 남기지 말 것.
 
-#### [Medium-High] 4 bool 토글이 **plan §10 미확인 3의 자연 검증을 무효화**한다
+#### [Medium-High] 4 bool 토글이 **[[features/스킬연출구조/plan|plan]] §10 미확인 3의 자연 검증을 무효화**한다
 - **위치**: [[로그시스템_개선_plan]] §10-3 — *"`PrintString`이 턴 델타에 유의미한 시간을 더하는지 → **세션 2의 60fps 관측에서 1.750 재확인**으로 자연 검증"*
 - **문제**: 그 자연 검증은 **로그 출력량이 통제변수**일 때만 성립한다. 이번에 도입하는 토글은 정확히 그 변수를 **세션마다 바꿀 수 있게** 만든다. STAGE만 꺼도 세션당 ~700줄(**전체의 70%**)이 사라진다 → 1.750이 재확인돼도 *"PrintString 비용이 없었다"*인지 *"비용은 있었는데 로그를 껐다"*인지 **분리 불가**.
 - **재현**: 세션 2를 `bLogStage=false`로 돌린다 → 델타가 줄어든다 → 결론이 오염된다.
@@ -214,7 +214,7 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 - **문제**: `BeginPlay`는 PIE당 1회. 그런데 **한 PIE 안에서 전투를 여러 번** 돌릴 수 있다(현황도 §2-6: *"Attack/Start 버튼 재클릭 → `InitBattle`부터 재시작"*, 로그의 `State|event=INIT|mode=RESTART`). 즉 **1 sid에 원장 2벌**이 들어갈 수 있고, 오라클 20행 diff가 40행을 보게 된다.
 - **재현**: PIE 1회 안에서 전투를 2판 → `SessionBoundary|` 1줄 / `BattleLog|` 2배.
 - **확신도**: **CONFIRMED**(수단은 이미 있다 — `State|event=INIT`. 문제는 **계약이 "세션 필터=sid"라고만 적었다는 것**)
-- **처분**: 계약서에 **세션 키 = `(sid, INIT 발생 순번)`**을 명문화. plan §6 FT1-1a의 *"세션 필터(sid) 사용"* 문구도 같이 정정.
+- **처분**: 계약서에 **세션 키 = `(sid, INIT 발생 순번)`**을 명문화. [[features/스킬연출구조/plan|plan]] §6 FT1-1a의 *"세션 필터(sid) 사용"* 문구도 같이 정정.
 
 #### [Medium] `SessionBoundary|`·`PlayAttack|`·`SkillSelected|`의 **필드 목록이 미정**
 - **문제**: 계약이 정한 것은 *"pipe key=value"*와 *"`sid`는 세션 내 불변·세션 간 유일"* 뿐이다. 필드명·필수/선택·유닛 식별자 표기가 없다. 이 상태로 `AU-F0a-03`(핀 원문 "삽입 외 동일")은 **통과하면서 파싱 불능인 라인**을 낳을 수 있다 — 게이트가 형상만 보고 내용을 안 본다.

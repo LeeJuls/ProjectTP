@@ -393,7 +393,7 @@ F9a 원장 대조(승패 시점 확정)에도 어차피 필요하다. `BattleLog
 |---|---|---|---|---|
 | **TC-F5-N20**★ | 기능 | **BattleFinished payload(BLOCKER-2)**: 디스패처 실재 + payload 소스 핀이 **BLOCKER-2 결정과 일치**((a) `WinningTeam` 직결 / (b) `Not(WinningTeam)` 노드 경유). **A1엔 소비자가 없어 정적 검증이 유일 방어선** | GRAPH(핀 소스 추적) | 대기 |
 | **TC-F5-N21** | 기능 | **BattleState=6 안전성(M-6)**: 전 그래프의 `BattleState` 비교 노드 열거 → 망라적 Switch/Clamp **부재**(Branch Equal뿐) → 6 추가가 기존 분기를 깨지 않음. `EnterEnd`가 `SetBattleState(6)` 실행 | GRAPH + PIE(BattleState==6) | 대기 |
-| **TC-F5-N22** | 기능 | **End 입력 전면 잠금**: End 후 `bInputLocked==true` ∧ ① Attack 버튼 클릭 → `BLOCKED` 로그, 상태 불변 ② **CamToggle 클릭 → 무반응**(`NotifyCamToggleClicked`의 bInputLocked 가드 실재 확인 — plan §5-4는 "확인만" 요구) ③ 유닛 클릭 → 무반응 | SCF+LOG+PIE | 대기 |
+| **TC-F5-N22** | 기능 | **End 입력 전면 잠금**: End 후 `bInputLocked==true` ∧ ① Attack 버튼 클릭 → `BLOCKED` 로그, 상태 불변 ② **CamToggle 클릭 → 무반응**(`NotifyCamToggleClicked`의 bInputLocked 가드 실재 확인 — [[features/전투완성/plan\|plan]] §5-4는 "확인만" 요구) ③ 유닛 클릭 → 무반응 | SCF+LOG+PIE | 대기 |
 | **TC-F5-N23**★ | 기능 | **End 기계 관측 수단(H-8)**: Director 결정에 따라 ① **`BattleEnd\|turn=…\|winner=…` 로그 1줄** 존재(권고) 또는 ② PIE 폴링만으로 판정 가능함을 확인(BattleState==6 ∧ 30초 방치 후 BattleLog 라인 수·TurnCounter 불변) | LOG 또는 PIE(폴링) | 대기(결정 선행) |
 | **TC-F5-N24** | 기능 | **End 후 새 턴 미개시**: End 도달 후 **30초 방치** → 새 `BattleLog` 0줄 ∧ `TurnCounter` 불변 ∧ `CurrentIndex` 불변 ∧ `BattleState==6` 유지(EnterTurnStart가 다시 안 불린다) | LOG+PIE(2회 폴링) | 대기 |
 | **TC-F5-N25** | 기능 | **무회귀 기반선**: F5 전후 ① 8기 Location/FaceLeft/Sprite **diff=0**([[F3_사전스냅샷]] 대조) ② 2 BP 컴파일 에러 0 ③ 걸음(`WalkArrive`/`WalkHome`)·카메라(`CamCut`) 로그가 기존과 동일 ④ **정상 턴(사망·기절 없는)의 BattleLog 값이 F4와 바이트 동일** | PIE(트랜스폼 diff) + CMP + LOG(회귀) | 대기 |
@@ -436,7 +436,7 @@ F9a 원장 대조(승패 시점 확정)에도 어차피 필요하다. `BattleLog
 - **상태 누수**: `InitBattle` 미리셋 7항목(BLOCKER-3) · `bFreeze` 잔류 · `ClickBox` NoCollision 잔류 · ATK_DOWN 영구 잔류(TE2 누락) · MOCK 값 복원(Def/Hp/bAlive)
 - **무한 루프**: 전원 기절(E5, N05) · 무한 기절 락(G1+G2 — 스킵도 반드시 −1이라는 불변식이 TE2에 의존, H-3) · 스킵 체인의 스택(각 반복이 `Delay(0.35)`를 통과하므로 스택 누적 없음 — **검토 후 통과**) · 시체만 남은 큐(BLOCKER-1이 유발하는 소프트락)
 - **무증상 실패(silent)**: bBattleOver 미세팅 → 전투가 안 끝나는데 **에러 0**(BLOCKER-1) · bFreeze `declaring_class` 누락 → **무음 실패**(BLOCKER-5) · exec 절단으로 킬링블로우 로그만 증발(H-6) · TurnCounter 오증가 → **F8/F9에서야 터짐**(H-1) · BattleFinished payload 반전 → **A6에서야 터짐**(BLOCKER-2) · TS3 미구현 → **F7에서야 터짐**(BLOCKER-4)
-- **명세-구현 불일치**: plan L382(반대 팀 카운트) vs 종료 조건 · plan §5-2(WinningTeam=승자) vs §5-4(payload=패자) · 상태이상_확정 §5-1("TS3 기존 불변") vs plan §F7-4(F7 소관) vs F4 실적(미구현) · plan TC-F5-01 판정방법("로그(상태전이)") vs 실제 로그 부재 · plan §15-3 InitBattle 리셋 목록 vs F5가 새로 만드는 상태들
+- **명세-구현 불일치**: plan L382(반대 팀 카운트) vs 종료 조건 · [[features/전투완성/plan|plan]] §5-2(WinningTeam=승자) vs §5-4(payload=패자) · [[상태이상_확정]] §5-1("TS3 기존 불변") vs plan §F7-4(F7 소관) vs F4 실적(미구현) · plan TC-F5-01 판정방법("로그(상태전이)") vs 실제 로그 부재 · [[features/전투완성/plan|plan]] §15-3 InitBattle 리셋 목록 vs F5가 새로 만드는 상태들
 - **오버플로**: `TurnCounter`(int32, 실플레이 도달 불가) · `BattleState`(Byte, 6 ≪ 255) · `Hp`(int32, 최대 132) → **전 축 해당 없음**(검토 후 통과)
 
 ---
