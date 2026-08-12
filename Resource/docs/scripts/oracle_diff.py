@@ -67,7 +67,24 @@ def check_invariants(events):
 
 
 def rows_equal(a: dict, b: dict) -> bool:
-    return all(str(a.get(c, "")) == str(b.get(c, "")) for c in oracle.ORACLE_COLUMNS)
+    """전 열 문자열 비교. ★단 UE의 천 단위 쉼표를 먼저 정규화한다.
+
+    2026-08-12 실측 함정: UE의 float→string이 로케일 포맷을 타 `t=6,915.2`처럼 쉼표를
+    붙인다(실측). 순수 문자열 비교면 라이브 `dmg=1,234`가 오라클 `1234`와 불일치로 잡혀
+    ★**가짜 FAIL**이 난다 — 그것도 "오라클이 틀렸다"로 오독되기 쉬운 모양으로.
+
+    지금은 미발현이다(실측 dmg 집합이 전부 세 자리). 그러나 발현 조건이 "값이 1000을
+    넘을 때"뿐이라 **알파에서 HP·데미지가 커지는 순간 조용히 나타난다.** S1 봉인 판정이
+    이 비교기에 걸려 있으므로 지금 막는다.
+
+    `normalize_number()`는 숫자로 해석되지 않는 값(슬롯 라벨 `A3`, 빈 문자열 등)은
+    원문 그대로 돌려주므로 `died`·`attacker` 같은 열에 부작용이 없다.
+    """
+    return all(
+        parser.normalize_number(str(a.get(c, "")))
+        == parser.normalize_number(str(b.get(c, "")))
+        for c in oracle.ORACLE_COLUMNS
+    )
 
 
 def diff_rows(oracle_rows, live_rows):

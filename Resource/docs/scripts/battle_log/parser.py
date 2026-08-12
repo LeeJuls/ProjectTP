@@ -73,6 +73,37 @@ def parse_pipe_kv(content: str):
     return result
 
 
+def normalize_number(value: str) -> str:
+    """UE가 붙인 천 단위 쉼표를 제거해 숫자 리터럴로 되돌린다. 숫자가 아니면 원문 그대로.
+
+    ★2026-08-12 실측으로 발견한 함정 — 이 함수가 없으면 값이 조용히 틀린다:
+        State:AwaitTarget:t=6,915.2      ← 실측. 6915.2초 지점
+        `[\\d.]+` 로 잡으면 "6"에서 멈춘다 → 델타가 전부 0이 되고,
+        "타임스탬프가 멈췄다"는 **가짜 결함**으로 오독된다(실제로 그렇게 오독했다).
+
+    ★발현 조건이 고약하다 — **값이 1000을 넘어야만** 나타난다. 짧은 세션에서는 영원히
+    안 보이다가, 긴 세션(1시간 55분 지점에서 실측됨)에서만 조용히 깨진다. 그래서
+    "지금까지 안 났으니 괜찮다"가 근거가 되지 못한다.
+
+    ★적용 대상은 **float 필드**다. UE의 int→string은 쉼표를 안 붙이고(실측:
+    `FXLAB:FXNOROW:63009999`), float/Text 변환만 로케일 포맷을 탄다. 따라서 위험한 것은
+    `t=` 계열과 소수를 가질 수 있는 수치 필드이며, ★`PlayAttack|...|t=`(tokens 순번17)가
+    정확히 여기 해당한다 — **아직 심지 않았으므로 지금이 막을 수 있는 마지막 시점이다.**
+
+    RAW 계약(`dmg`는 무변환)과 충돌하지 않는다: `parse_pipe_kv()`는 값을 원문 그대로 두고,
+    **숫자로 해석하려는 소비자만** 이 함수를 거친다. 즉 "원문 보존"과 "숫자 정규화"의
+    책임이 분리돼 있다.
+    """
+    if not value:
+        return value
+    candidate = value.replace(",", "")
+    try:
+        float(candidate)
+    except ValueError:
+        return value  # 숫자가 아니면 쉼표가 의미를 가질 수 있다 — 건드리지 않는다
+    return candidate
+
+
 def iter_pipe_events(raw_lines, tag: str, with_meta: bool = False):
     """원본(프리픽스 포함) 라인들에서 `<tag>|...` 라인만 골라 dict로 yield.
 

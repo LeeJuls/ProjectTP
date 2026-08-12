@@ -356,6 +356,39 @@ record("PM지시④(assign_session_keys — sid=B 내 init_ordinal 0,1,1, 새 si
 
 
 # ---------------------------------------------------------------------------
+# ★천 단위 쉼표 내성 (2026-08-12 실측 함정 — 전투로그.md §1-6)
+# UE float->string이 1000 초과에서 로케일 쉼표를 붙인다(실측 t=6,915.2).
+# int->string은 안 붙인다(실측 FXLAB:FXNOROW:63009999) — 그래서 한 로그에 둘이 공존한다.
+# 회귀 방지: 이 케이스가 없으면 normalize_number가 조용히 되돌려져도 아무도 모른다.
+# ---------------------------------------------------------------------------
+comma_cases = [
+    ("6,915.2", "6915.2"),      # ★실측 원문
+    ("1,234", "1234"),
+    ("1,234,567", "1234567"),
+    ("36", "36"),               # 쉼표 없는 정수 — 무변
+    ("-33", "-33"),             # 치유 음수(dmg RAW 계약) — 무변
+    ("63009999", "63009999"),   # 8자리 ID — 무변
+    ("A3", "A3"),               # ★슬롯 라벨 — 숫자가 아니므로 원문 보존
+    ("false", "false"),
+    ("", ""),
+]
+bad = [(src, parser.normalize_number(src), want)
+       for src, want in comma_cases if parser.normalize_number(src) != want]
+record("천단위쉼표(normalize_number — 숫자만 정규화, 비숫자 원문 보존)",
+       not bad, f"불일치={bad}" if bad else f"{len(comma_cases)}건 전부 기대값")
+
+# ★rows_equal이 실제로 그 정규화를 거치는가 — 헬퍼만 고치고 소비처를 안 고치는 실수 방지
+_row_a = {c: "" for c in oracle.ORACLE_COLUMNS}
+_row_b = dict(_row_a)
+_num_col = "dmg" if "dmg" in oracle.ORACLE_COLUMNS else oracle.ORACLE_COLUMNS[-1]
+_row_a[_num_col] = "1,234"   # 라이브(UE가 쉼표를 붙인 값)
+_row_b[_num_col] = "1234"    # 오라클(사람이 쓴 값)
+record("천단위쉼표(oracle_diff.rows_equal — 라이브 1,234 == 오라클 1234)",
+       oracle_diff.rows_equal(_row_a, _row_b),
+       f"열={_num_col}")
+
+
+# ---------------------------------------------------------------------------
 # 요약
 # ---------------------------------------------------------------------------
 print("\n=== 요약 ===")

@@ -142,7 +142,10 @@ ROWS: tuple = (
     LogRow("17", "PlayAttack|unit=SpawnPoint_...|phase=enter|exit|t=...", ("PlayAttack|",),
            FLOW, PIPE_KV,
            "★신규. 애니메이션 함수 블로킹 여부 판정(점검 §2-1). unit= 값은 BattleLog와 동일 원문"
-           "(SpawnPoint_<Team>_<Slot>) — 조인 규칙 통일. 이번 단계는 문법 확정만(FT1-0b에서 심음)"),
+           "(SpawnPoint_<Team>_<Slot>) — 조인 규칙 통일. 이번 단계는 문법 확정만(FT1-0b에서 심음). "
+           "★★t= 소비 시 parser.normalize_number() 필수 — UE float→string이 1000 초과에서 "
+           "천 단위 쉼표를 붙인다(실측 t=6,915.2). 안 거치면 [\\d.]+ 가 '6'에서 멈춰 델타가 "
+           "전부 0이 되고 '타임스탬프가 멈췄다'는 가짜 결함으로 오독된다. 상세: 전투로그.md §1-6"),
     LogRow("18", "SkillSelected|unit=SpawnPoint_...|skillId=...|state=...", ("SkillSelected|",),
            FLOW, PIPE_KV,
            "★신규. 스킬 선택 로그(오너 질문①). 이번 단계는 문법 확정만(FT1-0c에서 심음 — "
