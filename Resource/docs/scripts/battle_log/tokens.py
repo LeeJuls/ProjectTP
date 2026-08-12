@@ -26,6 +26,21 @@ LOG-A_실행계획.md §"언제 돌리는가" 규약(검증 게이트 통과 시
     — qa-critic [Medium-High] 지적. 그래서 별도 표시 신호인 ERROR 카테고리를 신설했다
     (LEDGER처럼 영구지만 "판정 데이터"가 아니라 "오류 진단"이라 별도 축).
 
+★AT4 신규 2종(순번19·20)의 문법이 colon인 이유 — LOG-A "신규는 pipe" 규약의 예외:
+    LOG-A 계약서는 *"신규 토큰은 pipe key=value"*로 정했다(순번16~18이 그렇다). 그런데
+    순번19·20은 **colon**이다. 근거:
+    (a) **계열 일관성이 규약보다 구체적이다.** `FXLAB:` 네임스페이스의 형제 4종(15/15b/15c)이
+        전부 colon이고, 파서는 `FXLAB:` 프리픽스로 이들을 한 덩어리로 다룬다. 한 계열 안에
+        문법이 둘이면 `match_row()` 이후 분기가 토큰마다 달라진다.
+    (b) **pipe의 이점이 여기선 안 산다.** pipe kv는 "나중에 필드가 늘어도 위치가 안 밀린다"가
+        핵심 이점인데, 19는 필드 1개이고 20은 5필드 전부 숫자 ID 고정이다. BattleLog의 `died`
+        처럼 유무에 따라 자리가 밀리는 가변 필드가 없다(그 사고가 pipe 채택의 실제 동기였다).
+    (c) FXLAB은 **실험대 전용 진단 계열**이지 라이브 원장이 아니다. pipe 규약의 적용 대상은
+        원장·흐름(LEDGER/FLOW)이며, 실제로 순번16~18은 전부 그쪽이다.
+    ★즉 규약은 유지된다 — "라이브 원장·흐름 신규는 pipe / FXLAB 실험대 계열은 계열 문법을
+    따른다"로 읽는다. 이 예외를 여기 적어두지 않으면 다음 사람이 19·20을 규약 위반으로 보고
+    pipe로 "고쳐" PrintString 리터럴과 어긋나게 만든다(★3주 드리프트가 난 방식 그대로).
+
 이 파일이 바뀌면(신규 토큰 추가 등) `render_category_markdown()`을 재실행해
 `Resource/docs/전투로그.md`의 카테고리 표 절을 재생성한다.
 """
@@ -132,6 +147,17 @@ ROWS: tuple = (
            FLOW, PIPE_KV,
            "★신규. 스킬 선택 로그(오너 질문①). 이번 단계는 문법 확정만(FT1-0c에서 심음 — "
            "FT1-0c는 qa-critic이 '설계 미확정'으로 표시한 단계라 필드 상세는 FT1-0c 착수 시 확정)"),
+    LogRow("19", "FXLAB:STGNOROW:<stagingId>", ("FXLAB:STGNOROW",), ERROR, COLON_POS,
+           "★AT4 신규. GetDataTableRow(DT_Stagings) RowNotFound exec 직후 fail-loud. "
+           "15b(FXNOROW)와 동형이라 같은 ERROR — STAGE에 두면 베타에서 끄는 순간 침묵한다. "
+           "★문법이 pipe가 아니라 colon인 이유는 아래 주석 참고"),
+    LogRow("20", "FXLAB:RESOLVE:<skillId>:<stagingId>:<fxCast>:<fxProj>:<fxImpact>",
+           ("FXLAB:RESOLVE",), STAGE, COLON_POS,
+           "★AT4 신규. stagings/skills 해석 결과를 그대로 뱉는 검증 신호 — AU-A5-05(DT_Skills "
+           "신규 6필드가 FxLab Director까지 흘러왔는가, 상류 1홉 관통)의 판정 근거다. "
+           "★DIAG 금지: DIAG는 기본 OFF라 AU-A5-05가 실행 불가가 된다(qa-critic 지적). "
+           "5필드 전부 숫자 ID 고정이라 위치 기반이 안전하다 — BattleLog의 died처럼 "
+           "유무에 따라 자리가 밀리는 가변 필드가 없다"),
 )
 
 
