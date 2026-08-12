@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════════
+# ProjectTP (공개 저장소) — 개행 정규화
+#
+# ★왜 필요한가 (2026-08-13 실제 발생)
+#   `전투로그.md`가 `M`으로 떴는데 ★diff가 0이었다. 내용은 그대로고
+#   개행만 LF→CRLF로 바뀐 것이다. 원인은 도구 간 충돌이다:
+#     · AI(Write 툴)는 LF로 저장한다
+#     · 옵시디언 등 Windows 앱은 열었다 저장하면 CRLF로 쓴다
+#   `core.autocrlf=true`만으로는 이 왕복이 diff 노이즈로 남는다.
+#
+# ★왜 지금 넣어도 안전한가 (실측)
+#   추적 중인 텍스트 파일이 index 기준 ★전부 LF다
+#   (md 223 / py 24 / csv 24 / json 5 / ini 3 — i/lf).
+#   따라서 이 파일을 추가해도 ★재정규화 diff는 0이다.
+#
+# ★효과
+#   앞으로 옵시디언이 CRLF로 저장해도 커밋 시 LF로 정규화된다
+#   → "내용 변경 0인데 M" 노이즈가 사라진다.
+# ═══════════════════════════════════════════════════════════════
+
+# ── 텍스트: 저장소·작업트리 모두 LF 고정 ──
+*.md      text eol=lf
+*.py      text eol=lf
+*.csv     text eol=lf
+*.json    text eol=lf
+*.ini     text eol=lf
+*.html    text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+
+# ★.bat 은 의도적으로 제외한다 — Windows 배치는 CRLF 전제이고
+#   (`_Launch_MCP.bat` 등) 잘못 변환하면 실행이 깨질 수 있다.
+#   현행 유지가 안전하므로 규칙을 걸지 않는다.
+
+# ── 바이너리: 변환·텍스트 diff 금지 ──
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.pptx    binary
+*.xlsx    binary
+*.wav     binary
+*.ogg     binary
+*.uasset  binary
+*.umap    binary
