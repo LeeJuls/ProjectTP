@@ -39,7 +39,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/전투완성/plan\|plan]] | WIP | F0~F9a 게이트 전부 통과, 잔여 F9b(오너 육안 풀플레이)·S1 SPD 오라클런 검증. |
 | [[features/전투완성/raw/F7b_재개계획_초안\|F7b_재개계획_초안]] | BLOCKED | BLOCKED 근거(director 지정): 선행=S1 원장 봉인 — 오너 20턴 런은 [[BT5_S1봉인수단_판별]]의 AWAIT_OWNER가 추적. |
 | [[features/전투완성/청사진\|청사진]] | PASS | F0~F9a 게이트 통과(F0 잔여 TC 2026-07-17 재판정 — 03·05 실측 PASS·04 해소·01·02 하류 커버, [[plan]] 참고) — 잔여는 F9b 오너 육안 풀플레이 + 원장 재수집(★신규 SPD 오라클-diff 방식 필수, 관측-봉인 금지 — 구 F9a 원장은 공식 증명으로 유효하나 SPD 이후 라이브 재현 불가) 2건. |
-| [[features/카메라액션/청사진\|청사진]] | 완료(원안 기준, 2026-07-07) — 본문(고정 카메라 2기 C0/C1)은 v3(2026-07-08)에서 철거되고 동적 OTS 카메라 1기(ActionCam_Dynamic)+토글버튼으로 대체됨. 최종 구현 이력은 [[plan]] 상단 갱신문 및 raw/V1_철거·V2_구축·V3_게이트·VF_빌보딩·VF_토글버튼 참고 | 옥토패스식 컷 감성: 공격(Executing) 동안 팀별 근접 앵글로 부드럽게 전환 → 턴 끝에 기본 카메라 복귀. |
+| [[features/카메라액션/청사진\|청사진]] | ARCHIVED | 완료(원안 기준, 2026-07-07) — 본문(고정 카메라 2기 C0/C1)은 v3(2026-07-08)에서 철거되고 동적 OTS 카메라 1기(ActionCam_Dynamic)+토글버튼으로 대체됨. |
 | [[features/턴제전투MVP/plan\|plan]] | ARCHIVED | 진행중 |
 | [[features/턴제전투MVP/청사진\|청사진]] | ARCHIVED | 진행중 |
 | [[LOG-A_실행계획\|LOG-A_실행계획]] | PASS | 오너 승인 완료 — 착수 |
@@ -96,7 +96,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/E-S0_노드프로브_결과\|E-S0_노드프로브_결과]] | PASS | S0 완료 — 설계 전환(대역 액터) 확정 |
 | [[features/스킬연출구조/raw/E-S1_레벨구축_결과\|E-S1_레벨구축_결과]] | PASS | S1 PASS — S2 착수 |
 | [[features/스킬연출구조/raw/E0_에이전트피드백_Director판정\|E0_에이전트피드백_Director판정]] | PASS | 판정 완료 — E-S0 착수 |
-| [[features/스킬연출구조/raw/T1_잔상절단_결과\|T1_잔상절단_결과]] | 구현 완료 — verifier 실증 대기 / 오너 육안 비차단 대기 | 오너 지시: *"피격·이동 같은 **공격 제외한 연출은 원래대로**"* + *"공격 연출도 어울리게 할 수 있으면 **추후에 붙이는 걸 고려**"* |
+| [[features/스킬연출구조/raw/T1_잔상절단_결과\|T1_잔상절단_결과]] | WIP | 구현 완료 — verifier 실증 대기 / 오너 육안 비차단 대기. |
 | [[features/스킬연출구조/raw/내장트레일_director판정\|내장트레일_director판정]] | PASS | director 판정 완료 — T0 착수 가능 / T1은 오너 게이트 |
 | [[features/스킬연출구조/raw/내장트레일_채택_오너판정\|내장트레일_채택_오너판정]] | PASS | 오너 판정 완료 — 내장 트레일 채택, legacy Smear 제거 방향 |
 | [[features/전투완성/raw/AU-A1-09_T1전후_실측대조\|AU-A1-09_T1전후_실측대조]] | PASS | ★AU-A1-09 PASS — T1 Δ=0.000 실측 확정 / 부산물로 천단위쉼표 함정 발견·차단 |
@@ -114,7 +114,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/D3_TC_확정\|D3_TC_확정]] | PASS | TC 확정 — D4 게이트 대기 |
 | [[features/스킬연출구조/raw/E_TC\|E_TC]] | WIP | TC 확정 — E-S0 진행 중 |
 | [[features/스킬연출구조/raw/FT1-0_TC\|FT1-0_TC]] | WIP | 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당) |
-| [[features/스킬연출구조/raw/자율진행_TC\|자율진행_TC]] | TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 · 적대 검토 Critical 4 / High 7 | 대상: [[자율진행_plan_v1]] (director 초안, **확정 아님**) |
+| [[features/스킬연출구조/raw/자율진행_TC\|자율진행_TC]] | DRAFT | TC 초판 — plan v1(초안) 대상. |
 | [[features/턴제전투MVP/TC\|TC]] | ARCHIVED | E3 자가검증 완료 (verifier 실증 대기) — [director 판정] E3 실증 미완인 채 동결 |
 
 ## 리뷰/QA (review) (16)
@@ -245,7 +245,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[codex_review/MVP_개발_핵심_운영가이드\|MVP_개발_핵심_운영가이드]] | WIP | 관련 전체 리뷰: [[Codex_전체_읽기전용_리뷰_2026-07-16]] |
 | [[features/HD2D배경/raw/룩_지침_2D타일셋\|룩_지침_2D타일셋]] | ARCHIVED | 종결 — ❌ 2026-08-11 정정: 2026-08-10 오너 기각(전투 배경 3D 유지)으로 적용 대상 소멸. |
 | [[features/HD2D배경/raw/오너_2D배경_튜닝가이드\|오너_2D배경_튜닝가이드]] | ARCHIVED | ~~배치 완료 — 라이팅/PP/색조 미적용, 오너 육안 확인 대기~~ → ❌ **2026-08-11 정정**: 오너 육안 확인 완료 — 기각(전투 배경은 3D 유지). |
-| [[features/스킬연출구조/raw/D5.5_오너_struct세션_절차서\|D5.5_오너_struct세션_절차서]] | 오너 실행 대기 — 진입 조건 1/2 충족 | 상위: [[features/스킬연출구조/plan\|plan]] · 근거: [[D1_4슬롯구조_확정]] §R-1 · [[D4_게이트판정]] |
+| [[features/스킬연출구조/raw/D5.5_오너_struct세션_절차서\|D5.5_오너_struct세션_절차서]] | AWAIT_OWNER | 오너 실행 대기 — 진입 조건 1/2 충족 |
 | [[features/옥토패스대치/배치가이드\|배치가이드]] | ARCHIVED | 활성 |
 | [[features/전투완성/raw/전투BP_현황도_2026-08-11\|전투BP_현황도_2026-08-11]] | PASS | 라이브 실측 스냅샷 |
 | [[HD2D_기법_지식베이스\|HD2D_기법_지식베이스]] |  | `hd2d-art-director` 에이전트의 상시 참조 문서. |

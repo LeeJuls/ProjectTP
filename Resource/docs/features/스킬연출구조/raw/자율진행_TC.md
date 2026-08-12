@@ -4,7 +4,8 @@ project: projectTP
 feature: 스킬연출구조
 stage: 자율진행 AT/BT/FT 트랙
 updated: 2026-08-12
-status: TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 · 적대 검토 Critical 4 / High 7
+status: DRAFT
+status_note: TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 · 적대 검토 Critical 4 / High 7. ★"게이트 이전 불가 12건"은 개별 TC 항목의 상태이지 문서 자체의 상태가 아니다(PM 판정 2026-08-13). ⚠ FT1~FT7만 정의 — FT8은 TC 미보유(qa-critic 보강 필요)
 ---
 
 # 자율 진행 plan v1 — 단계별 TC + plan 적대 검토
