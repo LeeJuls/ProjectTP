@@ -5,7 +5,7 @@ feature: 스킬연출구조
 stage: 자율진행 AT/BT/FT 트랙
 updated: 2026-08-12
 status: DRAFT
-status_note: TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 · 적대 검토 Critical 4 / High 7. ★"게이트 이전 불가 12건"은 개별 TC 항목의 상태이지 문서 자체의 상태가 아니다(PM 판정 2026-08-13). ⚠ FT1~FT7만 정의 — FT8은 TC 미보유(qa-critic 보강 필요)
+status_note: TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 · 적대 검토 Critical 4 / High 7. ★"게이트 이전 불가 12건"은 개별 TC 항목의 상태이지 문서 자체의 상태가 아니다(PM 판정 2026-08-13). ★★번호 오프셋 경고 — 이 문서의 FT 번호는 plan v2와 다르다. plan v2가 ④를 2청크로 쪼개어 후반이 어긋난다&#58; TC AU-F5=plan FT6 / AU-F6=FT7 / AU-F7=FT8. FT5~FT8을 ID로 발주하면 다른 단계 TC를 실행하게 된다
 ---
 
 # 자율 진행 plan v1 — 단계별 TC + plan 적대 검토
