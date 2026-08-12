@@ -112,7 +112,7 @@ D:\unreal\Resource\_RawAssets\heroes99\
 
 ```bash
 cd D:\unreal\Resource\_RawAssets\heroes99
-python D:\unreal\Resource\docs\scripts\compose_knight.py
+python D:\unreal\Resource\docs\scripts\compose\compose_knight.py
 ```
 
 > 스크립트 경로가 다르면 `compose_knight.py` 내 `base = "."` 경로 확인.  

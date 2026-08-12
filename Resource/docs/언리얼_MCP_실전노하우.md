@@ -20,7 +20,7 @@ updated: 2026-07-17
 **표준 절차** (이것만 쓴다):
 1. `call_tool CaptureViewport`(EditorAppToolset) 호출 — 결과가 크면 harness가 **tool-results `.txt` 파일**에 자동 저장하고 경로를 준다.
 2. 그 파일을 **Read 하지 말 것**(라인이 너무 김). 대신:
-   `python D:\unreal\Resource\docs\scripts\decode_capture.py <tool-results.txt> <out.png>`
+   `python D:\unreal\Resource\docs\scripts\assets\decode_capture.py <tool-results.txt> <out.png>`
 3. `Read <out.png>` 로 확인.
 
 - **CaptureViewport 파라미터 3개 모두 필수**: `captureTransform`, `annotations`(순수 이미지는 gridSpacing/gridExtent/gridHeight/maxLabelDistance=0, classFilter=null, maxLabels=0), `bShowUI=false`.

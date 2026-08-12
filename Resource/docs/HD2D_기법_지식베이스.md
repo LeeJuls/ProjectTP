@@ -72,7 +72,7 @@ updated: 2026-07-05
 | 8기 정면대치 스프라이트가 대부분 뒷모습/측면 포즈라 3D 라이팅에 의한 좌우 하이라이트 대비가 캡처 육안으로는 잘 안 보임(S3) | 스프라이트 자체 언리트 베이크 명암이 지배적, 라이팅은 캐스트섀도우 방향·길이에 더 크게 기여 | 광원 방향 검증은 **캐릭터 발밑 캐스트섀도우 방향/길이**로 판단하는 게 가장 확실. 좌/우 절반 휘도(luminance) 평균 diff를 before/after로 비교하면 "부호가 안 바뀌었다(=베이크가 지배적, 광원 조정이 진영 역전 안 시킴)"까지는 정량 확인 가능하나, "육안상 확실한 대비"는 오너 판단 필요 |
 
 ### ⚠ 도구 제약: CaptureViewport 결과가 큰 경우 base64→PNG 디코딩 불가
-`hd2d-art-director` 서브에이전트 세션에는 Bash/코드실행 도구가 제공되지 않아, `CaptureViewport` 결과(base64 PNG, 통상 400만자 이상)가 tool-results txt 파일로 저장돼도 이를 디코딩해 PNG로 볼 방법이 없었다(Read/Grep은 텍스트 처리만 가능, `ProgrammaticToolset`의 sandboxed python은 `base64`/파일 I/O 모듈 미지원). 이 글리치 작업(S3)에서 실제로 겪음 — **스크린샷 확보가 필요한 hd2d-art-director 작업은 Bash 도구가 있는 세션(art-pipeline 등)에서 대신 캡처하거나, Director가 이 에이전트에 Bash 권한을 부여해야 함**. → **S5에서 Bash 권한 부여받아 해결**: `python decode_capture.py <tool-results.txt> <out.png>` 후 Read로 확인 가능(스크립트: `docs/scripts/decode_capture.py`).
+`hd2d-art-director` 서브에이전트 세션에는 Bash/코드실행 도구가 제공되지 않아, `CaptureViewport` 결과(base64 PNG, 통상 400만자 이상)가 tool-results txt 파일로 저장돼도 이를 디코딩해 PNG로 볼 방법이 없었다(Read/Grep은 텍스트 처리만 가능, `ProgrammaticToolset`의 sandboxed python은 `base64`/파일 I/O 모듈 미지원). 이 글리치 작업(S3)에서 실제로 겪음 — **스크린샷 확보가 필요한 hd2d-art-director 작업은 Bash 도구가 있는 세션(art-pipeline 등)에서 대신 캡처하거나, Director가 이 에이전트에 Bash 권한을 부여해야 함**. → **S5에서 Bash 권한 부여받아 해결**: `python decode_capture.py <tool-results.txt> <out.png>` 후 Read로 확인 가능(스크립트: `docs/scripts/assets/decode_capture.py`).
 
 ### PostProcessVolume 세팅은 `settings`(JSON 통짜) 프로퍼티로 다룬다
 `ObjectTools.get_properties(instance=PPV, properties=["settings"])`로 전체 조회, `set_properties`로 부분 갱신 시 `{"settings": {"bOverride_X": true, "x": value}}` 형태로 전달(오버라이드 플래그를 반드시 함께 켜야 값이 적용됨). PPV 액터의 `bUnbound`(전역 여부)·`bEnabled`·`blendWeight`는 최상위 프로퍼티로 별도 조회.

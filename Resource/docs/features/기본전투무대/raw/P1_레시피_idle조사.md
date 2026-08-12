@@ -38,7 +38,7 @@ updated: 2026-07-05
 
 ## (b) 합성 순서 확정
 
-`_RawAssets/heroes99/_composed/compose2.py` (≡ `docs/scripts/compose_knight.py`, 동일 내용) 기준, back→front 알파 합성 순서:
+`_RawAssets/heroes99/_composed/compose2.py` (≡ `docs/scripts/compose/compose_knight.py`, 동일 내용) 기준, back→front 알파 합성 순서:
 
 1. `hair_bot`
 2. `weapon_bot`

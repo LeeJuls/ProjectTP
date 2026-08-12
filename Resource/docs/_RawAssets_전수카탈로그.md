@@ -174,7 +174,7 @@ Pillow 실측: `A2 - Terrain And Misc.png`(2496×1920) · `A4 - Walls.png`(1104�
 | `prop_tree_pine.png` | 131×214 | → | `T_Prop_TreePine.uasset` |
 | `prop_tree_wide.png` | 174×240 | → | `T_Prop_TreeWide.uasset` |
 
-mtime도 인과관계와 일치(`_mockups/parts/` 2026-07-31 생성 → `Content/Sprites/Tileset/*.uasset` 2026-08-10 임포트). 즉 **오프라인 목업용으로 오려낸 부품(`docs/scripts/mockup_extract_parts.py`, 원본은 `Fantasy Exterior - Other Engines/`)이 그대로 실제 임포트 텍스처가 됐다** — 목업과 실제 자산 사이에 재작업 없이 파이프라인이 이어졌다는 뜻. 다만 이 텍스처들 자체가 가리키는 최종 용도(전투배경)는 기각됐으므로, **"쓰는 것"이 아니라 "임포트는 됐으나 채택 안 된 보존 자산"**으로 분류해야 정확하다.
+mtime도 인과관계와 일치(`_mockups/parts/` 2026-07-31 생성 → `Content/Sprites/Tileset/*.uasset` 2026-08-10 임포트). 즉 **오프라인 목업용으로 오려낸 부품(`docs/scripts/mockup/mockup_extract_parts.py`, 원본은 `Fantasy Exterior - Other Engines/`)이 그대로 실제 임포트 텍스처가 됐다** — 목업과 실제 자산 사이에 재작업 없이 파이프라인이 이어졌다는 뜻. 다만 이 텍스처들 자체가 가리키는 최종 용도(전투배경)는 기각됐으므로, **"쓰는 것"이 아니라 "임포트는 됐으나 채택 안 된 보존 자산"**으로 분류해야 정확하다.
 
 ---
 
