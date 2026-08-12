@@ -9,7 +9,7 @@ updated: 2026-07-05
 
 # P1 — 8종 레시피 · 합성순서 · idle 실측 조사
 
-> 조사 전용 산출물. 실제 합성/임포트는 수행하지 않음. 상위: [[진행로그]] · [[plan]]
+> 조사 전용 산출물. 실제 합성/임포트는 수행하지 않음. 상위: [[진행로그]] · [[features/기본전투무대/plan|plan]]
 #projectTP/기본전투무대
 
 ---
@@ -84,5 +84,5 @@ IDLE 2(row 1)도 동일 6프레임 구조라 대체 가능. 추후 유휴 상태
 ---
 
 ## 다음 단계 제안
-- scene-builder P1 조사(무대 배치)와 종합해 [[plan]]에 캐릭터 시트 슬라이스 규격(셀 100×40, idle row 0 col 0~5) + UE 임포트 세팅(Nearest/NoMipmaps/TC_EditorIcon) 명시.
+- scene-builder P1 조사(무대 배치)와 종합해 [[features/기본전투무대/plan|plan]]에 캐릭터 시트 슬라이스 규격(셀 100×40, idle row 0 col 0~5) + UE 임포트 세팅(Nearest/NoMipmaps/TC_EditorIcon) 명시.
 - 실제 합성/슬라이스/임포트는 P1 승인 후 별도 구현 단계에서 수행(본 조사는 실행 없음).

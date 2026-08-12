@@ -9,7 +9,7 @@ updated: 2026-07-15
 
 # F4(TakeHit §8 코어) — TC 설계 + plan 적대적 검토
 
-> 대상: [[plan]] §F4(L251~341) · [[상태이상_확정]] §5~§8·§11·§15 · [[스탯_전투공식_v1]] §5(정답지)·§8(계약) · [[전투로그]](현행 로그 구현) · [[언리얼_MCP_실전노하우]] §7~§11·§13(함정③④⑥⑨⑩⑰).
+> 대상: [[features/전투완성/plan|plan]] §F4(L251~341) · [[상태이상_확정]] §5~§8·§11·§15 · [[스탯_전투공식_v1]] §5(정답지)·§8(계약) · [[전투로그]](현행 로그 구현) · [[언리얼_MCP_실전노하우]] §7~§11·§13(함정③④⑥⑨⑩⑰).
 > 전제 = Director MCP 실측 팩트(재조사 불요). TC 실행 = verifier, 게이트 판정 = Director. **본 문서는 검출·설계만 — BP/데이터 수정 없음.**
 > **기능 TC = verifier 게이트(진행 차단) / 비주얼 TC = 오너 육안(진행 불차단)** — 오너 지시 반영.
 #projectTP/전투완성
@@ -35,7 +35,7 @@ updated: 2026-07-15
 
 ### [BLOCKER-1] HP 차감 주체가 이중 — 데미지 2배 / 로그·화면 불일치 (CONFIRMED)
 
-**모순**: [[plan]] §4-2 step8 = `Target.Hp = Max(0, Target.Hp − Dmg)` → **Manager가 HP를 쓴다**. 그런데 Director F4 지시문 = "유닛 쪽에 **HP 차감** + `CachedUnitFrame.SetHp()` 호출 추가" → **유닛도 HP를 쓴다**.
+**모순**: [[features/전투완성/plan|plan]] §4-2 step8 = `Target.Hp = Max(0, Target.Hp − Dmg)` → **Manager가 HP를 쓴다**. 그런데 Director F4 지시문 = "유닛 쪽에 **HP 차감** + `CachedUnitFrame.SetHp()` 호출 추가" → **유닛도 HP를 쓴다**.
 
 **재현**: A1(전사 Atk40) → B1(전사 Def10/Hp90) 기본공격.
 1. Manager.TakeHit step8: `B1.Hp = 90 − 30 = 60` → step9 로그 `dmg=30|hp=60` 방출.
@@ -47,7 +47,7 @@ updated: 2026-07-15
 
 ### [BLOCKER-2] 로그 방출 지점 — 현행 구현은 `EnterExecuting` 진입 직후, §8은 `TakeHit` step9 (CONFIRMED)
 
-**모순**: [[전투로그]] "구현 위치" = **`EnterExecuting` 진입 직후(`SetBattleState(4)` 이전)** 에 PrintString. 즉 **Delay 0.25 이전, 데미지가 존재하기 전**에 로그가 나간다. 반면 [[plan]] §4-2 step9 = "BattleLog 로그 방출 → Return"(TakeHit 말미, HP 적용 후). plan §4-3은 "기존 포맷·기존 TurnCounter 재사용 / 파서 호환 유지"라고만 써서 **"기존 PrintString 노드를 그 자리에서 확장하라"로 읽힌다** — 이 오독이 기본값이다.
+**모순**: [[전투로그]] "구현 위치" = **`EnterExecuting` 진입 직후(`SetBattleState(4)` 이전)** 에 PrintString. 즉 **Delay 0.25 이전, 데미지가 존재하기 전**에 로그가 나간다. 반면 [[features/전투완성/plan|plan]] §4-2 step9 = "BattleLog 로그 방출 → Return"(TakeHit 말미, HP 적용 후). plan §4-3은 "기존 포맷·기존 TurnCounter 재사용 / 파서 호환 유지"라고만 써서 **"기존 PrintString 노드를 그 자리에서 확장하라"로 읽힌다** — 이 오독이 기본값이다.
 
 **재현**: 기존 노드에 `dmg`/`hp` 인자만 추가하면, 그 시점엔 이번 턴의 dmg가 아직 계산되지 않았다.
 - turn1: `dmg=0|hp=90`(피격 전 HP) — 실제로는 30을 맞았는데 로그는 0.
@@ -60,7 +60,7 @@ updated: 2026-07-15
 
 ### [BLOCKER-3] TakeHit = Function Graph인데 step9가 latent 보유 커스텀이벤트를 호출 — 함정④/⑨ 충돌 (CONFIRMED 문서 3자 충돌 / PLAUSIBLE 실동작)
 
-**모순**: [[plan]] §4-1 = "§8 판정 자체는 전부 동기 연산이라 **Function Graph**로 가능" + "마지막에 기존 애니 재생용 **Custom Event를 호출**". 그런데
+**모순**: [[features/전투완성/plan|plan]] §4-1 = "§8 판정 자체는 전부 동기 연산이라 **Function Graph**로 가능" + "마지막에 기존 애니 재생용 **Custom Event를 호출**". 그런데
 - **함정④**(§8): latent 노드(Delay 계열)는 Function Graph에서 사용 불가.
 - **함정⑨**(§11, W2 실측): "**다른 BP의 커스텀 이벤트를 CallFunction으로 호출하는 것은, 그 이벤트가 내부에 latent 노드를 가지고 있다면 호출자 관점에서도 latent 호출이 된다**"(PlayAttack 실측, 1턴 +0.58s).
 - 유닛의 `TakeHit` 연출 이벤트는 **`RetriggerableDelay`(0.45s, idle 복귀)를 내부에 보유**한다.
@@ -76,7 +76,7 @@ then_0: Delay(0.25) → [배열 ForEach] → Manager.TakeHit(Attacker, T, SkillI
 
 ### [BLOCKER-4] `PendingHitTarget`/`PendingHitDied` 소유자 미확정 (CONFIRMED 모순)
 
-[[plan]] §4-1 본문 = "TakeHit 로직 마지막에 **멤버 변수**(예: `PendingHitTarget`, `PendingHitDied`)를 세팅" → 이름상 **Manager 소유**로 읽힌다. 같은 §4-1 말미 + [[상태이상_확정]] §11⑤·§15-4 = "HURT 리액션 이벤트(`PendingHitTarget`+`RetriggerableDelay`)는 **대상 유닛(BP_BattleSpawnPoint) 소유**로 배치할 것 — **F4 착수 시 최우선 확인**".
+[[features/전투완성/plan|plan]] §4-1 본문 = "TakeHit 로직 마지막에 **멤버 변수**(예: `PendingHitTarget`, `PendingHitDied`)를 세팅" → 이름상 **Manager 소유**로 읽힌다. 같은 §4-1 말미 + [[상태이상_확정]] §11⑤·§15-4 = "HURT 리액션 이벤트(`PendingHitTarget`+`RetriggerableDelay`)는 **대상 유닛(BP_BattleSpawnPoint) 소유**로 배치할 것 — **F4 착수 시 최우선 확인**".
 
 **두 서술이 양립 불가**: 이벤트가 유닛 소유라면 유닛 자신이 곧 Target이므로 `PendingHitTarget`(어느 유닛을 때릴지)이라는 멤버는 **유닛 위에서 의미가 없다**. 그대로 Manager에 두면 §15-4가 경고한 함정(Manager 단일 인스턴스의 RetriggerableDelay가 A2 AoE에서 리셋 → 마지막 대상만 idle 복귀)을 **F4에서 그대로 짓는다**(선례 = `WalkForward`의 `WalkTargetLoc`은 **유닛 멤버**다).
 
@@ -146,7 +146,7 @@ S0에서 `DT_Skills`를 delete 후 재임포트해 **애셋 GUID가 바뀌었다
 | M-2 | **쿨다운이 유닛별인지 전역인지 미정** | Manager 전역 Map(키=SkillId)으로 짜면 A1이 베기를 쓰면 **A2의 베기까지 잠긴다**(전사 2명 = A1·A2). §7-6 "유닛별 (SkillId→남은 쿨턴) 상태로 저장"이 근거지만 §15에는 반영 안 됨 | CONFIRMED |
 | M-3 | **`DebugForceEffectChance` sentinel** | §12-2가 "비활성값이면 실제 EffectChance 사용"이라 했으나 **비활성값을 0.0으로 잡으면 TC-SE01(Chance=0 강제)과 구분 불가**. 0/1이 전부 유효 강제값이므로 **sentinel = −1.0**이어야 함 | CONFIRMED |
 | M-4 | **F4 상태이상은 영원히 만료되지 않는다** | F4는 step8.5(부여)를 짓지만 `TickStatusesAtTurnEnd`(TE2)·`IsStunSkipActive`(TS4)는 **F5 소관**. 즉 F4에서 ON_HIT 스캐폴드를 굴리면 STUN/ATK_DOWN이 **그 PIE 세션 내내 잔류**. STUN은 소비처(TS4)가 없어 무해하나, **ATK_DOWN이 붙은 유닛으로 이후 데미지 TC를 돌리면 정답지가 어긋난다**(`40×0.75×1.0 = 30 − 10 = 20 ≠ 30`) → **TC 실행 순서 규칙 필수** | CONFIRMED |
-| M-5 | **RowName 조회 강제** | [[plan]] L213: DataTable struct의 `.id` 필드는 **항상 0**, 진짜 키는 RowName. `GetDataTableRow(DT_Skills, SkillId)`는 **int → String → Name 변환**을 거쳐야 하고, `.id`로 찾으려 하면 전 행 매칭 실패 | CONFIRMED |
+| M-5 | **RowName 조회 강제** | [[features/전투완성/plan|plan]] L213: DataTable struct의 `.id` 필드는 **항상 0**, 진짜 키는 RowName. `GetDataTableRow(DT_Skills, SkillId)`는 **int → String → Name 변환**을 거쳐야 하고, `.id`로 찾으려 하면 전 행 매칭 실패 | CONFIRMED |
 | M-6 | **StatusLog는 기존 파서에 안 잡힌다** | `extract_battle_log.py`의 `MARKER = "BattleLog|"` → **`StatusLog|` 라인은 추출물에 0줄**. 스크립트 수정이 아니라 **별도 grep 커맨드 추가**가 정답([[상태이상_확정]] §8-2가 "verifier 확인 1건"으로 예고) | CONFIRMED |
 | M-7 | **`BattleState`(Byte 매직넘버) 미접촉** | F4의 TakeHit은 상태를 **절대 전이시키지 않는다**(F5 레이스 대책의 전제). 정적으로 `SetBattleState`/`EnterEnd`/`EnterTurnEnd`/`EnterTurnStart` 노드 0개를 확인해야 F5의 게이트 단일화가 유효 | CONFIRMED |
 
@@ -190,7 +190,7 @@ S0에서 `DT_Skills`를 delete 후 재임포트해 **애셋 GUID가 바뀌었다
 
 ---
 
-## ⑤ TC 표 — B. 상태이상+AoE 통합 TC의 **F4 실행분** ([[plan]] §"F4/F5/F7 확장" 33개 중)
+## ⑤ TC 표 — B. 상태이상+AoE 통합 TC의 **F4 실행분** ([[features/전투완성/plan|plan]] §"F4/F5/F7 확장" 33개 중)
 
 | ID | 구분 | 조건 → 기대결과 (F4 실행판으로 구체화) | 판정방법 | 상태 |
 |---|---|---|---|---|
@@ -310,4 +310,4 @@ S0에서 `DT_Skills`를 delete 후 재임포트해 **애셋 GUID가 바뀌었다
 ---
 
 ## 관련 문서
-[[plan]] · [[상태이상_확정]] · [[스탯_전투공식_v1]] · [[광폭화_재검증]] · [[전투로그]] · [[U단계_TC]] · [[U단계_HP게이지_UMG_실장]] · [[언리얼_MCP_실전노하우]] · [[개발_워크플로우]]
+[[features/전투완성/plan|plan]] · [[상태이상_확정]] · [[스탯_전투공식_v1]] · [[광폭화_재검증]] · [[전투로그]] · [[U단계_TC]] · [[U단계_HP게이지_UMG_실장]] · [[언리얼_MCP_실전노하우]] · [[개발_워크플로우]]

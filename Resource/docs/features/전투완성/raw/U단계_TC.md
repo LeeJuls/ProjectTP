@@ -10,7 +10,7 @@ updated: 2026-07-14
 # 전투HUD UMG 실장(U단계) — 예외상황 TC + 적대적 계획 리뷰
 
 > 대상: 오너 승인 v5 계획(U1 배치=umg-engineer / U2 배선=umg-engineer / U3 실증=verifier).
-> 기준 문서: [[spec]](`ui/battle/WBP_BattleHUD/spec.md`) · [[오너_UMG배치가이드]] · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] §20~21(함정㉔·㉑·⑳·③·⑰).
+> 기준 문서: `ui/battle/WBP_BattleHUD/spec.md` · `ui/battle/WBP_BattleHUD/오너_UMG배치가이드.md` · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] §20~21(함정㉔·㉑·⑳·③·⑰).
 > 이 문서는 **표시 계층(U단계) 예외 경로**만 다룬다. 정상 경로·전투 로직 TC는 U3 verifier 기본절차와 F4 몫. 판정방법의 **"시각캡처(CaptureViewport)"는 §18 함정⑫/§20 로 신뢰불가라 배제** — 시각 확인은 전부 **오너 육안(Designer 프리뷰/PIE)**으로 라우팅.
 #projectTP/전투완성
 
@@ -88,4 +88,4 @@ updated: 2026-07-14
 - **명세-구현 불일치**: spec(내장+PWTS) vs U2(per-actor+PWTS삭제), spec(Auto) vs 가이드(200), spec(HpGaugeText 대체) vs U2(미언급) — 치명-1/정정-4/정정-1.
 
 ## 관련 문서
-[[spec]] · [[오너_UMG배치가이드]] · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] · [[전투완성/plan]]
+`ui/battle/WBP_BattleHUD/spec.md` · `ui/battle/WBP_BattleHUD/오너_UMG배치가이드.md` · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] · [[전투완성/plan]]

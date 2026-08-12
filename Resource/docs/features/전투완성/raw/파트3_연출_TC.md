@@ -409,4 +409,4 @@ CallFunction_164 → CallFunction_23(HideAll) → CallFunction_169(PrintString)
 - [[파트2_SPD_TC]] (ID·컬럼 규약 원본 · P2-R01 신규 원장 → P3-R02의 기준선) · [[파트1_Start_TC]]
 - [[언리얼_MCP_실전노하우]] §34 (78)~(85) — ⚠**정정**: 이 줄이 원래 제안했던 "N1을 (84)로 등재"는 Director가 채택하지 않았다. N1은 별도 신규 번호 없이 [[파트3_연출_완료]] §2 서사로 기록됐다(같은 계열: [[야간F6_모션데이터구동_완료]]의 "세터가 소비자보다 늦은" 가짜 GREEN). 대신 (84)(85)는 이번 세션(파트2·3) 실측 2건 — `ProgrammaticToolset` 트랜잭션 롤백·PIE 액터 refPath 형식 — 으로 등재됐다.
 - `data/skills.csv` · `data/motions.csv` (결정②(b) 채택 시 `motions.csv` 60110000 수정 대상)
-- [[plan]] · [[청사진]]
+- [[features/전투완성/plan|plan]] · [[features/전투완성/청사진|청사진]]

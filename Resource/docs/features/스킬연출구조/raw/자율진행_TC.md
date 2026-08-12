@@ -525,7 +525,7 @@ T1 문서는 *"캐릭터 전진이 실제로는 어디서 일어나는가 — �
 | 층 | 실체 | 근거 문서 |
 |---|---|---|
 | **호출** | `BP_BattleManager` `EnterExecuting` → `HideAll.then → PrintString("ExecWalkPhase") → **WalkForward**(self=ActiveUnit) → Delay(0.55) → PlayAttack` | [[W2_Executing개편]] §3 재배선① (노드 `Class\|BPBattleSpawnPoint\|WalkForward`) |
-| **게이트** | `Target` 문자열 3-way 분기 — **`ALLY1`/`SELF` 두 예외를 뺀 나머지 전부가 `WalkForward`로 흐른다** (`IfThenElse_4`) | [[plan]] §실태조사 ⑤ · §연출설계(3-way ↔ 3필드 1:1) · 통합명세 **H31** |
+| **게이트** | `Target` 문자열 3-way 분기 — **`ALLY1`/`SELF` 두 예외를 뺀 나머지 전부가 `WalkForward`로 흐른다** (`IfThenElse_4`) | [[features/스킬연출구조/plan|plan]] §실태조사 ⑤ · §연출설계(3-way ↔ 3필드 1:1) · 통합명세 **H31** |
 | **구현** | `BP_BattleSpawnPoint` **`WalkForward` 커스텀 이벤트** — 3단 우선순위 → Y가드(ForEachLoop+`\|dY\|<10`→+12) → MID 세팅 → **`MoveComponentTo(Sprite, WalkTargetLoc, 0.4s, EaseOut)`**. 노드 `K2Node_CallFunction_143` | [[features/걸어나오기연출/plan]] §W1 · [[W1_구현]] · [[W3fix_회전보간]] |
 | **거리** | `±300` 리터럴 → `ApproachStopDistanceUU`(H13) · `ResolveApproachAnchor` | 통합명세 **BPC-14** · **H13** |
 | **소요** | `MoveComponentTo.OverTime` → `ApproachSec` | 통합명세 **BPC-13** |

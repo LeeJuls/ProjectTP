@@ -7,7 +7,7 @@ updated: 2026-07-07
 
 # ✅ 턴제전투MVP TC (qa-critic 산출, 35종)
 
-> plan: [[plan]] · 청사진: [[청사진]]
+> plan: [[features/턴제전투MVP/plan|plan]] · 청사진: [[features/턴제전투MVP/청사진|청사진]]
 > 표기: `[TC-ID/우선순위] 조건 → 기대결과 | 판정수단`. **판정수단 열이 생명**(QA-H6) — 런타임 상태는 PrintString+GetLogEntries 또는 오너 육안만. get_properties는 정적 프로퍼티에만 유효.
 #projectTP/턴제전투MVP
 

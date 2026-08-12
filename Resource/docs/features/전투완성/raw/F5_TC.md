@@ -9,7 +9,7 @@ updated: 2026-07-15
 
 # F5(사망·승패 / End 상태) — TC 설계 + 적대적 검토
 
-> 대상: [[plan]] §F5(L345~418) · [[상태이상_확정]] §5(TS1~TS6 / TE1~TE4)·§8-2·§13 · [[F4_중단_인수인계]](F4 실적 = 본 문서의 전제) · [[F4_TC]](승계 규약) · [[E2_상태머신]](현행 EnterTurnStart/TurnEnd) · [[전투로그]](TurnCounter 삽입 위치) · [[W2_Executing개편]](Sequence 병렬 실측) · [[광폭화_재검증]] §2 · [[언리얼_MCP_실전노하우]] L130·함정⑥⑧⑨⑮⑯⑰
+> 대상: [[features/전투완성/plan|plan]] §F5(L345~418) · [[상태이상_확정]] §5(TS1~TS6 / TE1~TE4)·§8-2·§13 · [[F4_중단_인수인계]](F4 실적 = 본 문서의 전제) · [[F4_TC]](승계 규약) · [[E2_상태머신]](현행 EnterTurnStart/TurnEnd) · [[전투로그]](TurnCounter 삽입 위치) · [[W2_Executing개편]](Sequence 병렬 실측) · [[광폭화_재검증]] §2 · [[언리얼_MCP_실전노하우]] L130·함정⑥⑧⑨⑮⑯⑰
 > **BP 조회 금지 상태에서 작성**(에디터 손상) — 전부 문서 기반. "실측 필요" 표기 항목은 착수 첫 액션으로 GRAPH 확인할 것.
 > **기능 TC = verifier 게이트(진행 차단) / 비주얼 TC = 오너 육안(진행 불차단)**.
 > TC 실행 = verifier, 게이트 판정 = Director. **본 문서는 검출·설계만 — BP/데이터 수정 없음.**
@@ -43,7 +43,7 @@ updated: 2026-07-15
 
 ### [BLOCKER-1] `bBattleOver` 카운트 대상이 반대 — 전투가 영원히 끝나지 않는다 (CONFIRMED)
 
-**모순**: [[plan]] L382 원문 —
+**모순**: [[features/전투완성/plan|plan]] L382 원문 —
 > `Target.bAlive=false` 직후 → **상대팀(Target과 반대 bIsParty) 생존수 카운트** → 0이면 `SetbBattleOver(true)` + `SetWinningTeam(Attacker.bIsParty)`
 
 전투 종료 조건은 **죽은 Target 자신의 팀**에 생존자가 0인 것이다. 그런데 명세가 지시하는 집합은 `bIsParty != Target.bIsParty` = **공격자 팀**이다. 공격자는 방금 자기 턴에 행동했으므로 **반드시 살아 있다** → 카운트는 항상 ≥1 → **`bBattleOver`는 절대 true가 되지 않는다.**
@@ -81,7 +81,7 @@ updated: 2026-07-15
 
 | 빠진 리셋 | 안 하면 | 근거 |
 |---|---|---|
-| `Hp = MaxHp` | **Hp는 `BeginPlay`에서만 DT_JobStats로 로드된다**(F3) — `InitBattle`은 Hp를 건드리지 않는다 → 부활한 유닛 전원 `Hp=0` | [[plan]] §F3-2 |
+| `Hp = MaxHp` | **Hp는 `BeginPlay`에서만 DT_JobStats로 로드된다**(F3) — `InitBattle`은 Hp를 건드리지 않는다 → 부활한 유닛 전원 `Hp=0` | [[features/전투완성/plan|plan]] §F3-2 |
 | `bFreeze = 0` | 시체가 DYING 마지막 프레임에 **얼어붙은 채 부활** — 살아서 행동하는데 누워 있다 | F5-3, S1 |
 | `RowIndex=0 / FrameCount=6 / TimeOffset=0` | 상동(스프라이트가 IDLE로 안 돌아옴) | motions.csv Row0 |
 | `ClickBox` 콜리전 = QueryOnly | 사망 시 NoCollision으로 바꿨으므로 **부활해도 영원히 클릭 불가**(타겟 지정 불능) | F5 지시 항목6 |
@@ -104,7 +104,7 @@ updated: 2026-07-15
 | 문서 | TS3 소속 |
 |---|---|
 | [[상태이상_확정]] §5-1 TS3 | "**(기존 불변** — ★기절 여부와 무관하게 실행)" → **이미 있다고 서술** |
-| [[plan]] §F7-4 | "쿨다운 진행: `EnterTurnStart`(자기 턴 시작)에서 …−1(하한0)" → **F7 소관** |
+| [[features/전투완성/plan|plan]] §F7-4 | "쿨다운 진행: `EnterTurnStart`(자기 턴 시작)에서 …−1(하한0)" → **F7 소관** |
 | Director F5 지시서 | "TS3 쿨다운−1 + 막기해제" → **F5에서 만든다** |
 | **F4 실적**([[F4_중단_인수인계]] §3) | `GetSkillCooldown`/`SetSkillCooldown`(접근자) · step0 가드 · step9 세팅뿐 — **매 턴 스윕 없음** |
 
@@ -126,7 +126,7 @@ updated: 2026-07-15
 
 **공백**: Director 지시 = "DYING(RowIndex 13, FrameCount 5) 재생 + **`bFreeze=1`**(idle 복귀 금지)". **언제** 1을 넣는지가 없다.
 
-`bFreeze`는 [[plan]] F0⑥ 정의상 "**Time을 쓰지 않고 고정 프레임(마지막 유효 프레임 = FrameCount−1)을 샘플링**"한다. DYING 재생과 **동시에** 1을 세팅하면 프레임 0~3을 건너뛰고 **즉시 프레임 4로 팝** → **쓰러지는 동작 자체가 화면에 없다.** 오너의 ★필수 확인 문구가 "사망(**쓰러져** 고정)"인데 "쓰러지는 과정"이 사라진다.
+`bFreeze`는 [[features/전투완성/plan|plan]] F0⑥ 정의상 "**Time을 쓰지 않고 고정 프레임(마지막 유효 프레임 = FrameCount−1)을 샘플링**"한다. DYING 재생과 **동시에** 1을 세팅하면 프레임 0~3을 건너뛰고 **즉시 프레임 4로 팝** → **쓰러지는 동작 자체가 화면에 없다.** 오너의 ★필수 확인 문구가 "사망(**쓰러져** 고정)"인데 "쓰러지는 과정"이 사라진다.
 
 **올바른 순서**(기존 HURT 타이머 구조를 그대로 재사용, 종단만 교체):
 ```
@@ -453,4 +453,4 @@ F9a 원장 대조(승패 시점 확정)에도 어차피 필요하다. `BattleLog
 ---
 
 ## 관련 문서
-[[plan]] · [[상태이상_확정]] · [[F4_TC]] · [[F4_중단_인수인계]] · [[E2_상태머신]] · [[전투로그]] · [[W2_Executing개편]] · [[광폭화_재검증]] · [[스탯_전투공식_v1]] · [[U단계_TC]] · [[언리얼_MCP_실전노하우]] · [[개발_워크플로우]]
+[[features/전투완성/plan|plan]] · [[상태이상_확정]] · [[F4_TC]] · [[F4_중단_인수인계]] · [[E2_상태머신]] · [[전투로그]] · [[W2_Executing개편]] · [[광폭화_재검증]] · [[스탯_전투공식_v1]] · [[U단계_TC]] · [[언리얼_MCP_실전노하우]] · [[개발_워크플로우]]

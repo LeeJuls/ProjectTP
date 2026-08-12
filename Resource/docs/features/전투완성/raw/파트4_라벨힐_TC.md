@@ -290,4 +290,4 @@ updated: 2026-07-17
 - 승인 계획서 `C:\Users\user\.claude\plans\humble-purring-glacier.md`(원문은 파트4 작업 중 덮어쓰기로 소실 — [[파트4_라벨힐_완료]] §9 SSOT 승격 참고)
 - [[파트4_라벨힐_완료]](게이트 결과·재분류 서사 전문) · [[파트3_연출_TC]](ID·컬럼·판정도구 원본) · [[파트2_SPD_TC]] · [[파트1_Start_TC]]
 - [[언리얼_MCP_실전노하우]] §34 (78)~(86) — (86)은 이번 파트4 세션 실측(BlueprintTools refPath 규약)으로 신규 등재
-- [[plan]] · [[청사진]] · [[에이전트팀_설계]]
+- [[features/전투완성/plan|plan]] · [[features/전투완성/청사진|청사진]] · [[에이전트팀_설계]]

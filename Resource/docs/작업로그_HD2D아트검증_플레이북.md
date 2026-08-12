@@ -128,7 +128,7 @@ heroes99 32px 도트 → UE5.8 HD-2D 렌더 **성공**. 픽셀퍼펙트 + Lit �
 
 | # | 이슈 | 교훈 |
 |---|---|---|
-| 1 | .bat 한글 주석이 cmd(CP949)에서 깨짐(`됱?`) | 배치는 **영어 ASCII + CRLF**만. [[batch-files-english-only]] |
+| 1 | .bat 한글 주석이 cmd(CP949)에서 깨짐(`됱?`) | 배치는 **영어 ASCII + CRLF**만. batch-files-english-only <!-- 원본: `[[batch-files-english-only]]` — 대상 노트 부재(2026-08-13 확인) --> |
 | 2 | .bat echo의 괄호 `(port 8000)`가 파싱사고(`'rt'`) | 배치 echo에 **괄호·특수문자 금지** |
 | 3 | .uproject 더블클릭 시 -106(엔진 선택) | 커스텀 엔진 → `.bat`로 **UnrealEditor.exe 직접 실행** |
 | 4 | 검은 런처 창 닫으면 에디터 종료 | 부모 프로세스 → **최소화만**, 닫지 말 것 |

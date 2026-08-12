@@ -7,7 +7,7 @@ updated: 2026-07-07
 
 # 📋 턴제전투MVP 세부 plan
 
-> 청사진: [[청사진]] · 프로세스: [[개발_워크플로우]]
+> 청사진: [[features/턴제전투MVP/청사진|청사진]] · 프로세스: [[개발_워크플로우]]
 > **원본**: 이 문서는 오너 승인 세션 plan(`C:\Users\user\.claude\plans\humble-purring-glacier.md`, 파일명 "humble-purring-glacier")의 전사본이다. 승인판이 원본이며 모순 시 그쪽이 우선한다.
 #projectTP/턴제전투MVP
 

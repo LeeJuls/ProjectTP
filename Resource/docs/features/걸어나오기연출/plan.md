@@ -65,7 +65,7 @@ Executing: 잠금(기존) → 마커 OFF(신규, HideAll 앞) → 발광 OFF·�
 | W0 | MoveComponentTo 파일럿 배선 1회+기능폴더 생성+GE 함정 노하우 등재 | 파일럿 컴파일 0 | ge(sonnet) | **완료** |
 | W1 | BP_AttackPoint+2기 배치(실측 산출)+유닛 확장(3단 결정·Y가드·Walk 2종·이펙트 재계산)+RUN1 스팟체크 | WT-01~08 | ge(sonnet) | **완료** |
 | W2 | Manager Executing 개편(재배선 2곳+마커 OFF 신규)+타이밍 문서화 | WT-09~12 | ge(sonnet) | **완료** |
-| W3 | 풀 게이트+회귀+배치가이드에 AttackPoint 사용법 추가 | WT-13, 15~22 | verifier(haiku) | ~~예정~~ → **완료**(2026-07-07 실행, 부분판정: 3/8 PASS + 5/8 이월·정적보증. 2026-08-11 확인) 근거: [[TC]] W3 |
+| W3 | 풀 게이트+회귀+배치가이드에 AttackPoint 사용법 추가 | WT-13, 15~22 | verifier(haiku) | ~~예정~~ → **완료**(2026-07-07 실행, 부분판정: 3/8 PASS + 5/8 이월·정적보증. 2026-08-11 확인) 근거: [[features/걸어나오기연출/TC|TC]] W3 |
 | W3fix | 걸음 왜곡 핫픽스 — MoveComponentTo 회전 보간 미배선 수정(오너 리포트) | WT-23 | ge(sonnet) | **완료** |
 | 공중부양fix | 사선무대 접지 — 도착 Z를 홈Z 무조건대입에서 바닥 라인트레이스+발오프셋으로 수정(오너 리포트). BeginPlay footOffset 캐시 + WalkForward destGroundZ 트레이스, WalkBack 무변경 | 독립 trace_world 교차검증(groundZ 3자리 일치) + 오너 육안(발 접지) | Director | **완료** |
 | WF | 오너 육안 + 포인트 드래그 조정 + 파라미터 튜닝 | 오너 판정 | 오너 | 예정 |

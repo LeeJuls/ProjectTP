@@ -9,7 +9,7 @@ updated: 2026-07-15
 
 # U단계 — 전투HUD UMG 실장 (HP 게이지, F3 완결)
 
-> 대상: [[spec]](`ui/battle/WBP_BattleHUD/spec.md`) §3-3(WBP_UnitFrame)·§6-4(위치추적 방식) · [[오너_UMG배치가이드]] §2 · TC: [[U단계_TC]](qa-critic 작성, 본 문서와 별개 보존) · 선행 기록: [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §22.
+> 대상: `ui/battle/WBP_BattleHUD/spec.md` §3-3(WBP_UnitFrame)·§6-4(위치추적 방식) · `ui/battle/WBP_BattleHUD/오너_UMG배치가이드.md` §2 · TC: [[U단계_TC]](qa-critic 작성, 본 문서와 별개 보존) · 선행 기록: [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · MCP 노하우: [[언리얼_MCP_실전노하우]] §22.
 > [[전투완성/plan]] F3(스탯 로드+HP 게이지) 스테이지의 최종 완결 기록. F3b(액터부착 월드공간 TextRenderComponent, 3회 실패 — [[F3_HP게이지_수정전스냅샷]] 참고)를 폐기하고 UMG WidgetComponent(Screen space)로 재구현했다.
 #projectTP/전투완성
 
@@ -68,7 +68,7 @@ Root [CanvasPanel]
 ## 4. 폐기·정리
 
 - `/Game/UI/Battle/WBP_HpGauge`(F3b 임시 위젯): 레퍼런서 0 확인 후 **삭제 완료**.
-- `WBP_BattleHUD.RefreshAllUnitFramePositions`, `WBP_UnitFrame.UpdateScreenPosition`(빈 스텁): **삭제 완료**. [[spec]] §6-4가 서술하던 ProjectWorldToScreen 동적갱신 방식은 **채택 안 함** — WidgetComponent(Screen space)가 엔진 레벨에서 위치추적·빌보드를 보장하므로 불필요하다고 판단.
+- `WBP_BattleHUD.RefreshAllUnitFramePositions`, `WBP_UnitFrame.UpdateScreenPosition`(빈 스텁): **삭제 완료**. `ui/battle/WBP_BattleHUD/spec.md` §6-4가 서술하던 ProjectWorldToScreen 동적갱신 방식은 **채택 안 함** — WidgetComponent(Screen space)가 엔진 레벨에서 위치추적·빌보드를 보장하므로 불필요하다고 판단.
 - 컴파일 에러 0(`BP_BattleSpawnPoint`, `WBP_UnitFrame`, `WBP_BattleHUD`), 전부 저장 완료.
 
 ## 5. 도구 함정 요약 — bluecode 실패 → 저수준 노드 API 대체
@@ -82,4 +82,4 @@ Root [CanvasPanel]
 - 오너 육안 승인(PIE 라이브 확인) 완료.
 
 ## 관련 문서
-[[spec]] · [[오너_UMG배치가이드]] · [[U단계_TC]] · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] · [[전투완성/plan]] · [[청사진]]
+`ui/battle/WBP_BattleHUD/spec.md` · `ui/battle/WBP_BattleHUD/오너_UMG배치가이드.md` · [[U단계_TC]] · [[WBP_BattleHUD_골격생성_착수전스냅샷]] · [[F3_HP게이지_수정전스냅샷]] · [[언리얼_MCP_실전노하우]] · [[전투완성/plan]] · [[features/전투완성/청사진|청사진]]

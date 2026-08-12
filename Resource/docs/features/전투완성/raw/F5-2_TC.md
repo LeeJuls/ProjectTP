@@ -9,7 +9,7 @@ updated: 2026-07-15
 
 # F5-2(죽은 유닛 처리) — 적대적 논리 검토 + 작업별 TC
 
-> 대상: [[F5_착수지시서]](노드레벨 SSOT·BLOCKER B1~B5·HIGH) · [[F5-1_완료]](사망·승패 게이트 통과 = 본 문서 전제) · [[F5_TC]](F5 전체 TC 54건 원본) · [[plan]] §F5(L345~418) · [[상태이상_확정]] §5(TS1~TS6/TE1~TE4) · [[광폭화_재검증]] §2 · [[F4_중단_인수인계]] · [[언리얼_MCP_실전노하우]] §L130/§23/§25
+> 대상: [[F5_착수지시서]](노드레벨 SSOT·BLOCKER B1~B5·HIGH) · [[F5-1_완료]](사망·승패 게이트 통과 = 본 문서 전제) · [[F5_TC]](F5 전체 TC 54건 원본) · [[features/전투완성/plan|plan]] §F5(L345~418) · [[상태이상_확정]] §5(TS1~TS6/TE1~TE4) · [[광폭화_재검증]] §2 · [[F4_중단_인수인계]] · [[언리얼_MCP_실전노하우]] §L130/§23/§25
 > **qa-critic 적대적 검토 산출물 — 검출·설계만.** TC 실행=verifier, 게이트 판정=Director.
 > F5-1은 완료(bBattleOver·EnterEnd·EnterTurnEnd TE4 Branch·ResolveHit survivor-count·TickStatusesAtTurnEnd). **F5-2 = TS1~TS6 · DYING · ClickBox · ResetForBattle · InitBattle 리셋확장** 5개 작업.
 #projectTP/전투완성
@@ -159,6 +159,6 @@ plan L372: EnterTurnEnd TE1 = `MarkerOff + SetViewTargetWithBlend(DefaultCamera,
 ---
 
 ## 관련
-- [[F5_착수지시서]] · [[F5-1_완료]] · [[F5_TC]] · [[plan]] §F5
+- [[F5_착수지시서]] · [[F5-1_완료]] · [[F5_TC]] · [[features/전투완성/plan|plan]] §F5
 - [[상태이상_확정]] §5 · [[광폭화_재검증]] §2 · [[F4_중단_인수인계]] · [[전투로그]]
 - [[언리얼_MCP_실전노하우]] §L130(declaring_class)·§23·§25

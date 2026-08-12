@@ -9,7 +9,7 @@ updated: 2026-07-16
 
 # 야간큐 TC — ③데미지폰트 · ④End버튼 · ⑤로그 · F6모션
 
-> 대상: [[plan]] 야간 시퀀스 ③④⑤ + §F6 · [[F5-2_완료]](ResetForBattle·InitBattle·bWasSkip·EnterEnd 라이브) · [[F5-2_TC]](N26 재활용) · [[전투로그]](로그 스키마) · [[상태이상_확정]] §8(로그) · [[스탯_전투공식_v1]] §5(원장) · [[언리얼_MCP_실전노하우]] §L130·§26
+> 대상: [[features/전투완성/plan|plan]] 야간 시퀀스 ③④⑤ + §F6 · [[F5-2_완료]](ResetForBattle·InitBattle·bWasSkip·EnterEnd 라이브) · [[F5-2_TC]](N26 재활용) · [[전투로그]](로그 스키마) · [[상태이상_확정]] §8(로그) · [[스탯_전투공식_v1]] §5(원장) · [[언리얼_MCP_실전노하우]] §L130·§26
 > **qa-critic 적대적 검토 산출물 — 검출·TC설계만.** TC 실행=verifier, 게이트 판정=Director.
 > 확정 사양 = gameplay 실측 + Director 판정. 본 문서는 그 사양에 적대적 엣지를 얹은 TC.
 #projectTP/전투완성
@@ -114,5 +114,5 @@ updated: 2026-07-16
 ---
 
 ## 관련
-- [[plan]] 야간시퀀스 ③④⑤·§F6 · [[F5-2_완료]](ResetForBattle·bWasSkip·EnterEnd) · [[F5-2_TC]](N26) · [[F7_TC]]
+- [[features/전투완성/plan|plan]] 야간시퀀스 ③④⑤·§F6 · [[F5-2_완료]](ResetForBattle·bWasSkip·EnterEnd) · [[F5-2_TC]](N26) · [[F7_TC]]
 - [[전투로그]] · [[상태이상_확정]] §8 · [[스탯_전투공식_v1]] §5(23턴 원장) · [[언리얼_MCP_실전노하우]] §L130·§26·함정⑰

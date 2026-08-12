@@ -7,7 +7,7 @@ updated: 2026-07-06
 
 # 📋 옥토패스대치 세부 plan
 
-> 청사진: [[청사진]] · 프로세스: [[개발_워크플로우]] · 스냅샷: [[P0_상속스냅샷]]
+> 청사진: [[features/옥토패스대치/청사진|청사진]] · 프로세스: [[개발_워크플로우]] · 스냅샷: [[P0_상속스냅샷]]
 > 승인된 상위 plan(에이전트 피드백 4건 반영)이 이 문서의 원본. 여기는 실행용 구체 명세.
 #projectTP/옥토패스대치
 
@@ -16,7 +16,7 @@ updated: 2026-07-06
 |---|---|---|---|---|
 | P0 | 복제(map_battle_octopath)+상속스냅샷+문서정정 | Director+scene-builder | opus/sonnet | 완료 |
 | P1 | 좌표표+카메라 A/B 설계(무이동 수치검증) / flip 명세(아래 §2) | scene-builder / Director | sonnet | 완료(§3 확정) |
-| P2 | 단계별 TC | qa-critic | opus | 완료([[P2_TC설계]]) |
+| P2 | 단계별 TC | qa-critic | opus | 완료([[features/옥토패스대치/raw/P2_TC설계|P2_TC설계]]) |
 | S1 | FlipX 마스터 파라미터 + flip MI 4종 신규 | art-pipeline | sonnet | 완료([[raw/S1_flip구현]]) |
 | G1 | flip 게이트(렌더 육안·비대칭·셀경계·**정면레벨 회귀**) | verifier→Director | haiku | 완료(PASS 11/11) |
 | S2 | 사선 배치(유니크Y)+오블리크 카메라 → 오너 A/B 선택 | scene-builder | sonnet | 개발완료·오너 A안(6°) 확정 |
@@ -64,7 +64,7 @@ updated: 2026-07-06
 ## 4. 상속 베이스라인 (P0 스냅샷 — 이상 발생 시 신규/상속 구분 기준)
 - 카메라 (0,-7850,750)/(-6,90,0) · 볼류메트릭 포그 off · PPV 오버라이드 18종(노출고정·블룸0.45 등) · **랜턴 CastShadows=true(BP 컨스트럭션 스크립트가 로드 시 재적용 추정 — S5의 off는 비지속. S3 룩은 이 값을 전제로 설계)** · 스트립 내 fence 7개 잔존.
 
-## 단계별 TC (P2 완료 — 상세·도구시퀀스는 [[P2_TC설계]])
+## 단계별 TC (P2 완료 — 상세·도구시퀀스는 [[features/옥토패스대치/raw/P2_TC설계|P2_TC설계]])
 > ⚠ 실행 전제 3건: ① village 회귀 TC는 **각 게이트 맨 마지막**(레벨 스위칭=뷰포트 리셋, 끝나면 octopath 재로드) ② 카메라 TC는 SetCameraTransform(A안) 선행 or captureTransform 명시 ③ 수치 TC는 CaptureViewport **labeledActors 메타데이터로 디코드 없이** 판정, 육안 TC만 분할 캡처.
 
 ### G1 — flip 게이트 ✅ PASS (verifier 11/11)
