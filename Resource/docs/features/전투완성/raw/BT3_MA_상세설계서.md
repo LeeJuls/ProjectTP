@@ -4,7 +4,7 @@ project: projectTP
 feature: 전투완성
 stage: BT3
 updated: 2026-08-12
-status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반영 / PM 확인 요청 4건 / 미확인 8건 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — §9-1 신설: 착수 순서 확정(FT1이 S1보다 먼저, MA-1a가 기준선). 설계 내용(§1~§8) 변경 없음
+status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반영 / PM 확인 요청 4건 / 미확인 8건 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — §9-1 신설: 착수 순서 확정(FT1이 S1보다 먼저, MA-1a가 기준선). 설계 내용(§1~§8) 변경 없음 · ★★★2026-08-12 qa-critic 개정 6건 반영(AT4-b-2 실측 대조) — 훅 삽입 위치 C-2 확정(§4-4)·`NotifySkillSelected` 무인자 주장 정정(§2)·`Delay(0.1)` 하드 요구사항 격상(§4-2)·자동시작 가드 강화(§4-2)·`IsValid(bool)`→`Branch` 표기 정정(§4-1·§4-2)·FT1-1b/1c 부착점 충돌 경고 신설(§4-2·§4-3). §9-0 화이트리스트 갱신(§9-0). §10에 차단 미확인 2건 추가(FT1-1a/1b 착수 차단). §1~§3·§5~§8 설계 내용 불변
 ---
 
 # BT3 — MA(Method A) 상세 설계서
@@ -49,7 +49,7 @@ status: 설계 완료(구현 0건) — 게이트 AU-B3-01~03 + 신설 3항 반�
 | 항목 | 실측 근거 | 확정 여부 |
 |---|---|---|
 | `EnterAwaitCommand`/`EnterAwaitTarget`은 Function Graph다 | F7b v2 [MA] "gameplay 실측" 인용(원 실측 세션 문서는 본 조사 범위 밖) | ★**F7b v2 문서를 근거로 승계** — 본 세션 재실측 안 함(MCP 금지) |
-| `NotifySkillSelected`/`NotifyAttackButtonClicked`는 무인자 커스텀 함수 | [[전진로직_실체_확정]] §7 핀 원문(`execute`+`self` 2핀뿐) | ✅ 확정(2026-08-12 조회) |
+| ~~`NotifySkillSelected`/`NotifyAttackButtonClicked`는 무인자 커스텀 함수~~ | [[전진로직_실체_확정]] §7 핀 원문(`execute`+`self` 2핀뿐) | ❌ **정정(2026-08-12, qa-critic)** — ★**인용 범위 초과**: §7이 실측한 건 **`NotifyAttackButtonClicked` 하나뿐**이다(§4-1은 정작 `NotifySkillSelected(SkillId)`로 인자를 넘긴다 — 자기모순). `NotifySkillSelected`/`NotifyUnitClicked`의 파라미터 핀은 ★**미확인**, FT1-1a 착수 전 조회 필수(§10 #10). ★위험: 무인자로 배선하면 **MA가 스킬을 못 고르고 `PendingSkillId` 잔값으로 매턴 발화 → 에러 없이 원장만 오염** |
 | `NotifySkillSelected`의 SELF 스킵 분기 | [[전투BP_현황도_2026-08-11]] §상태표 4행 — "SELF면 `SelectedTargets=[Caster]` 즉시 세팅 후 AwaitTarget 스킵 → Executing 직행" | ✅ 확정 |
 | `NotifyUnitClicked`의 유효성 가드 | 〃 §상태표 6행 — "`BattleState==3` 가드 + `ResolveTargetPool` 결과 포함 여부(`ContainsItem`) 확인" | ✅ 확정 |
 | `PlayAttack`은 턴 흐름을 블로킹하지 않는다(H18 부정) | [[턴길이_실측확정_2026-08-12]] — 60fps 4회 전부 `1.750`=`0.55+0.75+0.45` | ✅ 확정(간접 — 턴길이 산술로 증명, `PlayAttack` 자체의 enter/exit 로그는 아직 없음) |
@@ -98,20 +98,25 @@ MA 훅은 "폴링/대기"가 아니라 **"콜백"**이어야 한다. `EnterAwait
 
 **목적**: 클릭 기반 20 유닛턴 even-trade 런을 오너 대신 자동 재생해 오라클과 대조하는 도구를 만든다.
 
-**배선(설계, 미실측 — 착수 전 MCP 조회 1회 필요, §9-3)**:
+**배선(확정, 2026-08-12 qa-critic 개정 — 부착점 C-2, AT4-b-2 실측 기반. 구현 자체는 미착수)**:
 
 ```
-EnterAwaitCommand (Function Graph, 기존 로직 종단 이후)
-  └ 말단에 추가: IsValid(bAutoScenarioActive)? → true → CustomEvent_MA_OnAwaitCommand 호출(즉시, latent 아님)
+EnterAwaitCommand:
+  IsValid(HUDRef).Is Valid    → …(기존 체인, SetActiveUnit→SetVisibility(Menu_SkillMenu,Visible))… .then ─[신규]→ MA_Call_A(CustomEvent_MA_OnAwaitCommand 호출)
+  IsValid(HUDRef).Is Not Valid ─────────────────────────────────────[신규]────────────────────────────────→ MA_Call_B(CustomEvent_MA_OnAwaitCommand 호출)
 
-EnterAwaitTarget (Function Graph, 기존 로직 종단 이후)
-  └ 말단에 추가: IsValid(bAutoScenarioActive)? → true → CustomEvent_MA_OnAwaitTarget 호출(즉시, latent 아님)
+EnterAwaitTarget (동형):
+  IsValid(HUDRef).Is Valid    → …(기존 체인, SetVisibility(Menu_SkillMenu,Collapsed))… .then ─[신규]→ MA_Call_A(CustomEvent_MA_OnAwaitTarget 호출)
+  IsValid(HUDRef).Is Not Valid ─────────────────────────────────────[신규]───────────────────────────────→ MA_Call_B(CustomEvent_MA_OnAwaitTarget 호출)
 ```
+
+★**이 부착점(C-2)을 채택한 이유·근거는 §4-4에서 상세**한다 — 여기서는 배선 형태만 확정한다.
 
 - 두 커스텀 이벤트(`CustomEvent_MA_OnAwaitCommand`/`CustomEvent_MA_OnAwaitTarget`)는 **EventGraph에 신설**한다(F7b v2 constraint ①의 우회로).
 - ★**"커스텀 이벤트 호출" 자체는 latent가 아니다** — 이벤트 디스패치는 즉시 실행되는 일반 exec 호출이라 Function Graph에서도 허용된다. latent가 금지되는 것은 그 **이벤트 본문 안에서 Delay 등을 쓰는 것**이다(§3).
-- `CustomEvent_MA_OnAwaitCommand` 내부: `bAutoScenarioActive` 재확인(이중 게이트) → 시나리오 리졸버로 다음 `SkillId` 결정 → `NotifySkillSelected(SkillId)` 즉시 호출.
+- `CustomEvent_MA_OnAwaitCommand` 내부: `bAutoScenarioActive` 확인(유일 게이트) → 시나리오 리졸버로 다음 `SkillId` 결정 → `NotifySkillSelected(SkillId)` 즉시 호출.
 - `CustomEvent_MA_OnAwaitTarget` 내부: 시나리오 리졸버로 다음 `TargetSlotId` 결정 → 런타임 리졸버(`ResolveSlotToActor`류, §6)로 액터 해석 → `NotifyUnitClicked(Actor)` 즉시 호출.
+- ★**(2026-08-12 정정, qa-critic ⑤)** 구 배선도의 `IsValid(bAutoScenarioActive)?` 표기는 오류였다 — `bAutoScenarioActive`는 bool이고 `IsValid`는 **오브젝트 유효성 매크로**라 그런 노드는 없다. 올바른 표기는 **`Branch(bAutoScenarioActive)`**다. C-2 채택으로 이 게이트는 부착점이 아니라 `CustomEvent_MA_OnAwaitCommand`/`OnAwaitTarget` **내부**의 `Branch`로만 존재한다(위 "내부: `bAutoScenarioActive` 확인" 문장이 그 자리).
 
 **SELF 스킵 처리(F7b v2 constraint ④, "선행 트레이스")**: `NotifySkillSelected` 내부에서 `Target=="SELF"`면 `SelectedTargets=[Caster]`를 즉시 세팅하고 **`EnterAwaitTarget`을 아예 호출하지 않는다**([[전투BP_현황도_2026-08-11]] §상태표 4행). 즉 SELF 스킬 턴에서는 `CustomEvent_MA_OnAwaitTarget`이 **발화하지 않는 것이 정상**이다. 시나리오 리졸버가 SELF 스킬의 `TargetSlotId`를 준비해도 소비되지 않으므로, MA-1b(경로 동치) 토큰 시퀀스에도 `AwaitTarget` 상태가 **등장하지 않아야** 정상이다. 이 케이스를 놓치면 "MA가 타겟 훅을 안 태웠다"를 결함으로 오판할 위험이 있다.
 
@@ -126,18 +131,31 @@ EnterAwaitTarget (Function Graph, 기존 로직 종단 이후)
 
 **목적**: 함정(99) 우회 — 에이전트 PIE는 "Start" 버튼 클릭 1회를 만들 수 없어 전투가 0턴 진행된다(노하우 §41). `BeginPlay`에서 배틀을 자동 시작시켜 이후 상태머신이 스스로 진행되게 한다("막힌 지점은 정확히 1개"라는 실측이 이 훅의 투자 근거).
 
-**배선(설계)**:
+**배선(확정, 2026-08-12 qa-critic 개정 — 가드 강화 + `Delay(0.1)` 하드 요구사항 격상)**:
 
 ```
-ReceiveBeginPlay (BP_BattleManager, 기존 로직 종단 이후 — carve-out, splice 아님)
-  └ 말단에 추가: IsValid(bAutoStartBattle)? → true → Delay(0.1) → StartBattle() 호출
+ReceiveBeginPlay 종단 → Delay(0.1)
+  → Branch( bAutoStartBattle ∧ bInputLocked==true ∧ BattleState==0 )
+      True  → StartBattle()
+      False → PrintString("MA:AUTOSTART:ABORT:state=..:lock=..")   ← ★fail-loud 필수
 ```
 
 - `bAutoStartBattle` 기본값 **false**, Instance Editable(FT1-1a의 `bAutoScenarioActive`와 동일한 스캐폴드 관례).
+- ★**(2026-08-12 정정, qa-critic ⑤)** 구 배선도의 `IsValid(bAutoStartBattle)?` 표기는 오류(같은 사유 — bool은 `Branch`, `IsValid`는 오브젝트 유효성 매크로)였다. 위 배선도는 이미 `Branch`로 정정 반영됨(아래 ④ 강화 조건까지 포함한 복합 조건).
+- ★**`Delay(0.1)`은 "제거 불가"다** — 관용적 표기가 아니라 하드 요구사항으로 격상한다(qa-critic 2026-08-12). 이유: **`InitBattle` 꼬리에 `StartBattle`을 다는 것을 금지**한다. 그건 파트1이 구조적으로 제거한 BLOCKER를 되살린다 — `RegisterUnitReady`가 `Branch(RegisteredCount==8) → InitBattle()` 구조라 **8번째 유닛의 `BeginPlay` 한복판에서 동기 실행**되고 그 순간 **그 유닛 `Spd`는 아직 0**이다. 게다가 어느 유닛이 8번째인지 엔진이 보장하지 않아 ★**PIE마다 다르게 깨진다**. 근거: [[파트1_Start_진행]] §3-(A).
 - `Delay(0.1)`는 초기화 레이스 방지용 여유(다른 액터의 `BeginPlay`가 끝나기를 기다림 — [[전투BP_현황도_2026-08-11]]는 `BP_BattleSpawnPoint`도 `BeginPlay`에서 `DT_JobStats` 조회를 한다고 기록했다. 순서 보장이 없으므로 소액의 지연이 안전하다).
+- ★**자동 시작 가드 조건 — 2026-08-12 강화(qa-critic)**: 기존 `BattleState==0` 단독은 **불충분**하다. 이 프로젝트가 **N7로 위증 기록**한 판별자다([[파트1_Start_TC]] N7) — `0`은 *"InitBattle 완료 후 대기"*이자 ★*"**InitBattle 미실행**"*이라 두 상태를 가린다. ★**`bInputLocked==true`가 유일 판별자**(CDO `false`, `InitBattle`만 `true`로 뒤집음). `IsValid(HUDRef)` ∧ `TurnQueue.Length==8` 추가 권고. ★**False 분기 미배선 금지** — N8이 기록한 *"무음 거절"*의 재발이다([[파트1_Start_TC]] N8).
+  ★**부기**: `EnterExecuting`도 `bInputLocked=true`로 만든다(전진로직 실측). 단 FT1-1b 가드는 `BeginPlay+0.1s`에 평가되므로 그 시점엔 `EnterExecuting`이 안 돌았다 — **복합 조건이라 안전**하다.
 - ★**`StartBattle()`을 직접 호출하는 것을 권고**한다 — `NotifyAttackButtonClicked`도 대안이 될 수 있으나([[전진로직_실체_확정]] §7이 확인한 대로 `BattleState==0`이면 그 함수가 `StartBattle`을 호출한다) 그 함수는 **Start/Cancel/End 겸 4역할**을 `BattleState`/`bInputLocked` 값으로 구분하는 다의적 함수라, 자동시작 훅이 실수로 다른 역할을 트리거할 여지가 있다(예: 재진입 시 `BattleState==6`이면 `InitBattle` 재초기화). `StartBattle()` 직접 호출이 모호성을 없앤다.
 - **게이트**: 토글 off에서 수동 흐름 무회귀 / on일 때 `BeginPlay` 이후 정확히 1회 `StartBattle` 발화.
-- ⚠ **미확인**: `StartBattle()`이 이미 진행 중인 배틀에서 재호출됐을 때 스스로 재진입 가드를 갖는지 — 미확인이면 자동시작 토글이 PIE 1회에 전투를 2번 시작시킬 수 있다([[../../스킬연출구조/raw/FT1-0_TC|FT1-0_TC]] §3-B Medium 항목 "sid 단위=PIE 세션인데 원장 단위는 전투"와 같은 계열 위험). §9-4에서 PM 확인 요청.
+- ⚠ **미확인 → 확정(AT4-b-2, 2026-08-12)**: `StartBattle()`은 ★**재진입 가드가 전혀 없다**(`BattleState` 체크 없이 무조건 `SortTurnQueueBySpd → EnterTurnStart` 실행, 3노드 전수 확인 — [[../../스킬연출구조/raw/AT4-b-2_결과_2026-08-12|AT4-b-2_결과]] 2-2). §9-4 우려가 사실로 확정됐다 — 위 `Branch` 가드가 **반드시 필요한 이유**이지 선택사항이 아니다.
+- ★**FT1-1c(SCF 호출기)와의 부착점 충돌 — 아래 경고 참조**.
+
+### ⚠ FT1-1b/FT1-1c 부착점 충돌 경고 (신설, 2026-08-12 qa-critic)
+
+둘 다 *"`ReceiveBeginPlay` 종단"*에 붙는다. ★**`connect_pins`는 출력 exec 핀의 기존 배선을 덮어쓴다**(fan-out이 아니라 **교체** — [[../../스킬연출구조/raw/AT4-b-2_결과_2026-08-12|AT4-b-2_결과]] 46행 실측, `BP_FxLabQuad`에서 실제로 밟았다).
+→ 나중에 배선하는 쪽이 앞의 것을 **무음으로 끊는다**.
+**완화**: 빈 종단에 `Sequence` 1개를 먼저 심고 `Then_0`/`Then_1`로 분기(이것도 additive) + 배선 후 `get_node_infos` **재조회 필수**.
 
 ### 4-3. FT1-1c — SCF 호출기
 
@@ -154,22 +172,41 @@ ReceiveBeginPlay (BP_BattleManager, 기존 로직 종단 이후 — carve-out, s
 ```
 
 - 트리거는 FT1-1b와 같은 패턴(`bDebugSCFEnabled` 기본 false + `BeginPlay`+`Delay`→해당 이벤트 1회 호출) — **이 Delay도 §3-4 예외 범위**(전투 판정 루프 밖 1회성 디버그 트리거)이므로 "MA Delay 0" 규약 위반이 아니다.
+- ★**부착점 충돌 주의(신설, 2026-08-12 qa-critic)** — FT1-1b도 같은 `ReceiveBeginPlay` 종단에 붙는다. `connect_pins`는 출력 exec 핀의 기존 배선을 덮어쓰므로(교체, fan-out 아님) 나중에 배선하는 쪽이 앞의 것을 무음으로 끊는다. 상세·완화책(`Sequence` 분기)은 §4-2 "FT1-1b/FT1-1c 부착점 충돌 경고" 참조 — FT1-1c 구현 시 그 `Sequence`의 `Then_2` 등으로 공유해야 한다.
 - **인자 주입 방식**: 자동 파라미터 스윕이 아니라 **리터럴 1회 값 주입**이다. 케이스마다(예: `coeff=0.75`) 리터럴을 MCP `set_pin_value`로 바꾸고 재컴파일·재실행한다. 이는 additive 범위 안(핀 값 변경, exec 절단 0).
 - **게이트**: `FT2` `AU-F2-02`(SCF 회귀 — 베기 STUN·파볼 ATK_DOWN×0.75 불변), `FT4` `AU-F4-03`(FAKEGREEN — `coeff≠1.0` 주입 시 `dmg`가 `floor(Atk×coeff)−Def`로 실제로 변하는지, 1.0 폴백 은폐 방지).
 - **처분**: 노하우 §6 원칙대로 "검증 후 제거"가 기본이나, FT1 4제약(§7 자율 경계, `Instance Editable bool 기본 false`)이 이미 라이브 경로 무영향을 보장하므로 **⑩b(스캐폴드 처분)에서 최종 판정**한다(F7b v2 §⑩b — "Method A·MOCK은 A2 회귀 스위트가 재사용" 계승).
 
-### 4-4. ★발견한 내부 모순(1건) — "MA-2 EventGraph 노드수 무변"의 문언
+### 4-4. ★훅 삽입 위치 확정 — C-2 채택 (2026-08-12 qa-critic 개정, PM 승인 조건 충족)
 
 F7b v2 원문: *"MA-2 `EnterExecuting`·`ResolveHit`·`EventGraph` 노드수 무변(무접촉 증명)"*.
 
-문자 그대로 읽으면 **`EventGraph` 전체 노드수가 0 diff**여야 한다. 그런데 같은 문서의 constraint ①이 *"타이밍 필요 시 EventGraph 신규 커스텀 이벤트 경유"*라고 **신설을 명시적으로 허용**한다 — FT1-1a 자체가 EventGraph에 커스텀 이벤트 2개(+호출 노드)를 반드시 추가해야 하므로, "EventGraph 노드수 완전 무변"은 **자기모순**이다.
+문자 그대로 읽으면 **`EventGraph` 전체 노드수가 0 diff**여야 한다. 그런데 같은 문서의 constraint ①이 *"타이밍 필요 시 EventGraph 신규 커스텀 이벤트 경유"*라고 **신설을 명시적으로 허용**한다 — FT1-1a 자체가 EventGraph에 커스텀 이벤트 2개(+호출 노드)를 반드시 추가해야 하므로, "EventGraph 노드수 완전 무변"은 **자기모순**이다(원 발견, §9-1). PM이 §9-0 ★1에서 재정의를 승인하며 조건을 걸었다 — 아래가 그 조건을 충족하는 **구체적 부착점**이다.
 
-**본 설계서의 해석(권고, PM/qa 확인 요청 — §9-1)**: MA-2를 다음으로 재정의한다 —
+★**채택 형태(C-2) — 훅은 `EnterAwaitCommand`/`EnterAwaitTarget`의 `IsValid(HUDRef)` 양갈래에 각각 1개씩 붙는다**(함수당 2노드, 1노드 2입력 아님):
+
+```
+EnterAwaitCommand:
+  IsValid(HUDRef).Is Valid → ... → SetVisibility(Menu_SkillMenu, Visible).then ─[신규]→ MA_Call_A
+  IsValid(HUDRef).Is Not Valid ──────────────────────────[신규]────────────────→ MA_Call_B
+  (둘 다 CustomEvent_MA_OnAwaitCommand 호출. 별도 노드 2개)
+EnterAwaitTarget: 동형(Collapsed 종단 / Is Not Valid)
+```
+
+**근거**(전부 반드시 기재):
+- ★**제약 1 위반 0** — 두 부착점 모두 **미배선 실측**([[../../스킬연출구조/raw/AT4-b-2_결과_2026-08-12|AT4-b-2_결과]] 110·111·120·121행). 빈 exec 핀에 와이어 **추가**일 뿐 절단 0.
+- ★**중복 발화 없음** — `IsValid`는 Branch 매크로라 두 출력 중 **정확히 하나**만 실행된다.
+- ★**발명이 아니라 복제** — 같은 BP `EnterExecuting`이 `IsValid(HUDRef)` 양갈래를 합류시켜 무조건 진행하는 패턴이 **이미 살아 있다**([[전진로직_실체_확정]] 30~40행 — `Is Valid`/`Is Not Valid` 두 경로가 `SetBattleState(4)` 앞에서 합류).
+- **왜 "분기 안"(구 설계)이 안 되나** — `InitBattle`은 8기 등록 시에만 실행되는데([[파트1_Start_TC]] N12), 실패해도 `BattleState=0`이라 Start가 눌리고 클릭도 된다 → *"HUD 없이 전투가 도는 경로"*가 실재하고 그때 **MA가 무음으로 죽는다**.
+- **왜 "분기 직전"이 안 되나** — (i) 실배선 와이어 절단 = 제약 1 위반 (ii) BT3 §5의 *"말단"* 취지 파괴 (iii) ★**라이브 UI 회귀** — `EnterExecuting`의 `Delay(0.55)`에서 언와인드 후 돌아와 **Executing 상태에서 이미 행동한 유닛 기준 스킬 메뉴가 강제 표시**된다.
+- **왜 노드 2개인가(1노드 2입력이 아니라)** — `connect_pins`가 **입력** exec 핀의 기존 배선도 교체하는지 **미실측**. 2노드면 모든 핀이 1:1이라 이 미확인을 우회한다.
+
+**MA-2 재정의(§9-1 원 해석 유지, 노드 수만 C-2로 갱신)**:
 - `EnterExecuting`/`ResolveHit` 함수: **완전 무변**(0 diff) — 원문 그대로 유지, MA는 이 둘을 절대 안 건드린다.
-- `EnterAwaitCommand`/`EnterAwaitTarget` 함수: 말단에 **정확히 1개 노드**(이벤트 호출) 추가, 기존 노드 0개 변형.
-- EventGraph: **MA 신설분(`CustomEvent_MA_OnAwaitCommand`/`OnAwaitTarget` 및 그 내부 노드)을 제외한 기존 노드는 diff 0**.
+- `EnterAwaitCommand`/`EnterAwaitTarget` 함수: **함수당 정확히 2개 노드**(`MA_Call_A`/`MA_Call_B`, §9-0 화이트리스트) 추가, 기존 노드 0개 변형.
+- EventGraph: **MA 신설분(`CustomEvent_MA_OnAwaitCommand`/`OnAwaitTarget` 및 그 내부 노드, `MA_Call_A`/`MA_Call_B`×2함수)을 제외한 기존 노드는 diff 0**.
 
-이 해석이 맞는지는 **qa-critic 또는 PM 확인이 필요**하다 — 원문을 임의로 고쳐 쓰지 않고 해석만 제안한다.
+이 해석은 PM이 §9-0 ★1에서 이미 승인했다 — 본 개정은 그 승인의 **구체적 부착점(C-2)만 확정**한 것이며 승인 자체를 재론하지 않는다.
 
 ---
 
@@ -263,12 +300,19 @@ F7b v2 원문: *"MA-2 `EnterExecuting`·`ResolveHit`·`EventGraph` 노드수 무
 
 ### ★1 — MA-2 재정의 승인, 단 화이트리스트를 사전 고정한다
 
-원문이 **자기모순**인 것이 맞다: *"`EventGraph` 노드수 무변"*을 문자 그대로 지키면 **MA 훅 자체가 불가능**한데 같은 문서가 EventGraph 경유를 허용한다. 문언이 자기모순이면 **취지로 돌아가는 것이 표준**이고, 취지는 *"기존 로직 무접촉"*이다. §4-4의 3층 해석이 그 취지를 보존하면서 실행 가능하게 만든다 — 오히려 **원문보다 엄격하다**(*"말단에 정확히 1노드, 기존 노드 0개 변형"*).
+원문이 **자기모순**인 것이 맞다: *"`EventGraph` 노드수 무변"*을 문자 그대로 지키면 **MA 훅 자체가 불가능**한데 같은 문서가 EventGraph 경유를 허용한다. 문언이 자기모순이면 **취지로 돌아가는 것이 표준**이고, 취지는 *"기존 로직 무접촉"*이다. §4-4의 해석이 그 취지를 보존하면서 실행 가능하게 만든다 — 오히려 **원문보다 엄격하다**(~~*"말단에 정확히 1노드, 기존 노드 0개 변형"*~~ → ★2026-08-12 C-2 채택으로 *"함수당 정확히 2노드, 기존 노드 0개 변형"*으로 갱신 — 아래 ★1-갱신·§4-4 참조).
 
 ★**조건**: *"MA 신설분 제외"*만으로는 **"신설분"의 범위를 사후에 넓힐 수 있어** 게이트가 무력해진다.
 → **FT1-1a 착수 전에 신설 노드의 이름과 개수를 문서에 못 박고**, 게이트는 **그 화이트리스트 외 diff 0**으로 판정한다. AT6-b의 Holy 임포트 화이트리스트(t0 커밋 → 결과 집합 완전일치)와 같은 패턴이다.
 
 **director를 부르지 않은 이유**: 대안 해석이 없다(문자 그대로면 MA가 성립 불가). 막힌 문제가 아니라 문언 결함이라 PM 판정 범위로 본다. ★단 **FT1 착수 시 qa 검토 항목에 포함**한다 — 게이트 판정력을 건드리는 재정의이므로 적대 검토를 한 번은 받아야 한다.
+
+### ★1-갱신 (2026-08-12, qa-critic 개정 ⑦ — C-2 채택으로 화이트리스트 확정)
+
+C-2 채택(§4-4)으로 위 "신설 노드의 이름과 개수" 조건이 확정됐다:
+
+- **신설분**: **함수당 2노드**(`MA_Call_A`/`MA_Call_B` 계열) × 2함수(`EnterAwaitCommand`/`EnterAwaitTarget`) + EventGraph 커스텀 이벤트 2개(`CustomEvent_MA_OnAwaitCommand`/`OnAwaitTarget`, 그 내부 노드 포함).
+- ★**추가 명문화**: *"기존 exec 절단 0"*의 문면상 **"미배선 핀에 와이어 추가"**가 화이트리스트 밖으로 읽힐 소지가 있다 → **명시적으로 허용**한다(절단이 아니라 추가이므로 제약 1과 무충돌). `IsValid(HUDRef)`의 `Is Valid`/`Is Not Valid` 두 출력 핀 모두 AT4-b-2 실측상 **미배선**이었으므로(110·111·120·121행), 여기 새 와이어를 잇는 것은 이 화이트리스트의 "추가" 범주에 정확히 해당한다.
 
 ### 2 — 표기 채택 (충돌 아님)
 
@@ -334,6 +378,8 @@ F7b v2 원문: *"MA-2 `EnterExecuting`·`ResolveHit`·`EventGraph` 노드수 무
 | 6 | 시나리오 데이터(슬롯ID/CharName 시퀀스)를 어느 자산에 담을지(DataTable? 배열 변수? CSV?) | plan v2/F7b v2 모두 "런타임 리졸버"만 요구하고 저장 형식은 미지정 | FT1-1a 구현 착수 시 결정(설계 범위 밖으로 판단 — 세부 구현 선택) |
 | 7 | `ResolveSlotToActor` 류 리졸버 함수가 이미 존재하는가, 신규 작성해야 하는가 | 전역 `find_nodes` 조회 필요(MCP 금지로 미실시) | §9-3과 같은 조회 세션에서 함께 확인 권고 |
 | 8 | `D1 §9-3`(R-9 `EstimatedTurnSec`) 0.55 어긋남의 실질 영향 범위 | AT6/D6(FX 예산 린트 L27) 소관이라 MA 설계 자체엔 직접 영향 없다고 판단했으나, FT1-1c(SCF)로 FX 타이밍 관련 함수를 검증할 때 이 어긋남이 재발할 수 있다 — 미검토 | AT6/D6 착수 전 별도 정정 필요(plan v2가 이미 지시함, §11 참조) |
+| 9 | ★**`ReceiveBeginPlay` 종단 exec 핀이 실제로 미배선인가** — FT1-1b/1c 부착점인데 미조회. 비어 있지 않으면 `connect_pins`가 기존 체인을 무음 교체(§4-2 부착점 충돌 경고) | AT4-b-2는 `EnterAwaitCommand`/`EnterAwaitTarget`만 조회했다. `BP_BattleManager`의 `ReceiveBeginPlay` 종단은 이번 조사 범위 밖(2026-08-12 qa-critic 신규 지적) | ★**FT1-1b 착수 차단** — 조회 세션 필요 |
+| 10 | ★**`NotifySkillSelected`/`NotifyUnitClicked` 파라미터 핀 원문** — §2 표 1행 정정(2026-08-12 qa-critic)의 해소용 | [[전진로직_실체_확정]] §7은 `NotifyAttackButtonClicked`(무인자)만 실측했다. `NotifySkillSelected`/`NotifyUnitClicked`은 §4-1이 인자를 넘기는 것으로 전제하지만 이 둘은 미조회 | ★**FT1-1a 착수 차단** — 조회 세션 필요 |
 
 ---
 
