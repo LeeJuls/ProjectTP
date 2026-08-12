@@ -1,0 +1,48 @@
+vaultlint: 209 notes scanned, 2482 links checked
+
+BROKEN LINKS (12)
+  작업로그_HD2D아트검증_플레이북.md:131  [[batch-files-english-only]] -> no note matches "batch-files-english-only"
+  features/전투완성/raw/턴표시_완료.md:91  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/턴표시_완료.md:91  [[오너_UMG배치가이드]] -> no note matches "오너_UMG배치가이드"
+  features/전투완성/raw/U단계_HP게이지_UMG_실장.md:12  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/U단계_HP게이지_UMG_실장.md:12  [[오너_UMG배치가이드]] -> no note matches "오너_UMG배치가이드"
+  features/전투완성/raw/U단계_HP게이지_UMG_실장.md:71  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/U단계_HP게이지_UMG_실장.md:85  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/U단계_HP게이지_UMG_실장.md:85  [[오너_UMG배치가이드]] -> no note matches "오너_UMG배치가이드"
+  features/전투완성/raw/U단계_TC.md:13  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/U단계_TC.md:13  [[오너_UMG배치가이드]] -> no note matches "오너_UMG배치가이드"
+  features/전투완성/raw/U단계_TC.md:91  [[spec]] -> no note matches "spec"
+  features/전투완성/raw/U단계_TC.md:91  [[오너_UMG배치가이드]] -> no note matches "오너_UMG배치가이드"
+MISSING HEADINGS (4)
+  자율진행_plan_v2.md:70  [[#8-1 ★FX 예산 확정 — SlotBudgetSec는 2.1이 아니라 1.200|§8-1]] -> no heading "8-1 ★FX 예산 확정 — SlotBudgetSec는 2.1이 아니라 1.200" in 자율진행_plan_v2.md
+  자율진행_plan_v2.md:193  [[#8-1 ★FX 예산 확정 — SlotBudgetSec는 2.1이 아니라 1.200|§8-1]] -> no heading "8-1 ★FX 예산 확정 — SlotBudgetSec는 2.1이 아니라 1.200" in 자율진행_plan_v2.md
+  features/스킬연출구조/_기능허브.md:11  [[#표6 — 남은 일 대기 중인 것\|표6]] -> no heading "표6 — 남은 일 대기 중인 것" in features/스킬연출구조/_기능허브.md
+  features/캐릭터시스템/raw/A0_합성머티리얼스파이크.md:11  [[#8. 재개 실행 결과 완전성공|§8]] -> no heading "8. 재개 실행 결과 완전성공" in features/캐릭터시스템/raw/A0_합성머티리얼스파이크.md
+DUPLICATE NAMES (5)
+  features/_TEMPLATE/청사진.md  8 notes share the name "청사진.md": features/_TEMPLATE/청사진.md, features/걸어나오기연출/청사진.md, features/기본전투무대/청사진.md, features/스킬연출구조/청사진.md, features/옥토패스대치/청사진.md, features/전투완성/청사진.md, features/카메라액션/청사진.md, features/턴제전투MVP/청사진.md
+  features/_TEMPLATE/plan.md  10 notes share the name "plan.md": features/_TEMPLATE/plan.md, features/걸어나오기연출/plan.md, features/공격버튼데모/plan.md, features/기본전투무대/plan.md, features/스킬연출구조/plan.md, features/옥토패스대치/plan.md, features/전투레벨트리밍/plan.md, features/전투완성/plan.md, features/카메라액션/plan.md, features/턴제전투MVP/plan.md
+  features/걸어나오기연출/TC.md  2 notes share the name "tc.md": features/걸어나오기연출/TC.md, features/턴제전투MVP/TC.md
+  features/기본전투무대/raw/P2_TC설계.md  2 notes share the name "p2_tc설계.md": features/기본전투무대/raw/P2_TC설계.md, features/옥토패스대치/raw/P2_TC설계.md
+  features/턴제전투MVP/raw/전투로그.md  2 notes share the name "전투로그.md": features/턴제전투MVP/raw/전투로그.md, 전투로그.md
+ORPHANS (19)
+  문서구조_개선plan.md  no other note links here
+  방향성1_백업/방향성1_로드맵_버전계획.md  no other note links here
+  방향성1_백업/방향성1_알파_개발계획.md  no other note links here
+  codex_review/Codex_Unreal_MCP_연결.md  no other note links here
+  codex_review/review_2026-07-16_F7b_bootstrap_source_control.md  no other note links here
+  features/걸어나오기연출/청사진.md  no other note links here
+  features/공격버튼데모/raw/D1_TimeOffset.md  no other note links here
+  features/기본전투무대/청사진.md  no other note links here
+  features/기본전투무대/raw/S3_글리치수정.md  no other note links here
+  features/스킬연출구조/청사진.md  no other note links here
+  features/옥토패스대치/청사진.md  no other note links here
+  features/옥토패스대치/plan.md  no other note links here
+  features/옥토패스대치/raw/P2_TC설계.md  no other note links here
+  features/옥토패스대치/raw/T1T2_BP구현.md  no other note links here
+  features/전투레벨트리밍/plan.md  no other note links here
+  features/전투완성/raw/턴표시_완료.md  no other note links here
+  features/턴제전투MVP/청사진.md  no other note links here
+  features/턴제전투MVP/plan.md  no other note links here
+  features/턴제전투MVP/TC.md  no other note links here
+
+16 errors, 24 warnings
