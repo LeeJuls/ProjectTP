@@ -1,10 +1,11 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 스킬연출구조
 stage: DT_Vfx.texPath보정
 updated: 2026-08-12
-status: ★완료 — 5행 서픽스 보정 + FXSHOW 5/5 실측 PASS. ③ 조사 결과 DT_Sfx.soundPath에 동일 패턴(현재 휴면) 발견
+status: PASS
+status_note: ★완료 — 5행 서픽스 보정 + FXSHOW 5/5 실측 PASS. ③ 조사 결과 DT_Sfx.soundPath에 동일 패턴(현재 휴면) 발견
 ---
 
 # `DT_Vfx.texPath` 서픽스 보정 — 결과 (MCP 세션, 2026-08-12)

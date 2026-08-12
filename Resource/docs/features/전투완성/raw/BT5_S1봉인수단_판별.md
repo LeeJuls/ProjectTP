@@ -4,7 +4,8 @@ project: projectTP
 feature: 전투완성
 stage: BT5
 updated: 2026-08-12
-status: ★(c) 확정 — 오너 20턴 런 필요. 세션 1b 소멸 안 함
+status: AWAIT_OWNER
+status_note: ★(c) 확정 — 오너 20턴 런 필요. 세션 1b 소멸 안 함
 ---
 
 # BT5 — S1 원장 봉인 수단 판별

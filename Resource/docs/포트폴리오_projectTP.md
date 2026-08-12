@@ -1,5 +1,5 @@
 ---
-type: portfolio
+type: record
 project: projectTP
 updated: 2026-08-11
 purpose: PPT 변환용 소스 — 게임 결과물 + AI 오케스트레이션 개발 프로세스 균형. 스킬 슬롯수(3→4) 정정 2026-08-11

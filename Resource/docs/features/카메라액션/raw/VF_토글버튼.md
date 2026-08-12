@@ -1,5 +1,5 @@
 ---
-type: raw
+type: record
 feature: 카메라액션
 stage: VF-토글버튼
 updated: 2026-07-08

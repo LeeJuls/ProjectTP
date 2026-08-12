@@ -1,8 +1,8 @@
 ---
-type: owner_guide
+type: reference
 project: projectTP
 scope: mvp_development
-status: active
+status: WIP
 created: 2026-07-17
 updated: 2026-08-11
 current_gate: F7b_BP수술_D5.5_오너struct세션

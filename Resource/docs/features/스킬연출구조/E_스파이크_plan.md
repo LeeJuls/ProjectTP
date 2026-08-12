@@ -3,7 +3,8 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-12
-status: S0/S1/S2' PASS · S4a-0 완료(스크립트 경로) · S4a 완료(2026-08-12, 스팟검증) — S2 진행 중 · R2 취소(2026-08-12, H18 블록 부재 확정)
+status: WIP
+status_note: S0/S1/S2' PASS · S4a-0 완료(스크립트 경로) · S4a 완료(2026-08-12, 스팟검증) — S2 진행 중 · R2 취소(2026-08-12, H18 블록 부재 확정) — [director 판정] S2 진행 중 · S3~S6 재검토 대기
 ---
 
 # E단계 — 데이터 구동 연출 스파이크 (동작 확인 + 연출 실험대)

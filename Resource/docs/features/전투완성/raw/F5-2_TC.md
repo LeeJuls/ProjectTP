@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: F5-2
-status: TC 확정 — ~~착수 대기(F5-1 게이트 통과가 선행, 완료됨). 커밋은 F5-2 게이트에서 Director 일괄~~ → ❌ **2026-08-11 정정**(frontmatter가 착수 전 시점에 멈춤 — [[F7_TC]]가 같은 유형에서 완료 후 갱신한 선례를 따름): **F5-2 게이트 통과 완료**(2026-07-15, [[F5-2_완료]] — TS1~TS6·DYING·ClickBox·ResetForBattle 3청크+스킵즉시화, 오너 실플레이 검증). 커밋 완료(Director 일괄)
+status: PASS
+status_note: "TC 확정 — ~~착수 대기(F5-1 게이트 통과가 선행, 완료됨). 커밋은 F5-2 게이트에서 Director 일괄~~ → ❌ **2026-08-11 정정**(frontmatter가 착수 전 시점에 멈춤 — [[F7_TC]]가 같은 유형에서 완료 후 갱신한 선례를 따름): **F5-2 게이트 통과 완료**(2026-07-15, [[F5-2_완료]] — TS1~TS6·DYING·ClickBox·ResetForBattle 3청크+스킵즉시화, 오너 실플레이 검증). 커밋 완료(Director 일괄)"
 updated: 2026-07-15
 ---
 

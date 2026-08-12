@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: F7b-인터프리터
-status: 진행중(골격 완료, 애플리케이터 수술 대기)
+status: WIP
+status_note: 진행중(골격 완료, 애플리케이터 수술 대기)
 updated: 2026-07-16
 ---
 

@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 project: projectTP
 updated: 2026-06-28
 tags: [playbook, hd2d, mcp, paper2d]

@@ -1,9 +1,10 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 stage: F5
-status: TC 확정 — 개발 착수 전 BLOCKER 5건 Director 판정 필요
+status: PASS
+status_note: TC 확정 — 개발 착수 전 BLOCKER 5건 Director 판정 필요 — [director 판정] 동(BLOCKER 판정 완료)
 updated: 2026-07-15
 ---
 

@@ -2,7 +2,8 @@
 type: design
 project: projectTP
 updated: 2026-07-26
-status: 방향 확정 (Director 판단 + 오너 논의 2026-07-26) — 실행은 아트 단계
+status: PASS
+status_note: 방향 확정 (Director 판단 + 오너 논의 2026-07-26) — 실행은 아트 단계
 ---
 
 # ⚔️ 전투 VFX 방향

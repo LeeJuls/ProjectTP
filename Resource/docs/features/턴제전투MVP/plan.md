@@ -1,7 +1,8 @@
 ---
 type: plan
 feature: 턴제전투MVP
-status: 진행중
+status: ARCHIVED
+status_note: 진행중
 updated: 2026-07-07
 ---
 

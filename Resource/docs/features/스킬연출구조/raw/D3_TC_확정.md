@@ -3,7 +3,8 @@ type: test
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: TC 확정 — D4 게이트 대기
+status: PASS
+status_note: TC 확정 — D4 게이트 대기
 ---
 
 # D3 — TC 확정 + D1 적대 검증

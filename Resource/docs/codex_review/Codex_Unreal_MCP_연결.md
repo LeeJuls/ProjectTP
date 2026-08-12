@@ -1,8 +1,9 @@
 ---
-type: codex_mcp_connection_mirror
+type: record
 project: projectTP
 canonical: D:\unreal\review_agent\unreal_mcp_connection.md
-status: configured_and_endpoint_verified
+status: PASS
+status_note: configured_and_endpoint_verified
 codex_client_activation: pending_restart_verification
 read_only_enforcement: operational_not_server_enforced
 created: 2026-07-16

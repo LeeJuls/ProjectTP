@@ -1,10 +1,11 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 스킬연출구조
 stage: E-S2
 updated: 2026-08-11
-status: 원인 확정 — bThrottleCPUWhenNotForeground 기본값(true) 미적용 상태
+status: PASS
+status_note: 원인 확정 — bThrottleCPUWhenNotForeground 기본값(true) 미적용 상태
 ---
 
 # E-S2 틱 스로틀 진단 — Director 직접 조사

@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 ---
 
 # T1+T2 — BP_BattleSpawnPoint 구현 + 8기 교체

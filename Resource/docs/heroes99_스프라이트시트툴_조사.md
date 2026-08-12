@@ -2,7 +2,7 @@
 type: reference
 project: projectTP
 updated: 2026-08-12
-status: active
+status: WIP
 ---
 
 # heroes99 스프라이트시트 툴 조사 — GitHub 소스 교차검증

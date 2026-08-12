@@ -1,9 +1,10 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 stage: 야간큐(③데미지폰트·④End버튼·⑤로그·F6모션)
-status: 4건 전부 게이트 완료 — 상태 컬럼 갱신 완료(각 완료 문서 판정대로). LOG-04 "사망 라인 8개"는 오탈자 — [[야간F9a_풀회귀_완료]]가 7개로 확정. TC 실행=verifier, 게이트 판정=Director
+status: PASS
+status_note: 4건 전부 게이트 완료 — 상태 컬럼 갱신 완료(각 완료 문서 판정대로). LOG-04 "사망 라인 8개"는 오탈자 — [[야간F9a_풀회귀_완료]]가 7개로 확정. TC 실행=verifier, 게이트 판정=Director
 updated: 2026-07-16
 ---
 

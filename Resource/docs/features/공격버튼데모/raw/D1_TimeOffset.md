@@ -1,8 +1,8 @@
 ---
-type: raw
+type: record
 feature: 공격버튼데모
 stage: D1
-status: 완료
+status: PASS
 updated: 2026-07-06
 ---
 

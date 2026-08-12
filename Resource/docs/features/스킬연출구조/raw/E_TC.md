@@ -3,7 +3,8 @@ type: test
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: TC 확정 — E-S0 진행 중
+status: WIP
+status_note: TC 확정 — E-S0 진행 중
 ---
 
 # E단계 — 단계별 TC + plan 적대 검증

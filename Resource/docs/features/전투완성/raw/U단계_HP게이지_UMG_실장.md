@@ -1,9 +1,10 @@
 ---
-type: log
+type: record
 project: projectTP
 feature: 전투완성
 stage: U
-status: 완료 — F3(HP 게이지) 완결. WBP_HpGauge·위치추적 스텁 삭제 완료, 컴파일 에러 0
+status: PASS
+status_note: 완료 — F3(HP 게이지) 완결. WBP_HpGauge·위치추적 스텁 삭제 완료, 컴파일 에러 0
 updated: 2026-07-15
 ---
 

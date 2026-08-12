@@ -1,5 +1,5 @@
 ---
-type: moc
+type: index
 project: projectTP
 updated: 2026-08-11
 ---

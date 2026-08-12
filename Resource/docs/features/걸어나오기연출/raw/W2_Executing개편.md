@@ -1,5 +1,5 @@
 ---
-type: raw
+type: record
 feature: 걸어나오기연출
 stage: W2
 updated: 2026-07-16

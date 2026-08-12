@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: F7b-struct부트스트랩
-status: 완료 2026-07-16(오너 승인 설치)
+status: PASS
+status_note: 완료 2026-07-16(오너 승인 설치)
 updated: 2026-07-16
 ---
 

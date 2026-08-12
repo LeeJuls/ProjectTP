@@ -3,7 +3,8 @@ type: gate
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: S0 완료 — 설계 전환(대역 액터) 확정
+status: PASS
+status_note: S0 완료 — 설계 전환(대역 액터) 확정
 ---
 
 # E-S0 — 노드 가용성 프로브 결과 + Director 전환 판정

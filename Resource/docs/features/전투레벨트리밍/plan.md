@@ -3,7 +3,7 @@ type: plan
 project: projectTP
 stage: B
 updated: 2026-07-12
-status: 완료
+status: PASS
 ---
 
 # 전투 레벨 트리밍 (`map_battle_octopath`)

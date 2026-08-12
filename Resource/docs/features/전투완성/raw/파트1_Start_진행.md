@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: 파트1_Start
-status: 게이트 PASS 2026-07-16 23시경(파트1 완료) — Director 직접검증(GRAPH 핀 원문)·자산·PIE·오너 육안 5항목·T1 실증 전부 PASS. F9a 23턴 diff-0(P1-R01)은 오너 결정으로 파트2 이월. 파트2(SPD 턴 순서) 착수 가능
+status: PASS
+status_note: 게이트 PASS 2026-07-16 23시경(파트1 완료) — Director 직접검증(GRAPH 핀 원문)·자산·PIE·오너 육안 5항목·T1 실증 전부 PASS. F9a 23턴 diff-0(P1-R01)은 오너 결정으로 파트2 이월. 파트2(SPD 턴 순서) 착수 가능
 updated: 2026-07-16
 ---
 

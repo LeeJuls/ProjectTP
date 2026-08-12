@@ -1,10 +1,11 @@
 ---
-type: tc
+type: test
 project: projectTP
 feature: 스킬연출구조
 stage: FT1-0
 updated: 2026-08-12
-status: 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당)
+status: WIP
+status_note: 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당)
 ---
 
 # FT1-0 TC — 로그 스캐폴드 3종 심기 (append-only 라운드)

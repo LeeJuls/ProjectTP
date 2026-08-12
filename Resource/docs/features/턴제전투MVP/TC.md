@@ -1,7 +1,8 @@
 ---
-type: tc
+type: test
 feature: 턴제전투MVP
-status: E3 자가검증 완료 (verifier 실증 대기)
+status: ARCHIVED
+status_note: E3 자가검증 완료 (verifier 실증 대기) — [director 판정] E3 실증 미완인 채 동결
 updated: 2026-07-07
 ---
 

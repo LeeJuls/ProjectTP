@@ -1,5 +1,5 @@
 ---
-type: convention
+type: process
 project: projectTP
 updated: 2026-07-14
 ---

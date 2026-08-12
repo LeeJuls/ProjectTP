@@ -1,10 +1,11 @@
 ---
-type: codex_review_mirror
+type: review
 project: projectTP
 target: F7b bootstrap and Blueprint source-control boundary
 canonical: D:\unreal\review_agent\review_2026-07-16_F7b_bootstrap_source_control.md
 mode: read_only
-status: provisional
+status: DRAFT
+status_note: provisional
 reviewed_head: fa3527ab83298f180df755c50b3d526540d613be
 model_match_scope: blueprint_functional_pass_fail
 created: 2026-07-16

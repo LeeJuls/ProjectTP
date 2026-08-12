@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 ---
 
 # F3 HP게이지 수정 착수 전 스냅샷 (Director 진단 반영 롤백 지점)

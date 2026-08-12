@@ -1,10 +1,11 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 스킬연출구조
 stage: E-S4a-0
 updated: 2026-08-11
-status: 판정 B(조건부 가능) — 스크립트 경로 채택, 결함 2건 수정 선행
+status: PASS
+status_note: 판정 B(조건부 가능) — 스크립트 경로 채택, 결함 2건 수정 선행
 ---
 
 # E-S4a-0 — struct 편집 자동화 가능성 조사

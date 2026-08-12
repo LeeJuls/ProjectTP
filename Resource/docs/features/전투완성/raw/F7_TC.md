@@ -1,9 +1,10 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 stage: F7
-status: TC 확정 — Director BLOCKER 5건 게이트 판정 반영. F6 게이트 통과 완료([[야간F6_모션데이터구동_완료]]). [F7a] 태그 5건(G01·U01·U02·U04·E02) 상태 갱신 완료 — [[야간F7a_스킬메뉴_완료]] 판정대로(상세는 각 행). F7b(인터프리터 수술)는 struct 확보 후 착수 대기. TC 실행=verifier, 게이트 판정=Director
+status: PASS
+status_note: TC 확정 — Director BLOCKER 5건 게이트 판정 반영. F6 게이트 통과 완료([[야간F6_모션데이터구동_완료]]). [F7a] 태그 5건(G01·U01·U02·U04·E02) 상태 갱신 완료 — [[야간F7a_스킬메뉴_완료]] 판정대로(상세는 각 행). F7b(인터프리터 수술)는 struct 확보 후 착수 대기. TC 실행=verifier, 게이트 판정=Director
 updated: 2026-07-16
 ---
 

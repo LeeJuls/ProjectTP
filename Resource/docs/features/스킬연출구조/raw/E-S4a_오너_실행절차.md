@@ -1,10 +1,11 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 스킬연출구조
 stage: E-S4a
 updated: 2026-08-12
-status: ★완료(2026-08-12, Content 저장소 커밋 `9c3934d`) — 단 검증은 스팟(전수 아님). 161셀 전수 대조는 AT5 `AU-A5-00`에서 수행
+status: PASS
+status_note: ★완료(2026-08-12, Content 저장소 커밋 `9c3934d`) — 단 검증은 스팟(전수 아님). 161셀 전수 대조는 AT5 `AU-A5-00`에서 수행
 ---
 
 # E-S4a — 오너 실행 절차 (`F_SkillsRow` 6필드 추가)

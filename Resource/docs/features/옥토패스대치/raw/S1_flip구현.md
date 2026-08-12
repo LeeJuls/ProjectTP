@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 feature: 옥토패스대치
 step: S1
 updated: 2026-07-06

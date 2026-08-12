@@ -5,7 +5,8 @@ feature: 전투완성
 agent: balance-designer
 stage: A1 회귀 기준선(오라클)
 updated: 2026-07-17
-status: v1 초안 — **오너 S1 검증 대기**. diff 0 + 오너 확인 후에만 정본(A1 회귀 기준선)이 된다. SPD 순서 even-trade 총 **20 유닛턴**(독립 유도, 23 아님).
+status: WIP
+status_note: v1 초안 — **오너 S1 검증 대기**. diff 0 + 오너 확인 후에만 정본(A1 회귀 기준선)이 된다. SPD 순서 even-trade 총 **20 유닛턴**(독립 유도, 23 아님).
 source: 스탯_전투공식_v1 §2·§4·§7 + 광폭화_재검증 §7(광폭화만) + data/job_stats.csv·skills.csv·grades.csv + 파트2_SPD_완료 §3(SpdOverride 고정입력 확인)
 supersedes: 스탯_전투공식_v1 §0 "Spd 미사용·고정 순환 큐" 턴순서 조항(L1)
 ---

@@ -1,10 +1,11 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 agent: qa-critic
 updated: 2026-07-14
-status: 검증 — 상태이상·AoE 병합안 적대적 논리검증. BLOCKER 2건(Director 추가결정 필수), MAJOR 5건, MINOR 14건. 기존 설계문서 2건은 읽기전용 무수정.
+status: PASS
+status_note: 검증 — 상태이상·AoE 병합안 적대적 논리검증. BLOCKER 2건(Director 추가결정 필수), MAJOR 5건, MINOR 14건. 기존 설계문서 2건은 읽기전용 무수정. — [director 판정] BLOCKER 2건은 [[상태이상_확정]]에서 해소
 source: 상태이상_카탈로그_밸런스.md + 상태이상_타겟범위_설계안.md + 스탯_전투공식_v1 §5·§8 + plan.md F2/F4/F5/F7/F9 + 광폭화_재검증 §2·§7 + data/skills.csv(라이브)
 ---
 

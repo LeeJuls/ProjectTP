@@ -2,7 +2,8 @@
 type: plan
 project: projectTP
 updated: 2026-08-12
-status: 초안 — 에이전트 피드백 + qa TC 라운드 대기
+status: DRAFT
+status_note: 초안 — 에이전트 피드백 + qa TC 라운드 대기
 ---
 
 # 자율 진행 plan v1 (초안)

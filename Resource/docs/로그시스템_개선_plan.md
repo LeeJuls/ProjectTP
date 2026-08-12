@@ -2,7 +2,8 @@
 type: plan
 project: projectTP
 updated: 2026-08-12
-status: 확정 — LOG-A 즉시 착수 / FT1-0은 S1 봉인 후
+status: PASS
+status_note: 확정 — LOG-A 즉시 착수 / FT1-0은 S1 봉인 후
 ---
 
 # 로그 시스템 개선 plan

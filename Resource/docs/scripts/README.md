@@ -5,6 +5,7 @@
 - **`compose/`** = heroes99 캐릭터 스프라이트 Pillow 합성. 지금은 대기 중이지만 **A2(캐릭터 1000명 합성) 단계에서 재가동 예정** — 참조 0건이어도 죽은 스크립트가 아니다.
 - **`mockup/`** = HD2D 전투배경 목업(오프라인 Pillow 합성). 목적 달성 후 종료, 결과물(PNG)만 참고용으로 남아있다.
 - **`assets/`** = 파츠 데이터 생성/실측/캡처 디코드 등 개별 목적 도구 모음. 파일별로 생사가 다르므로 아래 표의 상태 컬럼을 반드시 확인할 것.
+- **`vaultfix/`** = 옵시디언 볼트 frontmatter 정규화 도구(문서구조_개선plan 3단계). `status`/`type` 값을 BT-DOC2 SSOT 규칙대로 enum화한다. 재실행 멱등 — 이미 enum이면 건드리지 않는다.
 
 ## 왜 로그 4개는 루트에 남았는가
 
@@ -46,6 +47,7 @@
 | `assets/inventory_row_coverage.py` | assets | 종료 | 2026-07-08 | `python docs/scripts/assets/inventory_row_coverage.py` — 결과는 같은 폴더 `inventory_row_coverage_result.json`에 저장(경로는 `__file__` 기준이라 두 파일을 같은 폴더에 유지해야 함) | 2 |
 | `assets/inventory_row_coverage_result.json` | assets | 종료 | 2026-07-08 | 실행 파일 아님 — 위 스크립트의 산출물(원자료, 재사용 가능) | 2(스크립트와 공유) |
 | `assets/decode_capture.py` | assets | 현행 | 2026-07-06 | `python docs/scripts/assets/decode_capture.py <tool-results.txt> <out.png>` — MCP `CaptureViewport` base64 결과를 PNG로 디코드하는 범용 유틸(특정 기능에 종속되지 않고 필요할 때마다 계속 호출됨) | 6 |
+| `vaultfix/normalize_status_type.py` | vaultfix | 현행(2026-08-13 1회 실행 완료, 재실행 가능) | 2026-08-13 | `python docs/scripts/vaultfix/normalize_status_type.py [--apply] [--json-report <path>] [--text-report <path>]` — 기본은 dry-run. BT-DOC2(`features/전투완성/raw/BT-DOC2_status매핑규칙.md`) §3~§8 규칙을 그대로 실행해 frontmatter `status`(7종 enum)·`type`(9종 enum)을 정규화한다. 멱등(이미 enum인 값은 스킵) | 0(문서에 실행경로 아직 미기재) |
 
 ## 이번 재편(2026-08-13) 메모
 

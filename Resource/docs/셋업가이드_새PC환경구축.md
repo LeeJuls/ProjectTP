@@ -1,5 +1,5 @@
 ---
-type: guide
+type: reference
 project: projectTP
 updated: 2026-07-14
 ---

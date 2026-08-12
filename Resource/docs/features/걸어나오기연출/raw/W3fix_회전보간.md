@@ -1,5 +1,5 @@
 ---
-type: raw
+type: record
 feature: 걸어나오기연출
 stage: W3fix
 updated: 2026-07-07

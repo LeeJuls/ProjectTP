@@ -3,7 +3,8 @@ type: gate
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-12
-status: director 판정 완료 — T0 착수 가능 / T1은 오너 게이트
+status: PASS
+status_note: director 판정 완료 — T0 착수 가능 / T1은 오너 게이트
 ---
 
 # 내장 트레일 전환 — director 판정 (2026-08-12)

@@ -1,7 +1,7 @@
 ---
 type: plan
 feature: <기능명>
-status: 초안
+status: DRAFT
 updated: 
 ---
 

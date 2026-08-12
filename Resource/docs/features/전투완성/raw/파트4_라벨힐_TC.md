@@ -1,9 +1,10 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 stage: 파트4(유닛 라벨 + 치유 제자리 + 힐 표시)
-status: 게이트 PASS(Director, 2026-07-17) — 오너 육안 4항목 PASS + Director 핀검증(작업1 라벨 GRAPH 8건) PASS + P4C-15(런타임조인 8기) PASS + 컴파일0·디스크저장 실증. 59건 재분류: **23건 PASS**(오너9+Director핀8+P4C-15+컴파일2+디스크정황2+본세션검증1) · **6건 F9b(오너 풀플레이) 이월** · **30건 코어 게이트 흡수·A2 회귀 스위트 이월**(qa-critic 재분류 규칙: PIE-시각형→F9b 종착점, GRAPH/데이터변형형→A2). ★게이트 19건 중 작업1(라벨) 6건 전체 PASS, 나머지 13건(작업2·3·회귀 GRAPH) A2 이월. 신규발견 7(High 2·Medium 2·Low 3)은 §7 참고 — NF1·NF2는 정황상 해소, 핀레벨 확정은 A2 이월. 상세: [[파트4_라벨힐_완료]]
+status: PASS
+status_note: "게이트 PASS(Director, 2026-07-17) — 오너 육안 4항목 PASS + Director 핀검증(작업1 라벨 GRAPH 8건) PASS + P4C-15(런타임조인 8기) PASS + 컴파일0·디스크저장 실증. 59건 재분류: **23건 PASS**(오너9+Director핀8+P4C-15+컴파일2+디스크정황2+본세션검증1) · **6건 F9b(오너 풀플레이) 이월** · **30건 코어 게이트 흡수·A2 회귀 스위트 이월**(qa-critic 재분류 규칙: PIE-시각형→F9b 종착점, GRAPH/데이터변형형→A2). ★게이트 19건 중 작업1(라벨) 6건 전체 PASS, 나머지 13건(작업2·3·회귀 GRAPH) A2 이월. 신규발견 7(High 2·Medium 2·Low 3)은 §7 참고 — NF1·NF2는 정황상 해소, 핀레벨 확정은 A2 이월. 상세: [[파트4_라벨힐_완료]]"
 updated: 2026-07-17
 ---
 

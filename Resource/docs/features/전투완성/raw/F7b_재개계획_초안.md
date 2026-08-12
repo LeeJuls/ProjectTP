@@ -2,7 +2,8 @@
 type: plan
 project: projectTP
 feature: 전투완성 → 캐릭터시스템 인프라
-status: v2 — gameplay·qa 피드백 반영(Critical 4·High 7 전 수용, 2026-07-18). 오너 S4 착수 승인 완료. 실작업(BP 수술)은 S1 원장 봉인 후
+status: BLOCKED
+status_note: "BLOCKED 근거(director 지정): 선행=S1 원장 봉인 — 오너 20턴 런은 [[BT5_S1봉인수단_판별]]의 AWAIT_OWNER가 추적. 대기 사유 1건은 문서 1개만 담당 | 원문: v2 — gameplay·qa 피드백 반영(Critical 4·High 7 전 수용, 2026-07-18). 오너 S4 착수 승인 완료. 실작업(BP 수술)은 S1 원장 봉인 후"
 created: 2026-07-17
 updated: 2026-07-18
 supersedes: "v1(f654a5f) — 게이트 재정의·⑤ additive 명문화·로그 스키마 확정·④⑩ 분할·Method A 정식 청크화"

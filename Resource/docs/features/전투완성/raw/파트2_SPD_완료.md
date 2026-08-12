@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: 파트2(SPD 턴 순서)
-status: 핵심 게이트 PASS 2026-07-17 00시경 — Director 직접검증 GRAPH 5/5(P2-G01·G02·G03·G04·G07) + 보너스 2건(P2-G05·G09) PASS. ★★★최강게이트 P2-P01(런타임 spd 8기 실값) PASS + P2-P02·P2-P11 PASS. 전체 41건 중 10건 실행·전부 PASS, 잔여 31건(첫8턴 LOG·신규원장 P2-R01 등)은 Start 클릭이 필요해 아침 오너 확인으로 이월(Director 판단, §7). **[정정 2026-07-17]** P2-R01의 "23턴 신규원장 PIE 관측→봉인" 방식은 무감각 게이트로 폐기, 대체 = [[SPD원장_오라클_v1]] 20유닛턴 오라클-diff(오너 S1 게이트) — 이월 31건 ID별 처분은 [[파트2_SPD_TC]] §처분 참고.
+status: PASS
+status_note: 핵심 게이트 PASS 2026-07-17 00시경 — Director 직접검증 GRAPH 5/5(P2-G01·G02·G03·G04·G07) + 보너스 2건(P2-G05·G09) PASS. ★★★최강게이트 P2-P01(런타임 spd 8기 실값) PASS + P2-P02·P2-P11 PASS. 전체 41건 중 10건 실행·전부 PASS, 잔여 31건(첫8턴 LOG·신규원장 P2-R01 등)은 Start 클릭이 필요해 아침 오너 확인으로 이월(Director 판단, §7). **[정정 2026-07-17]** P2-R01의 "23턴 신규원장 PIE 관측→봉인" 방식은 무감각 게이트로 폐기, 대체 = [[SPD원장_오라클_v1]] 20유닛턴 오라클-diff(오너 S1 게이트) — 이월 31건 ID별 처분은 [[파트2_SPD_TC]] §처분 참고.
 updated: 2026-07-17
 ---
 

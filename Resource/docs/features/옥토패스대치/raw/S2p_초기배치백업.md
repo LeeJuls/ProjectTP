@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 ---
 
 # S2p — BP_BattleSpawnPoint 8기 교체 초기 배치 백업

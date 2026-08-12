@@ -1,5 +1,5 @@
 ---
-type: log
+type: record
 ---
 
 # WBP_BattleHUD 골격 생성 착수 전 스냅샷 (롤백 지점)

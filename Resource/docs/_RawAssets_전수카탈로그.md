@@ -2,7 +2,7 @@
 type: reference
 project: projectTP
 updated: 2026-08-12
-status: active
+status: WIP
 ---
 
 # 🗂 `_RawAssets` 전수 카탈로그

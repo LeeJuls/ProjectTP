@@ -1,9 +1,10 @@
 ---
-type: qa
+type: review
 project: projectTP
 feature: 전투완성
 stage: U
-status: TC 확정 대기
+status: PASS
+status_note: TC 확정 대기 — [director 판정] '확정 대기'는 스테일
 updated: 2026-07-14
 ---
 

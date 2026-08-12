@@ -1,10 +1,11 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 스킬연출구조
 stage: E-S2
 updated: 2026-08-11
-status: 부분 통과 — 구현·fail-loud PASS / 타이밍 5건 미실증(원인=환경, 규명 완료)
+status: PASS
+status_note: 부분 통과 — 구현·fail-loud PASS / 타이밍 5건 미실증(원인=환경, 규명 완료)
 ---
 
 # E-S2 — `BP_FxLabQuad` + `PlayVfx` 결과

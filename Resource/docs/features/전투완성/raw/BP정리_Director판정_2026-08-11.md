@@ -3,7 +3,8 @@ type: gate
 project: projectTP
 feature: 전투완성
 updated: 2026-08-11
-status: 판정 완료 — D6 착수 전 필독
+status: PASS
+status_note: 판정 완료 — D6 착수 전 필독
 ---
 
 # BP 정리 — Director 판정 (요구 6건)

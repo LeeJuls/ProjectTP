@@ -3,7 +3,8 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-12
-status: D5 PASS(2026-08-11) — 설계 트랙 종료. 오너 게이트 2건 + D5.5 struct 세션 대기. ★2026-08-12: 오너 확정 — 사운드(SFX) 알파 포함(§SFX 갱신), DT_Sfx.soundPath 서픽스 결함 선행 처리 필요(§SFX 갱신)
+status: PASS
+status_note: "D5 PASS(2026-08-11) — 설계 트랙 종료. 오너 게이트 2건 + D5.5 struct 세션 대기. ★2026-08-12: 오너 확정 — 사운드(SFX) 알파 포함(§SFX 갱신), DT_Sfx.soundPath 서픽스 결함 선행 처리 필요(§SFX 갱신)"
 ---
 
 # 스킬 4슬롯 구조 + 연출·이펙트·SFX 데이터화 설계

@@ -2,7 +2,7 @@
 type: reference
 project: projectTP
 updated: 2026-08-11
-status: active
+status: WIP
 ---
 
 # heroes99 에셋 전수탐색 — "이펙트가 이미 포함돼 있는 거 아니야?" 조사

@@ -1,5 +1,5 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: UI파이프라인
 agent: gameplay-engineer

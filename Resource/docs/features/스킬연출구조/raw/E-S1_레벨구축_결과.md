@@ -3,7 +3,8 @@ type: gate
 project: projectTP
 feature: 스킬연출구조
 updated: 2026-08-11
-status: S1 PASS — S2 착수
+status: PASS
+status_note: S1 PASS — S2 착수
 ---
 
 # E-S1 — 스파이크 레벨 구축 결과 (`map_battle_fxlab`)

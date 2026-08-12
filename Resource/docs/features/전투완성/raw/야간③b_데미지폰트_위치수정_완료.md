@@ -1,9 +1,10 @@
 ---
-type: raw
+type: record
 project: projectTP
 feature: 전투완성
 stage: 야간③b
-status: 게이트 PASS 2026-07-16
+status: PASS
+status_note: 게이트 PASS 2026-07-16
 updated: 2026-07-16
 ---
 

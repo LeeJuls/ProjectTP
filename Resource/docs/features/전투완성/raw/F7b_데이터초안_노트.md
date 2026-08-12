@@ -4,7 +4,8 @@ project: projectTP
 feature: 전투완성
 agent: balance-designer
 updated: 2026-07-16
-status: F7b 데이터 prep 초안 노트 — status_effects.csv/skill_effects.csv/skills_v2_draft.csv 3파일 부속. 라이브 파일(skills.csv/job_stats.csv/strings.csv) 무접촉, 제안만.
+status: DRAFT
+status_note: F7b 데이터 prep 초안 노트 — status_effects.csv/skill_effects.csv/skills_v2_draft.csv 3파일 부속. 라이브 파일(skills.csv/job_stats.csv/strings.csv) 무접촉, 제안만. — [director 판정] 라이브 미반영 초안, 유효
 source: F7_스킬아키텍처_확정.md §3·§6·§8-7(b)·§9 · data/skills.csv · data/job_stats.csv · data/strings.csv
 ---
 

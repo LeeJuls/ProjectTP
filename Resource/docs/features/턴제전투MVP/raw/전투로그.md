@@ -1,5 +1,5 @@
 ---
-type: raw
+type: record
 feature: 턴제전투MVP
 updated: 2026-07-07
 ---
