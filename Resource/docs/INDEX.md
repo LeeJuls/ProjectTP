@@ -9,20 +9,21 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 # INDEX — projectTP 옵시디언 볼트 전체 목록
 
 > ★자동생성 문서. 손으로 편집하지 마라 — 다음 `generate_index.py --apply` 실행에서 덮어써진다.
-> 총 214개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
+> 총 215개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
 > 없으면 문서 첫 헤딩 다음 문장을 썼다(둘 다 200자 상한 — 표시용 절삭이며 frontmatter 원문은 무수정).
 > 둘 다 없으면 빈칸이다(추측해서 채우지 않는다). 전문은 각 문서의 frontmatter/본문에서 확인.
 
 | 항목 | 값 |
 |---|---|
-| 총 문서 수 | 214 |
+| 총 문서 수 | 215 |
 | 요약 빈칸 | 0 |
 | type 그룹 수 | 10 |
 
-## 계획 (plan) (31)
+## 계획 (plan) (32)
 
 | 문서 | status | 요약 |
 |---|---|---|
+| [[codex/UE5.8_Codex_학습계획\|UE5.8_Codex_학습계획]] | WIP | 상위: [[projectTP_허브]] · 기록 대상: [[codex/UE5.8_projectTP]] · 기존 근거: [[언리얼5.8_기술카탈로그]] |
 | [[features/_TEMPLATE/plan\|plan]] | DRAFT | 청사진: [[features/_TEMPLATE/청사진\|청사진]] · 프로세스: [[개발_워크플로우]] |
 | [[features/_TEMPLATE/청사진\|청사진]] | DRAFT | 목표 |
 | [[features/걸어나오기연출/plan\|plan]] | ARCHIVED | W0~W2 완료, W3 부분판정(3/8 PASS + 5/8 이월/정적보증)(※ 분모 8 = 전 9항목 중 WT-22 "미실시" 제외. |
@@ -42,23 +43,28 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/카메라액션/청사진\|청사진]] | ARCHIVED | 완료(원안 기준, 2026-07-07) — 본문(고정 카메라 2기 C0/C1)은 v3(2026-07-08)에서 철거되고 동적 OTS 카메라 1기(ActionCam_Dynamic)+토글버튼으로 대체됨. |
 | [[features/턴제전투MVP/plan\|plan]] | ARCHIVED | 진행중 |
 | [[features/턴제전투MVP/청사진\|청사진]] | ARCHIVED | 진행중 |
-| [[LOG-A_실행계획\|LOG-A_실행계획]] | PASS | 오너 승인 완료 — 착수 |
-| [[UE5.8_Codex_학습계획\|UE5.8_Codex_학습계획]] | WIP | 상위: [[projectTP_허브]] · 기록 대상: [[codex_review/UE5.8_projectTP]] · 기존 근거: [[언리얼5.8_기술카탈로그]] |
-| [[로그시스템_개선_plan\|로그시스템_개선_plan]] | PASS | 확정 — LOG-A 즉시 착수 / FT1-0은 S1 봉인 후 |
-| [[로드맵_버전계획\|로드맵_버전계획]] | PASS | 방향성2 반영 재작성 완료 (2026-07-13) — 다음: 알파 단계별 상세화(A1 전투완성부터). |
-| [[문서구조_개선plan\|문서구조_개선plan]] | DRAFT | v4 — 범위를 전투(92) → docs 전역(209)으로 확대. |
+| [[plans/ArtMVP_아트선검증_계획\|ArtMVP_아트선검증_계획]] |  | 작성일: 2026-06-28 / 엔진: UE 5.8 / 상태: ~~계획만, 구현 미착수~~ → ✅ **2026-08-11 정정**: S0 검증 **완료·GO 판정**. |
+| [[plans/LOG-A_실행계획\|LOG-A_실행계획]] | PASS | 오너 승인 완료 — 착수 |
+| [[plans/로그시스템_개선_plan\|로그시스템_개선_plan]] | PASS | 확정 — LOG-A 즉시 착수 / FT1-0은 S1 봉인 후 |
+| [[plans/로드맵_버전계획\|로드맵_버전계획]] | PASS | 방향성2 반영 재작성 완료 (2026-07-13) — 다음: 알파 단계별 상세화(A1 전투완성부터). |
+| [[plans/문서구조_개선plan\|문서구조_개선plan]] | DRAFT | v4 — 범위를 전투(92) → docs 전역(209)으로 확대. |
+| [[plans/알파_개발계획\|알파_개발계획]] | WIP | 방향성2 반영 재작성 (2026-07-13) — 승인 후 단계별 features/ 상세화. |
+| [[plans/자율작업배치_2026-07-17\|자율작업배치_2026-07-17]] | PASS | v2 — qa 적대 피드백 반영(H1~H3·M1~M4·L1~L3 전 수용) — **전 트랙 실행 완료**(2026-07-17). |
+| [[plans/자율작업배치_2026-07-31\|자율작업배치_2026-07-31]] | PASS | 완료 (2026-07-31 야간) — 오프라인 목업 트랙 종료. |
+| [[plans/자율진행_plan_v1\|자율진행_plan_v1]] | DRAFT | 초안 — 에이전트 피드백 + qa TC 라운드 대기 |
+| [[plans/자율진행_plan_v2\|자율진행_plan_v2]] | WIP | ★확정 — 피드백 4건 반영 완료. |
 | [[방향성1_백업/방향성1_로드맵_버전계획\|방향성1_로드맵_버전계획]] | SUPERSEDED | 백업/구버전(방향성1) — 방향성2로 대체됨. |
 | [[방향성1_백업/방향성1_알파_개발계획\|방향성1_알파_개발계획]] | SUPERSEDED | 백업/구버전(방향성1) — 방향성2로 대체됨. |
-| [[알파_개발계획\|알파_개발계획]] | WIP | 방향성2 반영 재작성 (2026-07-13) — 승인 후 단계별 features/ 상세화. |
-| [[자율작업배치_2026-07-17\|자율작업배치_2026-07-17]] | PASS | v2 — qa 적대 피드백 반영(H1~H3·M1~M4·L1~L3 전 수용) — **전 트랙 실행 완료**(2026-07-17). |
-| [[자율작업배치_2026-07-31\|자율작업배치_2026-07-31]] | PASS | 완료 (2026-07-31 야간) — 오프라인 목업 트랙 종료. |
-| [[자율진행_plan_v1\|자율진행_plan_v1]] | DRAFT | 초안 — 에이전트 피드백 + qa TC 라운드 대기 |
-| [[자율진행_plan_v2\|자율진행_plan_v2]] | WIP | ★확정 — 피드백 4건 반영 완료. |
 
-## 설계 (design) (22)
+## 설계 (design) (23)
 
 | 문서 | status | 요약 |
 |---|---|---|
+| [[design/HD2D_PvP_ATB_설계\|HD2D_PvP_ATB_설계]] |  | 작성일: 2026-06-28 / 엔진: UE 5.8 (`D:\unreal\UE_5.8`) / 상태: **설계 검토 단계, 구현 미착수** |
+| [[design/기획_방향성\|기획_방향성]] | PASS | ★방향성 2 공식 확정 (오너 2026-07-11). |
+| [[design/백업_결정패키지_2026-07-17\|백업_결정패키지_2026-07-17]] | PASS | 실행 완료 (2026-07-18) — 오너 채택 = Git LFS 별도 저장소. |
+| [[design/에이전트팀_설계\|에이전트팀_설계]] |  | UE 5.8 HD-2D 턴제 PvP 배틀을 만드는 **멀티에이전트 팀 청사진**. |
+| [[design/전투VFX_방향\|전투VFX_방향]] | PASS | 방향 확정 (Director 판단 + 오너 논의 2026-07-26) — 실행은 아트 단계 |
 | [[features/스킬연출구조/raw/D1_4슬롯구조_확정\|D1_4슬롯구조_확정]] | PASS | 3차 개정(D4.5 실측 반영) — D5 대기 |
 | [[features/스킬연출구조/raw/D4.5c_연출SFX행확정\|D4.5c_연출SFX행확정]] | PASS | D4.5-c 산출 — D5 대기 |
 | [[features/스킬연출구조/raw/D5_값배정\|D5_값배정]] | PASS | D5 산출 — Director 게이트 대기 · ★2026-08-12 정정: §2-2 `FxCastId=0` 의미 반전(외부FX없음, 舊 모션폴백 `63000100` 서술 취소) — D6 폴백 배선 주의 — [director 판정] FxCastId=0 반전 정정 반영 + 내장트레일 파급 재검토 중 — [[BT-DOC1_정본경계설계]] §5-5 |
@@ -77,12 +83,8 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/캐릭터시스템/raw/balance1_포지션킷_v0\|balance1_포지션킷_v0]] | PASS | 결재 완료(2026-07-18 · 오너 S3) — Q0 Spd 승격(조건부·시뮬 이월)/Q1 등급 3단 유지+N단계 확장성/Q2 직업 태그 흡수. |
 | [[features/캐릭터시스템/raw/balance1_포지션킷_v1\|balance1_포지션킷_v1]] | PASS | 본설계 완료(2026-07-18) — 오너 S3 결재 반영. |
 | [[features/캐릭터시스템/raw/모션연결_규칙안\|모션연결_규칙안]] | PASS | ★오너 확정(2026-07-13) — 안 B(느슨결합) 채택 + R1 완화=완드 4색 변형 활용. |
-| [[기획_방향성\|기획_방향성]] | PASS | ★방향성 2 공식 확정 (오너 2026-07-11). |
-| [[백업_결정패키지_2026-07-17\|백업_결정패키지_2026-07-17]] | PASS | 실행 완료 (2026-07-18) — 오너 채택 = Git LFS 별도 저장소. |
-| [[에이전트팀_설계\|에이전트팀_설계]] |  | UE 5.8 HD-2D 턴제 PvP 배틀을 만드는 **멀티에이전트 팀 청사진**. |
-| [[전투VFX_방향\|전투VFX_방향]] | PASS | 방향 확정 (Director 판단 + 오너 논의 2026-07-26) — 실행은 아트 단계 |
 
-## 게이트 판정 (gate) (18)
+## 게이트 판정 (gate) (19)
 
 | 문서 | status | 요약 |
 |---|---|---|
@@ -101,6 +103,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/내장트레일_채택_오너판정\|내장트레일_채택_오너판정]] | PASS | 오너 판정 완료 — 내장 트레일 채택, legacy Smear 제거 방향 |
 | [[features/전투완성/raw/AU-A1-09_T1전후_실측대조\|AU-A1-09_T1전후_실측대조]] | PASS | ★AU-A1-09 PASS — T1 Δ=0.000 실측 확정 / 부산물로 천단위쉼표 함정 발견·차단 |
 | [[features/전투완성/raw/BP정리_Director판정_2026-08-11\|BP정리_Director판정_2026-08-11]] | PASS | 판정 완료 — D6 착수 전 필독 |
+| [[features/전투완성/raw/BT-PLAN검증_2026-08-13\|BT-PLAN검증_2026-08-13]] | PASS | director 전체 plan 재검증(오너 지시 2026-08-13) — ①골격 A1~A8 유효(구조 변경 0) ②진척 어긋남 8건(스테일3·오진1·누락3·교착1) — 핵심: 'FT8 TC 없음'은 오진, 실체는 FT 번호 4단계 오프셋 ③1순위 = FT1 착수(선행: FT 번호 정합) ④신규 위험: A2-B/S 약칭 재충돌·CSV 린트 실물 0 |
 | [[features/전투완성/raw/BT5_S1봉인수단_판별\|BT5_S1봉인수단_판별]] | AWAIT_OWNER | ★(c) 확정 — 오너 20턴 런 필요. |
 | [[features/전투완성/raw/턴길이_실측확정_2026-08-12\|턴길이_실측확정_2026-08-12]] | PASS | ★확정 — H18 블록 부재 / T1 턴길이 Δ=0 / SlotBudgetSec 기준선 2.100s |
 | [[features/전투완성/raw/턴예산_balance판정_2026-08-12\|턴예산_balance판정_2026-08-12]] | PASS | balance 판정 — 제3안. |
@@ -121,9 +124,9 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[codex_review/Codex_전체_읽기전용_리뷰_2026-07-16\|Codex_전체_읽기전용_리뷰_2026-07-16]] | PASS | complete_with_concurrent_commit_and_blueprint_graph_limitation |
-| [[codex_review/review_2026-07-16_F7b_bootstrap_source_control\|review_2026-07-16_F7b_bootstrap_source_control]] | DRAFT | provisional |
-| [[codex_review/UE5.8_projectTP\|UE5.8_projectTP]] | WIP | 상위: [[projectTP_허브]] · 계획: [[UE5.8_Codex_학습계획]] · 근거 카탈로그: [[언리얼5.8_기술카탈로그]] |
+| [[codex/Codex_전체_읽기전용_리뷰_2026-07-16\|Codex_전체_읽기전용_리뷰_2026-07-16]] | PASS | complete_with_concurrent_commit_and_blueprint_graph_limitation |
+| [[codex/review_2026-07-16_F7b_bootstrap_source_control\|review_2026-07-16_F7b_bootstrap_source_control]] | DRAFT | provisional |
+| [[codex/UE5.8_projectTP\|UE5.8_projectTP]] | WIP | 상위: [[projectTP_허브]] · 계획: [[UE5.8_Codex_학습계획]] · 근거 카탈로그: [[언리얼5.8_기술카탈로그]] |
 | [[features/HD2D배경/raw/목업_유효범위_판정\|목업_유효범위_판정]] | PASS | 판정 완료 (qa-critic, 2026-07-31) — 목업 관련 모든 문서·보고에 §경고문구 필수 첨부 |
 | [[features/전투완성/raw/F4_TC\|F4_TC]] | PASS | TC 확정 — 개발 착수 전 BLOCKER 5건 Director 판정 필요 — [director 판정] 'BLOCKER 5건 판정 필요'는 스테일 — 판정 완료·F4 통과 |
 | [[features/전투완성/raw/F5_TC\|F5_TC]] | PASS | TC 확정 — 개발 착수 전 BLOCKER 5건 Director 판정 필요 — [director 판정] 동(BLOCKER 판정 완료) |
@@ -136,13 +139,13 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/전투완성/raw/파트2_SPD_TC\|파트2_SPD_TC]] | PASS | 핵심 게이트 PASS 2026-07-17 00시경 — 41건(GRAPH 17·PIE 11·회귀 9·데이터 4) 중 **10건 Director 직접 실행·전부 PASS**: GRAPH 5/5(P2-G01·G02·G03·G04·G07, 본 문서 §7이 지목한 "서브에이전트 보고 불인정" 5곳 전부)+보너스 2건(P2-G05·G09) + ★★★최강게이트 P2-… |
 | [[features/전투완성/raw/파트3_연출_TC\|파트3_연출_TC]] | PASS | 핵심 게이트 PASS 2026-07-17 01시경 — 38건(GRAPH 18·PIE 11·회귀 9) 중 **6건 Director 직접 실행·전부 PASS**: GRAPH 6/6(P3-G01·G02·G03·G04·G05·G06, 본 문서가 지목한 ★★★/★★ 최우선 6곳 전부). |
 | [[features/전투완성/raw/파트4_라벨힐_TC\|파트4_라벨힐_TC]] | PASS | 게이트 PASS(Director, 2026-07-17) — 오너 육안 4항목 PASS + Director 핀검증(작업1 라벨 GRAPH 8건) PASS + P4C-15(런타임조인 8기) PASS + 컴파일0·디스크저장 실증. |
-| [[로그시스템_점검_2026-08-12\|로그시스템_점검_2026-08-12]] | PASS | 점검 완료 — 구현 없음(발주 대기). |
+| [[records/로그시스템_점검_2026-08-12\|로그시스템_점검_2026-08-12]] | PASS | 점검 완료 — 구현 없음(발주 대기). |
 
 ## 기록·로그 (record) (86)
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[codex_review/Codex_Unreal_MCP_연결\|Codex_Unreal_MCP_연결]] | PASS | configured_and_endpoint_verified |
+| [[codex/Codex_Unreal_MCP_연결\|Codex_Unreal_MCP_연결]] | PASS | configured_and_endpoint_verified |
 | [[features/HD2D배경/raw/2D배경_기각_교훈_2026-08-10\|2D배경_기각_교훈_2026-08-10]] | ARCHIVED | 종결 — 오너 기각(2026-08-10). |
 | [[features/HD2D배경/raw/목업_결과_요약_2026-07-31\|목업_결과_요약_2026-07-31]] | ARCHIVED | 오프라인 목업 트랙 종료 — 답할 수 있는 것은 다 답했고, 나머지는 엔진 몫 |
 | [[features/UI파이프라인/raw/A0_UMG스파이크\|A0_UMG스파이크]] |  | 알파의 메뉴 UI(대기실 등) 전량을 UMG WidgetBlueprint로 만들 계획(`알파_개발계획.md` §2.6①)인데, 이 프로젝트는 UMG를 한 번도 안 써봤고 MCP 툴셋 목록에 Widget/UMG 전용 툴셋이 안 보인다는 Director 리컨을 실증하는 A0 스파이크. |
@@ -173,7 +176,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/E-S4a_오너_실행절차\|E-S4a_오너_실행절차]] | PASS | ★완료(2026-08-12, Content 저장소 커밋 `9c3934d`) — 단 검증은 스팟(전수 아님). |
 | [[features/옥토패스대치/raw/P0_상속스냅샷\|P0_상속스냅샷]] |  | 상위: [[../청사진\|옥토패스대치 청사진]] |
 | [[features/옥토패스대치/raw/P1_좌표카메라설계\|P1_좌표카메라설계]] |  | 상위: [[../청사진\|옥토패스대치 청사진]] · 전 단계: [[P0_상속스냅샷\|P0 상속스냅샷]] |
-| [[features/옥토패스대치/raw/P2_TC설계\|P2_TC설계]] |  | 상위: [[../청사진\|옥토패스대치 청사진]] · plan: [[../plan]] · 프로세스: [[../../../개발_워크플로우]] |
+| [[features/옥토패스대치/raw/P2_TC설계\|P2_TC설계]] |  | 상위: [[../청사진\|옥토패스대치 청사진]] · plan: [[../plan]] · 프로세스: [[../../../guides/개발_워크플로우]] |
 | [[features/옥토패스대치/raw/S1_flip구현\|S1_flip구현]] |  | 상위: [[../plan\|옥토패스대치 plan]] §1·§2 명세 그대로 구현. |
 | [[features/옥토패스대치/raw/S2_사선배치\|S2_사선배치]] |  | 상위: [[../청사진\|옥토패스대치 청사진]] · 전 단계: [[P1_좌표카메라설계\|P1 좌표·카메라 설계]] |
 | [[features/옥토패스대치/raw/S2p_초기배치백업\|S2p_초기배치백업]] |  | T1(BP 구현) + T2(8기 교체) 완료 시점 기록. |
@@ -224,10 +227,10 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/턴제전투MVP/raw/E3_게이트\|E3_게이트]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] · 선행: [[E2_상태머신]] |
 | [[features/턴제전투MVP/raw/F_라이브결함\|F_라이브결함]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] · 선행: [[E3_게이트]] |
 | [[features/턴제전투MVP/raw/전투로그\|전투로그]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] |
-| [[야간작업_2026-08-12\|야간작업_2026-08-12]] | AWAIT_OWNER | 완료 — 오너 확인 대기 |
-| [[야간작업_2026-08-13\|야간작업_2026-08-13]] | PASS | 문서구조 개선 1~6·9·10단계 완료. |
-| [[작업로그_HD2D아트검증_플레이북\|작업로그_HD2D아트검증_플레이북]] |  | 목적: 이번 S0(아트 선검증) 전 과정을 **재현 가능하게** 기록. |
-| [[포트폴리오_projectTP\|포트폴리오_projectTP]] |  | 사용법: `---`가 슬라이드 구분선입니다. |
+| [[records/야간작업_2026-08-12\|야간작업_2026-08-12]] | AWAIT_OWNER | 완료 — 오너 확인 대기 |
+| [[records/야간작업_2026-08-13\|야간작업_2026-08-13]] | PASS | 문서구조 개선 1~6·9·10단계 완료. |
+| [[records/작업로그_HD2D아트검증_플레이북\|작업로그_HD2D아트검증_플레이북]] |  | 목적: 이번 S0(아트 선검증) 전 과정을 **재현 가능하게** 기록. |
+| [[records/포트폴리오_projectTP\|포트폴리오_projectTP]] |  | 사용법: `---`가 슬라이드 구분선입니다. |
 
 ## 인덱스/허브 (index) (4)
 
@@ -242,44 +245,42 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[_RawAssets_전수카탈로그\|_RawAssets_전수카탈로그]] | WIP | `D:\unreal\Resource\_RawAssets\` 5개 폴더(heroes99·vfx·tilesets·ui-packs·_mockups) 전수 조사. |
-| [[codex_review/MVP_개발_핵심_운영가이드\|MVP_개발_핵심_운영가이드]] | WIP | 관련 전체 리뷰: [[Codex_전체_읽기전용_리뷰_2026-07-16]] |
+| [[codex/MVP_개발_핵심_운영가이드\|MVP_개발_핵심_운영가이드]] | WIP | 관련 전체 리뷰: [[Codex_전체_읽기전용_리뷰_2026-07-16]] |
 | [[features/HD2D배경/raw/룩_지침_2D타일셋\|룩_지침_2D타일셋]] | ARCHIVED | 종결 — ❌ 2026-08-11 정정: 2026-08-10 오너 기각(전투 배경 3D 유지)으로 적용 대상 소멸. |
 | [[features/HD2D배경/raw/오너_2D배경_튜닝가이드\|오너_2D배경_튜닝가이드]] | ARCHIVED | ~~배치 완료 — 라이팅/PP/색조 미적용, 오너 육안 확인 대기~~ → ❌ **2026-08-11 정정**: 오너 육안 확인 완료 — 기각(전투 배경은 3D 유지). |
 | [[features/스킬연출구조/raw/D5.5_오너_struct세션_절차서\|D5.5_오너_struct세션_절차서]] | AWAIT_OWNER | 오너 실행 대기 — 진입 조건 1/2 충족 |
 | [[features/옥토패스대치/배치가이드\|배치가이드]] | ARCHIVED | 활성 |
 | [[features/전투완성/raw/전투BP_현황도_2026-08-11\|전투BP_현황도_2026-08-11]] | PASS | 라이브 실측 스냅샷 |
-| [[HD2D_기법_지식베이스\|HD2D_기법_지식베이스]] |  | `hd2d-art-director` 에이전트의 상시 참조 문서. |
-| [[heroes99_스프라이트시트툴_조사\|heroes99_스프라이트시트툴_조사]] | WIP | 오너 단서: *"이 툴을 참고하면 좀 더 다양한 기능도 알 수 있을 거야."* (`https://yhkk.itch.io/heroes99-spritesheet-tool`) |
-| [[heroes99_에셋_전수탐색\|heroes99_에셋_전수탐색]] | WIP | 오너 질문에 대한 답을 찾기 위한 `_RawAssets` 전수 탐색. |
-| [[데이터규약_예시\|데이터규약_예시]] | SUPERSEDED | ~~예시 시드 — A0에서 공식 데이터 규약 문서로 승격 예정~~ → ❌ **2026-08-11 정정**: 승격 이미 완료 — [[데이터_서버_규약]] §4가 공식 규약 SSOT이고, 이 문서는 그 규약을 실데이터로 시연하는 상시 예시 컴패니언으로 역할 고정됨(더 이상 "승격 대기" 상태 아님) |
-| [[셋업가이드_새PC환경구축\|셋업가이드_새PC환경구축]] |  | 기존 PC에서 GitHub에 올린 projectTP를 다른 PC에서 동일하게 세팅하는 절차. |
-| [[셋업가이드_에디터MCP연결\|셋업가이드_에디터MCP연결]] |  | 목적: projectTP 에디터를 띄우고 Unreal MCP 서버를 기동해 **Claude가 에디터를 직접 조종**할 수 있게 한다. |
-| [[언리얼5.8_기술카탈로그\|언리얼5.8_기술카탈로그]] |  | UE 5.8 공식 문서를 폭넓게 읽고 **projectTP 스택에 실제로 닿는 것만** 골라 3분류한 참고 자료. |
-| [[언리얼_MCP_실전노하우\|언리얼_MCP_실전노하우]] |  | UE 5.8을 unreal-mcp로 조작하며 실제로 겪은 함정·해법·방법론. |
-| [[에셋_후보_카탈로그\|에셋_후보_카탈로그]] | PASS | 조사 기록 — 채택 아님. |
-| [[전투로그\|전투로그]] | PASS | LOG-A 완료 — 토큰 계약서 확정(문법·카테고리). |
-| [[카메라연출_원칙\|카메라연출_원칙]] |  | 카메라액션(공격 액션 컷) 설계 과정에서 확정된 기하 원칙. |
+| [[reference/_RawAssets_전수카탈로그\|_RawAssets_전수카탈로그]] | WIP | `D:\unreal\Resource\_RawAssets\` 5개 폴더(heroes99·vfx·tilesets·ui-packs·_mockups) 전수 조사. |
+| [[reference/HD2D_기법_지식베이스\|HD2D_기법_지식베이스]] |  | `hd2d-art-director` 에이전트의 상시 참조 문서. |
+| [[reference/heroes99_스프라이트시트툴_조사\|heroes99_스프라이트시트툴_조사]] | WIP | 오너 단서: *"이 툴을 참고하면 좀 더 다양한 기능도 알 수 있을 거야."* (`https://yhkk.itch.io/heroes99-spritesheet-tool`) |
+| [[reference/heroes99_에셋_전수탐색\|heroes99_에셋_전수탐색]] | WIP | 오너 질문에 대한 답을 찾기 위한 `_RawAssets` 전수 탐색. |
+| [[reference/데이터규약_예시\|데이터규약_예시]] | SUPERSEDED | ~~예시 시드 — A0에서 공식 데이터 규약 문서로 승격 예정~~ → ❌ **2026-08-11 정정**: 승격 이미 완료 — [[데이터_서버_규약]] §4가 공식 규약 SSOT이고, 이 문서는 그 규약을 실데이터로 시연하는 상시 예시 컴패니언으로 역할 고정됨(더 이상 "승격 대기" 상태 아님) |
+| [[reference/셋업가이드_새PC환경구축\|셋업가이드_새PC환경구축]] |  | 기존 PC에서 GitHub에 올린 projectTP를 다른 PC에서 동일하게 세팅하는 절차. |
+| [[reference/셋업가이드_에디터MCP연결\|셋업가이드_에디터MCP연결]] |  | 목적: projectTP 에디터를 띄우고 Unreal MCP 서버를 기동해 **Claude가 에디터를 직접 조종**할 수 있게 한다. |
+| [[reference/언리얼5.8_기술카탈로그\|언리얼5.8_기술카탈로그]] |  | UE 5.8 공식 문서를 폭넓게 읽고 **projectTP 스택에 실제로 닿는 것만** 골라 3분류한 참고 자료. |
+| [[reference/언리얼_MCP_실전노하우\|언리얼_MCP_실전노하우]] |  | UE 5.8을 unreal-mcp로 조작하며 실제로 겪은 함정·해법·방법론. |
+| [[reference/에셋_후보_카탈로그\|에셋_후보_카탈로그]] | PASS | 조사 기록 — 채택 아님. |
+| [[reference/전투로그\|전투로그]] | PASS | LOG-A 완료 — 토큰 계약서 확정(문법·카테고리). |
+| [[reference/카메라연출_원칙\|카메라연출_원칙]] |  | 카메라액션(공격 액션 컷) 설계 과정에서 확정된 기하 원칙. |
 
 ## 규약/프로세스 (process) (6)
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[UI_화면_규약\|UI_화면_규약]] |  | projectTP **방향성2(Steam 드래프트 단판 PvP)**의 전체 화면·UI 제작 규약. |
-| [[개발_워크플로우\|개발_워크플로우]] |  | projectTP 개발의 **정본 프로세스**. |
-| [[네이밍_폴더_규약\|네이밍_폴더_규약]] |  | projectTP 전 카테고리(**UE Content 애셋 · 레벨/맵 · CSV/데이터 · UI 디자인 파일 · 스크립트 · 문서 · Blueprint 내부 · 위젯 트리 · 액터/씬 인스턴스 · CSS 토큰**)의 **명명·폴더 규약 단일 출처**다. |
-| [[데이터_서버_규약\|데이터_서버_규약]] |  | projectTP의 **버전 무관 데이터·서버 아키텍처 규약**의 단일 출처 — CSV 데이터 전략·포맷 판단·데이터 드리븐 효과·서버 권위 범위·라이브옵스 원격 배송·CSV 컬럼 스키마. |
-| [[문서화_규칙\|문서화_규칙]] |  | 모든 작업 산출물·중간 기록을 이 볼트에 남기는 규칙. |
-| [[저장소_구조_규약\|저장소_구조_규약]] | PASS | 확정 — 저장소 배치의 단일 출처(SSOT). |
+| [[guides/UI_화면_규약\|UI_화면_규약]] |  | projectTP **방향성2(Steam 드래프트 단판 PvP)**의 전체 화면·UI 제작 규약. |
+| [[guides/개발_워크플로우\|개발_워크플로우]] |  | projectTP 개발의 **정본 프로세스**. |
+| [[guides/네이밍_폴더_규약\|네이밍_폴더_규약]] |  | projectTP 전 카테고리(**UE Content 애셋 · 레벨/맵 · CSV/데이터 · UI 디자인 파일 · 스크립트 · 문서 · Blueprint 내부 · 위젯 트리 · 액터/씬 인스턴스 · CSS 토큰**)의 **명명·폴더 규약 단일 출처**다. |
+| [[guides/데이터_서버_규약\|데이터_서버_규약]] |  | projectTP의 **버전 무관 데이터·서버 아키텍처 규약**의 단일 출처 — CSV 데이터 전략·포맷 판단·데이터 드리븐 효과·서버 권위 범위·라이브옵스 원격 배송·CSV 컬럼 스키마. |
+| [[guides/문서화_규칙\|문서화_규칙]] |  | 모든 작업 산출물·중간 기록을 이 볼트에 남기는 규칙. |
+| [[guides/저장소_구조_규약\|저장소_구조_규약]] | PASS | 확정 — 저장소 배치의 단일 출처(SSOT). |
 
-## (미분류) (6)
+## (미분류) (4)
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[ArtMVP_아트선검증_계획\|ArtMVP_아트선검증_계획]] |  | 작성일: 2026-06-28 / 엔진: UE 5.8 / 상태: ~~계획만, 구현 미착수~~ → ✅ **2026-08-11 정정**: S0 검증 **완료·GO 판정**. |
 | [[features/공격버튼데모/raw/D2_구현\|D2_구현]] | 완료 — D3 게이트 통과 후 오너 리포트로 핫픽스(FrameCount 8→6, RetriggerableDelay 0.95→0.70s) 추가 반영, 컴파일/저장 확인, 오너 재확인 대기 | gameplay-engineer 구현 로그. |
 | [[features/카메라액션/plan\|plan]] |  | 승인 원본: `C:\Users\user\.claude\plans\humble-purring-glacier.md`. |
 | [[features/턴제전투MVP/raw/VFX_임시통합_방침\|VFX_임시통합_방침]] | 활성 (구조 재설계 전까지) | 오너 원문: "vfx는 나중에 구조를 다시 잡아야 하니까 여기선 **눈 구별 가는 정도만** 해도 됨." |
-| [[HD2D_PvP_ATB_설계\|HD2D_PvP_ATB_설계]] |  | 작성일: 2026-06-28 / 엔진: UE 5.8 (`D:\unreal\UE_5.8`) / 상태: **설계 검토 단계, 구현 미착수** |
 | [[scripts/README\|README]] |  | 여기서 무엇을 찾을 수 있는가** (AI는 이 4줄만 읽어도 판단 가능해야 한다): |
 

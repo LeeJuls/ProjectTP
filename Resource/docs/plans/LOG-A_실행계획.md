@@ -55,7 +55,7 @@ status_note: 오너 승인 완료 — 착수
 | `Resource/docs/scripts/battle_log/__init__.py` 등 (신규 모듈) | ★**ingestion 공용 모듈** — 파싱의 단일 소스 |
 | `Resource/docs/scripts/oracle_diff.py` (신규) | 비교기 CLI |
 | `Resource/docs/scripts/extract_battle_log.py` (개조) | 모듈의 thin wrapper로 |
-| `Resource/docs/전투로그.md` (신규 또는 갱신) | grep 커맨드 세트 통합 + **토큰 계약서** |
+| `Resource/docs/reference/전투로그.md` (신규 또는 갱신) | grep 커맨드 세트 통합 + **토큰 계약서** |
 
 ### ① ingestion 공용 모듈
 
