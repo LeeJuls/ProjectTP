@@ -27,6 +27,8 @@
 *.html    text eol=lf
 *.yaml    text eol=lf
 *.yml     text eol=lf
+*.ts      text eol=lf
+*.txt     text eol=lf
 
 # ★.bat 은 의도적으로 제외한다 — Windows 배치는 CRLF 전제이고
 #   (`_Launch_MCP.bat` 등) 잘못 변환하면 실행이 깨질 수 있다.
