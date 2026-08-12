@@ -149,7 +149,21 @@ status: TC 초판 — plan v1(초안) 대상. ★게이트 이전 불가 12건 �
 ### 3-2. BT2 — 오라클-diff 비교기 구축 ★F7b ⑦ 게이트의 도구
 
 > 실측: `docs/scripts/`에 `extract_battle_log.py`만 존재 — **비교기 미구축 확인**.
-> 라이브 로그 실포맷(야간⑤ 실측): `BattleLog|turn=7|attacker=SpawnPoint_Party_A3|target=SpawnPoint_Enemy_B1|action=SLASH|dmg=45|hp=0|died=true`
+> ~~라이브 로그 실포맷(야간⑤ 실측): `BattleLog|turn=7|...|action=SLASH|dmg=45|hp=0|died=true`~~
+> ★**정정(2026-08-12) — 위 예시는 스테일이다. 실측과 3곳 다르다**(`projectTP.log` 35줄 전수):
+> ```
+> BattleLog|turn=1|attacker=SpawnPoint_Party_A3|target=SpawnPoint_Enemy_B2|action=31000000|dmg=32|hp=58
+> BattleLog|turn=3|attacker=SpawnPoint_Party_A4|target=SpawnPoint_Enemy_B2|action=32001000|dmg=61|hp=0|effect=ATK_DOWN|effectRoll=-1|effectApplied=false|died=true
+> ```
+> | 축 | 舊 예시 | 실측 |
+> |---|---|---|
+> | `action` | `SLASH`(문자열) | ★**`31000000`**(숫자 skillId) |
+> | `dmg` | 45 | 실측 집합 `{30,32,34,36,42,61,65,0,-33}` — **45 없음** |
+> | `died` 위치 | `hp` 바로 뒤 | ★**effect 3필드가 있으면 그 뒤**(10번째) → **위치 파싱 금지, dict 필수** |
+>
+> ★**같은 문서 `AU-B2-04`가 `action == 31000000`(숫자)을 요구한다** — 舊 예시만 자기모순이었다.
+> ★부수: `action` 형식이 3세대 변천(`ATTACK1` → 숫자). **2026-07-07 이전 로그는 `AU-B2-04` 자동 FAIL**이다.
+> 필드 키 조합 분포(35줄): `turn\|attacker\|target\|action\|dmg\|hp` 29 / `+effect\|effectRoll\|effectApplied` 5 / `+died` 1
 > 오라클 §7 CSV 스키마: `T,attacker,attacker_job,target,target_job,dmg,target_hp_after,died`
 
 | ID | 절차 | PASS 기준 | FAIL 시 의심 | 주체 | 상태 |
