@@ -161,6 +161,21 @@ ROWS: tuple = (
            "★DIAG 금지: DIAG는 기본 OFF라 AU-A5-05가 실행 불가가 된다(qa-critic 지적). "
            "5필드 전부 숫자 ID 고정이라 위치 기반이 안전하다 — BattleLog의 died처럼 "
            "유무에 따라 자리가 밀리는 가변 필드가 없다"),
+    LogRow("21", "FXLAB:CAMCUT:", ("FXLAB:CAMCUT",), STAGE, PLAIN,
+           "★AT4-b 신규. `PlayCameraCut` 진입 — SetViewTargetWithBlend(NewViewTarget="
+           "CameraCutTargetRef) 발동 직후. FXSHOW/FXHIDE(15c)와 동형 성공 경로 진단이라 "
+           "같은 STAGE. ★프리픽스가 `FXLAB:` 계열이지만 `CamCut:`(순번8, 레거시 "
+           "BP_BattleManager 팀별 캠)과는 다른 토큰이다 — E-H2로 원본 카메라 코드가 삭제돼 "
+           "레거시 프리픽스와 구조적으로 충돌하지 않는다(BP_BattleManager 부재)"),
+    LogRow("22", "FXLAB:CAMBACK:", ("FXLAB:CAMBACK",), STAGE, PLAIN,
+           "★AT4-b 신규. `PlayCameraCut`의 RetriggerableDelay(0.5s, 스파이크 잠정값·AT6 미확정) "
+           "만료 후 DefaultCameraRef로 복귀 직전. CAMCUT(21)과 1:1 짝 — 사이클 완주 판정에 사용"),
+    LogRow("23", "FXLAB:STGDEFAULT:<defaultStagingId>", ("FXLAB:STGDEFAULT",), ERROR, COLON_POS,
+           "★AT4-b 신규. D1_4슬롯구조_확정.md E14(`StagingId=0` → `DefaultStagingId` 폴백 + "
+           "로그 1줄, ★명세가 명시적으로 'fail-loud'라 부름) 구현. ResolveStaging 진입 직후 "
+           "`StagingIdIn==0`이면 발화하고 `DefaultStagingId`(CDO 상수, 권고값 62000100 — "
+           "근거: D4.5c_연출SFX행확정.md §2-4 '4행 중 유일하게 현행 다수 동작과 같아 폴백 시 "
+           "이질감 최소')로 재귀 재호출한다. STGNOROW(19)와 동형 성격이라 같은 ERROR"),
 )
 
 
