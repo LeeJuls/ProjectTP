@@ -9,17 +9,17 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 # INDEX — projectTP 옵시디언 볼트 전체 목록
 
 > ★자동생성 문서. 손으로 편집하지 마라 — 다음 `generate_index.py --apply` 실행에서 덮어써진다.
-> 총 215개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
+> 총 216개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
 > 없으면 문서 첫 헤딩 다음 문장을 썼다(둘 다 200자 상한 — 표시용 절삭이며 frontmatter 원문은 무수정).
 > 둘 다 없으면 빈칸이다(추측해서 채우지 않는다). 전문은 각 문서의 frontmatter/본문에서 확인.
 
 | 항목 | 값 |
 |---|---|
-| 총 문서 수 | 215 |
+| 총 문서 수 | 216 |
 | 요약 빈칸 | 0 |
 | type 그룹 수 | 10 |
 
-## 계획 (plan) (32)
+## 계획 (plan) (33)
 
 | 문서 | status | 요약 |
 |---|---|---|
@@ -33,6 +33,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/기본전투무대/청사진\|청사진]] | PASS | 상위: [[projectTP_허브]] · 프로세스: [[개발_워크플로우]] · 세부: [[features/기본전투무대/plan\|plan]] · 로그: [[진행로그]] |
 | [[features/스킬연출구조/E_스파이크_plan\|E_스파이크_plan]] | WIP | S0/S1/S2' PASS · S4a-0 완료(스크립트 경로) · S4a 완료(2026-08-12, 스팟검증) — S2 진행 중 · R2 취소(2026-08-12, H18 블록 부재 확정) — [director 판정] S2 진행 중 · S3~S6 재검토 대기 |
 | [[features/스킬연출구조/plan\|plan]] | PASS | D5 PASS(2026-08-11) — 설계 트랙 종료. |
+| [[features/스킬연출구조/raw/FT1_plan\|FT1_plan]] | DRAFT | director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. |
 | [[features/스킬연출구조/청사진\|청사진]] | SUPERSEDED | plan 승인(2026-08-11) — 4슬롯으로 구조 변경됨. |
 | [[features/옥토패스대치/plan\|plan]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
 | [[features/옥토패스대치/청사진\|청사진]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
