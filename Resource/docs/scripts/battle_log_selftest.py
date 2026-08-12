@@ -23,7 +23,10 @@ from pathlib import Path
 SCRIPTS_DIR = Path(r"D:\unreal\Resource\docs\scripts")
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from battle_log import io_utils, oracle, parser, tokens  # noqa: E402
+from battle_log import io_utils, oracle, parser, session, tokens  # noqa: E402
+import extract_battle_log  # noqa: E402
+
+io_utils.ensure_utf8_stdout()
 
 ORACLE_MD = r"D:\unreal\Resource\docs\features\전투완성\raw\SPD원장_오라클_v1.md"
 REAL_EXTRACTED_LOG = r"D:\unreal\projectTP\Saved\BattleLogs\battle_20260716_123951.log"
@@ -80,7 +83,16 @@ def run_oracle_diff(oracle_path: str, log_path: str, jobtable: str | None = None
     cmd = [sys.executable, ORACLE_DIFF_PY, "--oracle", oracle_path, "--log", log_path]
     if jobtable:
         cmd += ["--jobtable", jobtable]
-    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    # ★자식 프로세스도 UTF-8로 출력하게 강제한다.
+    #   이걸 안 하면 한국어 Windows(콘솔 cp949)에서 자식이 cp949로 쓰고 부모는 utf-8로
+    #   읽어 UnicodeDecodeError → proc.stdout=None → "argument of type 'NoneType'"로 크래시한다.
+    #   실제 발생(2026-08-12): 구현 에이전트 환경에선 30/30 PASS인데 PM 환경에선 전량 크래시.
+    #   재현되지 않는 테스트는 게이트가 아니므로 환경 의존을 제거한다.
+    env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+    proc = subprocess.run(
+        cmd, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", env=env,
+    )
     return proc.returncode, proc.stdout, proc.stderr
 
 
@@ -261,6 +273,86 @@ record("R-3(프리픽스만 다른 두 로그 → 파싱 결과 diff 0)", ok,
 prefix_actually_changed = any(a != b for a, b in zip(variant_a_lines, variant_b_lines) if a.strip())
 record("R-3(부가 — 변조가 실제로 프리픽스를 바꿨는지 자기검증)", prefix_actually_changed,
        f"prefix_changed={prefix_actually_changed}")
+
+
+# ---------------------------------------------------------------------------
+# 카테고리 SSOT 확장 시험 — ERROR 신설·SessionBoundary 무소속·sid 유도 순서 (PM 지시 4건)
+# ---------------------------------------------------------------------------
+
+# (1) ERROR 카테고리: fail-loud 3종만 포함, FXSHOW/FXHIDE(STAGE)는 제외
+error_markers = extract_battle_log.resolve_markers("ERROR", None)
+ok = (set(error_markers) >= {"FXLAB:FXSKIP", "FXLAB:TEXMISS", "FXLAB:FXNOROW"}
+      and "FXLAB:FXSHOW" not in error_markers and "FXLAB:FXHIDE" not in error_markers)
+record("PM지시①(--category ERROR = fail-loud 3종만)", ok, f"markers={error_markers}")
+
+# (2) STAGE: FXSHOW/FXHIDE는 포함하되 fail-loud 3종은 제외(ERROR로 이관됐으므로)
+stage_markers = extract_battle_log.resolve_markers("STAGE", None)
+ok = ({"FXLAB:FXSHOW", "FXLAB:FXHIDE"} <= set(stage_markers)
+      and not ({"FXLAB:FXSKIP", "FXLAB:TEXMISS", "FXLAB:FXNOROW"} & set(stage_markers)))
+record("PM지시①(--category STAGE = FXSHOW/FXHIDE만, fail-loud 제외)", ok, f"markers={stage_markers}")
+
+# (3) SessionBoundary 무소속 — 단일 카테고리만 요청해도 항상 포함
+sb_prefix = tokens.row_by_number("16").prefixes[0]
+for cat in ("LEDGER", "FLOW", "STAGE", "DIAG", "ERROR"):
+    markers = extract_battle_log.resolve_markers(cat, None)
+    ok = sb_prefix in markers
+    record(f"PM지시②(SessionBoundary 무소속 — --category {cat}에도 포함)", ok, f"markers 일부={markers[:3]}...")
+
+# (4) sid 유도 순서 — parse_line_meta는 ts와 rest를 동시에 반환(strip_prefix는 ts를 버림)
+sample_raw = "[2026.08.11-22.32.06:160][596]LogBlueprintUserMessages: [BP_BattleManager_C_0] " + \
+             sb_prefix + "event=BeginPlay"
+meta = parser.parse_line_meta(sample_raw)
+ok = (meta is not None) and (meta[0] == "2026.08.11-22.32.06:160") and (meta[2].startswith(sb_prefix))
+record("PM지시③(parse_line_meta — ts·rest 동시 추출)", ok, f"meta={meta}")
+
+stripped_only = parser.strip_prefix(sample_raw)
+ok = stripped_only == meta[2]  # strip_prefix는 parse_line_meta의 rest만 반환하는 래퍼
+record("PM지시③(strip_prefix는 parse_line_meta의 래퍼 — ts는 버림, rest는 동일)", ok,
+       f"strip_prefix 결과={stripped_only!r}")
+
+
+# (5) 세션 분할 + 세션 키(sid, init_ordinal) — 2 sid × 각 2 INIT(FRESH/RESTART)
+def _raw(ts: str, frame: int, content: str) -> str:
+    return f"[{ts}][{frame:3d}]LogBlueprintUserMessages: [BP_BattleManager_C_0] {content}"
+
+
+battle_prefix = tokens.row_by_number("11").prefixes[0]
+state_prefix = tokens.row_by_number("13").prefixes[0]
+registered_prefix = tokens.row_by_number("4").prefixes[0]
+
+synthetic_session_lines = [
+    _raw("2026.08.11-12.00.00:000", 1, registered_prefix + "1"),  # 마커 이전 — sid None 기대
+    _raw("2026.08.11-12.00.01:000", 2, sb_prefix + "event=BeginPlay"),  # sid=A 시작
+    _raw("2026.08.11-12.00.01:100", 3, registered_prefix + "1"),  # sid=A, ordinal 0(예비)
+    _raw("2026.08.11-12.00.02:000", 4, state_prefix + "event=INIT|mode=FRESH"),  # ordinal→1
+    _raw("2026.08.11-12.00.02:500", 5, battle_prefix + "turn=1|attacker=x|target=y|action=31000000|dmg=1|hp=1"),
+    _raw("2026.08.11-12.00.03:000", 6, state_prefix + "event=INIT|mode=RESTART"),  # ordinal→2
+    _raw("2026.08.11-12.00.03:500", 7, battle_prefix + "turn=1|attacker=x|target=y|action=31000000|dmg=1|hp=1"),
+    _raw("2026.08.11-13.30.00:000", 8, sb_prefix + "event=BeginPlay"),  # sid=B 시작(다른 벽시계)
+    _raw("2026.08.11-13.30.01:000", 9, state_prefix + "event=INIT|mode=FRESH"),  # sid=B ordinal→1
+    _raw("2026.08.11-13.30.01:500", 10, battle_prefix + "turn=1|attacker=x|target=y|action=31000000|dmg=1|hp=1"),
+]
+
+# 인덱스 지도(0-based, 10줄): 0=마커 이전 / 1=SB(ts1) / 2=Registered / 3=INIT FRESH /
+# 4=BattleLog / 5=INIT RESTART / 6=BattleLog / 7=SB(ts2) / 8=INIT FRESH / 9=BattleLog
+sessions = session.assign_sessions(synthetic_session_lines)
+sids = [s for s, _ in sessions]
+ok = (sids[0] is None) and (len(set(sids[1:7])) == 1) and (sids[7] != sids[1]) and (sids[7] == sids[8] == sids[9])
+record("PM지시④(assign_sessions — 마커 이전 None ∧ 세션별 sid 분리 ∧ 2세션 sid 서로 다름)",
+       ok, f"sids={sids}")
+
+keyed = session.assign_session_keys(synthetic_session_lines)
+# sid=A 구간(인덱스 1~6, SB 라인 자신 포함): SB=0, Registered=0, INIT FRESH=1, BattleLog=1, INIT RESTART=2, BattleLog=2
+ordinals_sid_a = [k[1] for k, raw in keyed if k[0] == sids[1]]
+ok = ordinals_sid_a == [0, 0, 1, 1, 2, 2]
+record("PM지시④(assign_session_keys — sid=A 내 init_ordinal 0,0,1,1,2,2, SB 자신은 예비=0)",
+       ok, f"ordinals={ordinals_sid_a}")
+
+# sid=B 구간(인덱스 7~9, SB 라인 자신 포함): SB=0, INIT FRESH=1, BattleLog=1
+ordinals_sid_b = [k[1] for k, raw in keyed if k[0] == sids[7]]
+ok = ordinals_sid_b == [0, 1, 1]
+record("PM지시④(assign_session_keys — sid=B 내 init_ordinal 0,1,1, 새 sid에서 리셋)", ok,
+       f"ordinals={ordinals_sid_b}")
 
 
 # ---------------------------------------------------------------------------

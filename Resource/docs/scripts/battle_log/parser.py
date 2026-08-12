@@ -3,9 +3,18 @@
 UE 원본 로그 라인 실측 포맷(LogBlueprintUserMessages):
     [2026.08.11-22.32.06:160][596]LogBlueprintUserMessages: [BP_BattleManager_C_0] <내용>
 
-`strip_prefix()`가 `[타임스탬프][프레임카운터]LogCategory: [ActorLabel] ` 부분을 스트립하고
-`<내용>`만 반환한다. R-3 음성시험(연출 타이밍만 다른 두 로그 → diff 0)의 대상이 정확히 이 함수다
-— 타임스탬프·프레임카운터가 달라도 `<내용>`이 같으면 이 함수의 출력은 같아야 한다.
+`parse_line_meta()`가 `[타임스탬프][프레임카운터]LogCategory: [ActorLabel] ` 부분과
+`<내용>`을 **한 정규식 매치에서 동시에** 뽑는다. `strip_prefix()`는 그 `<내용>`만 반환하는
+얇은 래퍼다. R-3 음성시험(연출 타이밍만 다른 두 로그 → diff 0)의 대상이 정확히 이 스트립
+동작이다 — 타임스탬프·프레임카운터가 달라도 `<내용>`이 같으면 결과가 같아야 한다.
+
+★sid 유도 순서 계약(FT1-0_TC.md §3-A): `SessionBoundary|` 라인의 sid는 이 프리픽스의
+타임스탬프(`ts`)에서 유도된다(`battle_log.session.derive_sid`). **스트립을 먼저 해서
+`<내용>`만 넘기면 sid의 원천이 사라진다** — 그래서 `parse_line_meta()`가 ts와 rest를
+분리된 두 단계가 아니라 하나의 매치로 동시에 반환하도록 설계했다. `strip_prefix()`만 쓰는
+기존 소비자는 ts를 버리지만, sid가 필요한 소비자(`battle_log.session`)는 반드시
+`parse_line_meta()`를 직접 호출해 ts를 함께 받는다 — "내용만 있는 상태에서 사후적으로
+sid를 만들려는" 경로 자체가 코드에 없다.
 
 ★`died` 위치 가변 — `effect`/`effectRoll`/`effectApplied` 3필드 유무에 따라 `died`가
 6번째(부재 시) ↔ 10번째(존재 시) 필드로 움직인다. 그래서 pipe 라인은 반드시
@@ -17,21 +26,30 @@ import re
 
 # [2026.08.11-22.32.06:160][596]LogBlueprintUserMessages: [BP_BattleManager_C_0] <rest>
 # 프레임카운터 칸이 우측 정렬 공백 패딩되기도 한다: [  9] · [ 56] · [596]
-_PREFIX_RE = re.compile(
-    r"^\[[0-9.\-:]+\]\[\s*\d+\]Log\w+:\s*(?:\[[^\]]*\]\s*)?(?P<rest>.*)$"
+_META_RE = re.compile(
+    r"^\[(?P<ts>[0-9.\-:]+)\]\[\s*(?P<frame>\d+)\]Log\w+:\s*(?:\[[^\]]*\]\s*)?(?P<rest>.*)$"
 )
 
 
-def strip_prefix(raw_line: str):
-    """엔진 로그 프리픽스를 스트립. 매칭 안 되면(엔진 로그 라인이 아니면) None.
+def parse_line_meta(raw_line: str):
+    """엔진 로그 프리픽스에서 (ts, frame, rest)를 한 번에 추출. 매칭 안 되면 None.
 
-    `extract_battle_log.py` 산출물(`# source:` 등 헤더 3줄 포함)이나 빈 줄도
-    매칭 실패로 None을 반환하므로, 소비자는 None을 건너뛰면 된다.
+    `extract_battle_log.py` 산출물의 `# source:` 등 헤더 3줄이나 빈 줄도 매칭 실패로
+    None을 반환한다 — 소비자는 None을 건너뛰면 된다.
     """
-    m = _PREFIX_RE.match(raw_line)
+    m = _META_RE.match(raw_line)
     if not m:
         return None
-    return m.group("rest")
+    return m.group("ts"), m.group("frame"), m.group("rest")
+
+
+def strip_prefix(raw_line: str):
+    """엔진 로그 프리픽스를 스트립하고 `<내용>`만 반환. 매칭 안 되면 None.
+
+    `parse_line_meta()`의 얇은 래퍼 — ts가 필요 없는 기존 소비자(카테고리 필터 등) 전용.
+    """
+    meta = parse_line_meta(raw_line)
+    return None if meta is None else meta[2]
 
 
 def parse_pipe_kv(content: str):
@@ -55,21 +73,29 @@ def parse_pipe_kv(content: str):
     return result
 
 
-def iter_pipe_events(raw_lines, tag: str):
+def iter_pipe_events(raw_lines, tag: str, with_meta: bool = False):
     """원본(프리픽스 포함) 라인들에서 `<tag>|...` 라인만 골라 dict로 yield.
 
     `tag`는 파이프 앞 토큰 이름(예: 원장 토큰 이름, 상태이상 토큰 이름) — 호출부가
     `battle_log.tokens`의 LogRow.prefixes에서 얻어와야 하며, 이 함수 자체는 특정
     토큰 프리픽스 리터럴을 상수로 갖지 않는다(게이트③: 리터럴 프리픽스는 tokens.py 한 곳뿐).
+
+    `with_meta=True`면 반환 dict에 `_ts`/`_frame`(엔진 프리픽스 메타)도 채워 넣는다.
+    기본 False — R-3처럼 "타이밍은 달라도 내용이 같으면 동일 결과"를 diff로 확인하려는
+    소비자는 굳이 켤 필요 없다(오히려 ts가 섞이면 그 diff 자체가 오염된다).
     """
     marker = f"{tag}|"
     for raw in raw_lines:
         if marker not in raw:
             continue
-        content = strip_prefix(raw)
-        if content is None:
+        meta = parse_line_meta(raw)
+        if meta is None:
             continue
+        ts, frame, content = meta
         event = parse_pipe_kv(content)
         if event is None or event.get("_tag") != tag:
             continue
+        if with_meta:
+            event["_ts"] = ts
+            event["_frame"] = frame
         yield event

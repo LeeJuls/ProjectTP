@@ -61,6 +61,10 @@
 # 코드 자체는 각자 Obsidian이 재설치한다.
 /Resource/docs/.obsidian/plugins/
 
+# ===== Python bytecode cache (docs/scripts 파이썬 도구들 — LOG-A battle_log 패키지 등) =====
+__pycache__/
+*.pyc
+
 # ===== OS junk =====
 Thumbs.db
 Desktop.ini

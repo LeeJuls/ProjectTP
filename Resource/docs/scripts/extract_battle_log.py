@@ -36,6 +36,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from battle_log import io_utils, tokens  # noqa: E402
 
+io_utils.ensure_utf8_stdout()
+
 DEFAULT_LOGS_DIR = r"D:\unreal\projectTP\Saved\Logs"
 DEFAULT_OUT_DIR = r"D:\unreal\projectTP\Saved\BattleLogs"
 
@@ -44,7 +46,13 @@ _DEFAULT_ROW = tokens.row_by_number("11")
 
 
 def resolve_markers(category_arg: str | None, tokens_arg: str | None):
-    """추출 대상 마커 목록을 결정. 인자가 전부 없으면 기본(순번11) 1종만(회귀 0 보장)."""
+    """추출 대상 마커 목록을 결정. 인자가 전부 없으면 기본(순번11) 1종만(회귀 0 보장).
+
+    ★`--category` 경로는 카테고리 무소속(UNAFFILIATED, 예: SessionBoundary)을 요청 목록에
+    없어도 항상 포함시킨다 — qa-critic FT1-0_TC.md [High] 지적("SessionBoundary가 특정
+    카테고리에 속하면 그 카테고리를 끄는 순간 세션 경계가 사라진다") 대응. `--tokens`로
+    프리픽스를 직접 지정한 경우는 사용자의 명시적 선택을 그대로 존중(자동 추가 없음).
+    """
     if tokens_arg:
         return [t for t in tokens_arg.split(",") if t]
     if category_arg:
@@ -54,7 +62,7 @@ def resolve_markers(category_arg: str | None, tokens_arg: str | None):
             raise ValueError(f"알 수 없는 카테고리: {sorted(unknown)} (유효: {tokens.CATEGORIES})")
         markers = []
         for row in tokens.ROWS:
-            if row.category in requested:
+            if row.category in requested or row.category == tokens.UNAFFILIATED:
                 markers.extend(row.prefixes)
         if not markers:
             raise ValueError(f"카테고리 {sorted(requested)}에 해당하는 토큰이 없음")

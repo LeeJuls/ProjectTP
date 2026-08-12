@@ -27,6 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from battle_log import io_utils, oracle, parser, tokens  # noqa: E402
 
+io_utils.ensure_utf8_stdout()
+
 _LEDGER_BATTLE_ROW = tokens.row_by_number("11")  # 원장 1차 소스 토큰 — 리터럴은 tokens.py에만 존재
 _BATTLE_PREFIX = _LEDGER_BATTLE_ROW.prefixes[0]
 _BATTLE_TAG = _BATTLE_PREFIX.rstrip("|")
