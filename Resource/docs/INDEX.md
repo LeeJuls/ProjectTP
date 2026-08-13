@@ -9,13 +9,13 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 # INDEX — projectTP 옵시디언 볼트 전체 목록
 
 > ★자동생성 문서. 손으로 편집하지 마라 — 다음 `generate_index.py --apply` 실행에서 덮어써진다.
-> 총 222개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
+> 총 223개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
 > 없으면 문서 첫 헤딩 다음 문장을 썼다(둘 다 200자 상한 — 표시용 절삭이며 frontmatter 원문은 무수정).
 > 둘 다 없으면 빈칸이다(추측해서 채우지 않는다). 전문은 각 문서의 frontmatter/본문에서 확인.
 
 | 항목 | 값 |
 |---|---|
-| 총 문서 수 | 222 |
+| 총 문서 수 | 223 |
 | 요약 빈칸 | 0 |
 | type 그룹 수 | 10 |
 
@@ -86,7 +86,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/캐릭터시스템/raw/balance1_포지션킷_v1\|balance1_포지션킷_v1]] | PASS | 본설계 완료(2026-07-18) — 오너 S3 결재 반영. |
 | [[features/캐릭터시스템/raw/모션연결_규칙안\|모션연결_규칙안]] | PASS | ★오너 확정(2026-07-13) — 안 B(느슨결합) 채택 + R1 완화=완드 4색 변형 활용. |
 
-## 게이트 판정 (gate) (23)
+## 게이트 판정 (gate) (24)
 
 | 문서 | status | 요약 |
 |---|---|---|
@@ -103,6 +103,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/FT1-S1_조회결과_2026-08-13\|FT1-S1_조회결과_2026-08-13]] | PASS | S1 조회 프로브 완료 — 조회 전용(F0p-04 예외 1건만 연결+즉시원복). |
 | [[features/스킬연출구조/raw/FT1-S2_04판정\|FT1-S2_04판정]] | PASS | director 04판정 — AU-F0a-04는 조건부 PASS(TC 원문의 '계약 요구' 경로). |
 | [[features/스킬연출구조/raw/FT1-S2_착수판정\|FT1-S2_착수판정]] | PASS | director 착수판정 — S2 착수 승인. |
+| [[features/스킬연출구조/raw/FT1-S3_D1_조회결과\|FT1-S3_D1_조회결과]] | PASS | D1(조회 전용) 완료 — 수술 0건, save_assets 0회. |
 | [[features/스킬연출구조/raw/FT1-S3_착수판정\|FT1-S3_착수판정]] | PASS | director 착수판정 — S3(수술② 1b 자동 시작 토글) 착수 승인. |
 | [[features/스킬연출구조/raw/T1_잔상절단_결과\|T1_잔상절단_결과]] | WIP | 구현 완료 — verifier 실증 대기 / 오너 육안 비차단 대기. |
 | [[features/스킬연출구조/raw/내장트레일_director판정\|내장트레일_director판정]] | PASS | director 판정 완료 — T0 착수 가능 / T1은 오너 게이트 |
