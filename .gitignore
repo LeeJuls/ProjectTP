@@ -65,6 +65,24 @@
 __pycache__/
 *.pyc
 
+# ===== projectCB — 별개 게임, 별개 저장소 (오너 확정 2026-08-13) =====
+#   포커 1:1 PvP. projectTP와 다른 게임이므로 이력을 섞지 않는다.
+#   D:\unreal\ProjectCB\ 자체가 그 저장소의 워킹트리다
+#   (중첩 repo — Content/ · _RawAssets/ 와 동일 방식으로 부모가 통째로 ignore).
+#   ★이 저장소(ProjectTP)에서는 ProjectCB를 절대 추적하지 않는다.
+#   배치 규약: ProjectCB/docs/guides/저장소_구조_규약.md
+/ProjectCB/
+
+# ===== ★압축파일 전역 차단 (2026-08-13 신설) =====
+#   사고 이력: `Pixel UI pack 3.rar`(2026-07-26)가 공개 저장소 추적 대상으로 방치됐고,
+#   `Pixel Classic Cards.rar`(2026-08-13)가 저장소 루트에 방치됐다. 둘 다 확장자 규칙이
+#   경로별(/Resource/*.zip)로만 있어서 다른 경로는 뚫려 있었다. 이제 위치 무관 차단한다.
+#   ★압축 해제 원본이 필요하면 _RawAssets/ 아래(비공개 대상)에 둔다.
+*.rar
+*.7z
+*.zip
+*.aseprite
+
 # ===== OS junk =====
 Thumbs.db
 Desktop.ini
