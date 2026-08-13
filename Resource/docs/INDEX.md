@@ -9,13 +9,13 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 # INDEX — projectTP 옵시디언 볼트 전체 목록
 
 > ★자동생성 문서. 손으로 편집하지 마라 — 다음 `generate_index.py --apply` 실행에서 덮어써진다.
-> 총 224개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
+> 총 225개 문서, `type`별로 묶었다. 표의 "요약"은 frontmatter `status_note`가 있으면 그 첫 문장,
 > 없으면 문서 첫 헤딩 다음 문장을 썼다(둘 다 200자 상한 — 표시용 절삭이며 frontmatter 원문은 무수정).
 > 둘 다 없으면 빈칸이다(추측해서 채우지 않는다). 전문은 각 문서의 frontmatter/본문에서 확인.
 
 | 항목 | 값 |
 |---|---|
-| 총 문서 수 | 224 |
+| 총 문서 수 | 225 |
 | 요약 빈칸 | 0 |
 | type 그룹 수 | 10 |
 
@@ -33,8 +33,8 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/기본전투무대/청사진\|청사진]] | PASS | 상위: [[projectTP_허브]] · 프로세스: [[개발_워크플로우]] · 세부: [[features/기본전투무대/plan\|plan]] · 로그: [[진행로그]] |
 | [[features/스킬연출구조/E_스파이크_plan\|E_스파이크_plan]] | WIP | S0/S1/S2' PASS · S4a-0 완료(스크립트 경로) · S4a 완료(2026-08-12, 스팟검증) — S2 진행 중 · R2 취소(2026-08-12, H18 블록 부재 확정) — [director 판정] S2 진행 중 · S3~S6 재검토 대기 |
 | [[features/스킬연출구조/plan\|plan]] | PASS | D5 PASS(2026-08-11) — 설계 트랙 종료. |
-| [[features/스킬연출구조/raw/FT1-S3_실행plan\|FT1-S3_실행plan]] | WIP | S3 실행 plan v2 — 오너 승인 완료(2026-08-13). |
-| [[features/스킬연출구조/raw/FT1_plan\|FT1_plan]] | WIP | director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. |
+| [[features/스킬연출구조/raw/FT1-S3_실행plan\|FT1-S3_실행plan]] | BLOCKED | ★홀드(2026-08-13, 오너 지시) — D6까지 완료, D7(부착) 직전 정지. |
+| [[features/스킬연출구조/raw/FT1_plan\|FT1_plan]] | BLOCKED | ★홀드(2026-08-13, 오너 지시) — 재개 지점 = S3 D7. |
 | [[features/스킬연출구조/청사진\|청사진]] | SUPERSEDED | plan 승인(2026-08-11) — 4슬롯으로 구조 변경됨. |
 | [[features/옥토패스대치/plan\|plan]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
 | [[features/옥토패스대치/청사진\|청사진]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
@@ -125,7 +125,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/D3_TC_확정\|D3_TC_확정]] | PASS | TC 확정 — D4 게이트 대기 |
 | [[features/스킬연출구조/raw/E_TC\|E_TC]] | WIP | TC 확정 — E-S0 진행 중 |
 | [[features/스킬연출구조/raw/FT1-0_TC\|FT1-0_TC]] | WIP | 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당) / ★2026-08-13 S2 갱신 — `AU-F0a-01~05`(5건) 전량 결과 기록, **전부 PASS**(04는 조건부 PASS→계약보강[[FT1-S2_04판정]]으로 조건 충족 PA… |
-| [[features/스킬연출구조/raw/FT1-S3_TC\|FT1-S3_TC]] | DRAFT | qa-critic 단계 TC 설계 — 수술을 9단계(D1~D9)로 분할, 단계 TC 35건 신설(`AU-FSTP-01~35`, 충돌 0 전수 grep). |
+| [[features/스킬연출구조/raw/FT1-S3_TC\|FT1-S3_TC]] | BLOCKED | ★홀드(2026-08-13, 오너 지시) — D1~D6 소화 완료, D7~D9 미착수. |
 | [[features/스킬연출구조/raw/자율진행_TC\|자율진행_TC]] | DRAFT | TC 초판 — plan v1(초안) 대상. |
 | [[features/턴제전투MVP/TC\|TC]] | ARCHIVED | E3 자가검증 완료 (verifier 실증 대기) — [director 판정] E3 실증 미완인 채 동결 |
 
@@ -150,7 +150,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/전투완성/raw/파트4_라벨힐_TC\|파트4_라벨힐_TC]] | PASS | 게이트 PASS(Director, 2026-07-17) — 오너 육안 4항목 PASS + Director 핀검증(작업1 라벨 GRAPH 8건) PASS + P4C-15(런타임조인 8기) PASS + 컴파일0·디스크저장 실증. |
 | [[records/로그시스템_점검_2026-08-12\|로그시스템_점검_2026-08-12]] | PASS | 점검 완료 — 구현 없음(발주 대기). |
 
-## 기록·로그 (record) (86)
+## 기록·로그 (record) (87)
 
 | 문서 | status | 요약 |
 |---|---|---|
@@ -236,6 +236,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/턴제전투MVP/raw/E3_게이트\|E3_게이트]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] · 선행: [[E2_상태머신]] |
 | [[features/턴제전투MVP/raw/F_라이브결함\|F_라이브결함]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] · 선행: [[E3_게이트]] |
 | [[features/턴제전투MVP/raw/전투로그\|전투로그]] |  | 상위: [[../plan\|턴제전투MVP plan]] · [[../청사진\|청사진]] |
+| [[records/FT1_홀드기록_2026-08-13\|FT1_홀드기록_2026-08-13]] | BLOCKED | ★FT1 트랙 홀드(2026-08-13, 오너 지시) — 새 아이디어 검토. |
 | [[records/야간작업_2026-08-12\|야간작업_2026-08-12]] | AWAIT_OWNER | 완료 — 오너 확인 대기 |
 | [[records/야간작업_2026-08-13\|야간작업_2026-08-13]] | PASS | 문서구조 개선 1~6·9·10단계 완료. |
 | [[records/작업로그_HD2D아트검증_플레이북\|작업로그_HD2D아트검증_플레이북]] |  | 목적: 이번 S0(아트 선검증) 전 과정을 **재현 가능하게** 기록. |

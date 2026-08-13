@@ -3,8 +3,8 @@ type: plan
 project: projectTP
 feature: 스킬연출구조
 stage: FT1
-status: WIP
-status_note: "director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. 선행 P0(FT 번호 정합, 하이브리드 판정: TC 헤더 재라벨 + AU-F* ID 동결 + 발주서 매핑 1줄) + 수술 4건 6단계. 완료 게이트 = MA-1a 기준선(오라클 20행 diff 0). 오너 차단 0건. ★P0 완료(TC 헤더 재라벨+AU-F* ID 동결, 커밋 5ac3b60) · ★S1 완료(조회 프로브 5건, [[../raw/FT1-S1_조회결과_2026-08-13|FT1-S1_조회결과_2026-08-13]], 커밋 1bc042f) — PlayAttack 형상 확정(EventGraph 커스텀 이벤트+RetriggerableDelay+exec 종단 4갈래, AU-F0b-01 재정의 필요) + PM 반증 1건(슬롯 SpawnPoint_<Team>_<Slot> 라이브 로그 실재, ResolveSlotToActor는 S4 비차단). ★★S2 완료(2026-08-13) — 라이브 `BP_BattleManager` 첫 수술: `SessionBoundary|` 마커 + 예약 `Sequence`(체인 토폴로지, §2 [[../raw/FT1-S2_착수판정|FT1-S2_착수판정]]) 심음. 게이트 5건(`AU-F0a-01~05`) 전량 PASS(04는 실측 26줄 → 계약 요구 경로 승격 → `session.py` 세그먼트 순방향 귀속 개정으로 조건 충족 PASS, [[../raw/FT1-S2_04판정|FT1-S2_04판정]]) — selftest 39/39. 커밋 `f487dc9`(Content BP)·`c89e458`(selftest)·`46b69f7`(착수판정)·`a8dca34`(04판정)·`7e6afc6`(파서개정). 다음: **S3**(수술② 1b 자동 시작 — 예약된 `then_0`에 부착, 가드 필수화)"
+status: BLOCKED
+status_note: "★홀드(2026-08-13, 오너 지시) — 재개 지점 = S3 D7. 상세는 [[FT1_홀드기록_2026-08-13]]. director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. 선행 P0(FT 번호 정합, 하이브리드 판정: TC 헤더 재라벨 + AU-F* ID 동결 + 발주서 매핑 1줄) + 수술 4건 6단계. 완료 게이트 = MA-1a 기준선(오라클 20행 diff 0). 오너 차단 0건. ★P0 완료(TC 헤더 재라벨+AU-F* ID 동결, 커밋 5ac3b60) · ★S1 완료(조회 프로브 5건, [[../raw/FT1-S1_조회결과_2026-08-13|FT1-S1_조회결과_2026-08-13]], 커밋 1bc042f) — PlayAttack 형상 확정(EventGraph 커스텀 이벤트+RetriggerableDelay+exec 종단 4갈래, AU-F0b-01 재정의 필요) + PM 반증 1건(슬롯 SpawnPoint_<Team>_<Slot> 라이브 로그 실재, ResolveSlotToActor는 S4 비차단). ★★S2 완료(2026-08-13) — 라이브 `BP_BattleManager` 첫 수술: `SessionBoundary|` 마커 + 예약 `Sequence`(체인 토폴로지, §2 [[../raw/FT1-S2_착수판정|FT1-S2_착수판정]]) 심음. 게이트 5건(`AU-F0a-01~05`) 전량 PASS(04는 실측 26줄 → 계약 요구 경로 승격 → `session.py` 세그먼트 순방향 귀속 개정으로 조건 충족 PASS, [[../raw/FT1-S2_04판정|FT1-S2_04판정]]) — selftest 39/39. 커밋 `f487dc9`(Content BP)·`c89e458`(selftest)·`46b69f7`(착수판정)·`a8dca34`(04판정)·`7e6afc6`(파서개정). 다음: **S3**(수술② 1b 자동 시작 — 예약된 `then_0`에 부착, 가드 필수화)"
 updated: 2026-08-13
 ---
 

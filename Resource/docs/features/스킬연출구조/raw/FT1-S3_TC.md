@@ -4,8 +4,8 @@ project: projectTP
 feature: 스킬연출구조
 stage: FT1-S3
 updated: 2026-08-13
-status: DRAFT
-status_note: "qa-critic 단계 TC 설계 — 수술을 9단계(D1~D9)로 분할, 단계 TC 35건 신설(`AU-FSTP-01~35`, 충돌 0 전수 grep). ★PIE는 D7 1회뿐 — 나머지 8단계는 정적·오프라인으로 닫힌다(director 원안 대비 PIE 증가 0). ★단계 TC는 게이트가 아니라 정지선이다 — 게이트는 여전히 verifier의 `AU-FAS-01~06`. 적대 검토 11건(High 4·Medium-High 2·Medium 1·Low 4) 별첨 §4 — 특히 ⓐ`BattleState` 정수 ↔ `Equal(Byte)` 문서 내 모순 ⓑ`Delay(0.1)` 존치 근거가 `AU-FAS-04`로 검증되지 않음(교락) + 대체 판정식 제시 ⓒ`Accessed None`이 어떤 게이트·정지선에도 없음 ⓓ정지선 미커버 3종. ★실행 대기 — 전 TC 상태 '대기'"
+status: BLOCKED
+status_note: "★홀드(2026-08-13, 오너 지시) — D1~D6 소화 완료, D7~D9 미착수. 재개 진입점은 [[FT1_홀드기록_2026-08-13]]. / qa-critic 단계 TC 설계 — 수술을 9단계(D1~D9)로 분할, 단계 TC 35건 신설(`AU-FSTP-01~35`, 충돌 0 전수 grep). ★PIE는 D7 1회뿐 — 나머지 8단계는 정적·오프라인으로 닫힌다(director 원안 대비 PIE 증가 0). ★단계 TC는 게이트가 아니라 정지선이다 — 게이트는 여전히 verifier의 `AU-FAS-01~06`. 적대 검토 11건(High 4·Medium-High 2·Medium 1·Low 4) 별첨 §4 — 특히 ⓐ`BattleState` 정수 ↔ `Equal(Byte)` 문서 내 모순 ⓑ`Delay(0.1)` 존치 근거가 `AU-FAS-04`로 검증되지 않음(교락) + 대체 판정식 제시 ⓒ`Accessed None`이 어떤 게이트·정지선에도 없음 ⓓ정지선 미커버 3종. ★실행 대기 — 전 TC 상태 '대기'"
 ---
 
 # FT1-S3 TC — 자동 시작 토글 수술의 단계 분할 + 단계별 TC

@@ -4,8 +4,8 @@ project: projectTP
 feature: 스킬연출구조
 stage: FT1-S3
 updated: 2026-08-13
-status: WIP
-status_note: "S3 실행 plan v2 — 오너 승인 완료(2026-08-13). agents 피드백 3건(qa-critic·gameplay-engineer·verifier) 반영해 v1에서 업그레이드. ★착수 전 필수 정정 5건 포함. ★plan을 git 안에 둔다 — .claude/plans/는 이력이 없다(오너 지시)"
+status: BLOCKED
+status_note: "★홀드(2026-08-13, 오너 지시) — D6까지 완료, D7(부착) 직전 정지. 재개 진입점은 [[FT1_홀드기록_2026-08-13]]. / S3 실행 plan v2 — 오너 승인 완료(2026-08-13). agents 피드백 3건(qa-critic·gameplay-engineer·verifier) 반영해 v1에서 업그레이드. ★착수 전 필수 정정 5건 포함. ★plan을 git 안에 둔다 — .claude/plans/는 이력이 없다(오너 지시)"
 ---
 
 # FT1 S3 — 자동 시작 토글 (v2, 에이전트 피드백 3건 반영)
