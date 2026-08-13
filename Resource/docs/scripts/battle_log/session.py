@@ -24,6 +24,19 @@
 때마다 1 증가한다(0 = 그 sid의 첫 INIT 이전 예비 구간, 예: BeginPlay 직후 Registered: 8줄).
 오라클 20행 diff는 세션 키 단위로 잘라서 비교해야 한다 — sid만으로 자르면 "1 sid에 원장
 2벌"이 섞여 20행 diff가 40행을 보게 된다(qa-critic 재현 시나리오).
+
+★세그먼트 순방향 귀속(FT1-S2_04판정.md §3, `AU-F0a-04` 조건부 PASS 이행, 2026-08-13):
+    실측(`projectTP.log`)상 Manager `BeginPlay`(마커 발화점)는 SpawnPoint 8기보다 레벨 액터
+    순서상 **늦게** 돈다 — 그래서 세션 N(N≥2)의 선두 초기화 로그가 마커보다 먼저 찍힌다.
+    구 계약("첫 SessionBoundary| 이전 = None")대로면 이 선두부가 **직전 세션의 sid로
+    오귀속**되고, 유령 세션 키와 "첫 전투 원장이 (sid, 0)에 앉는" 계약 위반이 생긴다.
+    그래서 `assign_sessions()`는 엔진 `LogWorld: ... up for play (` 라인(`AU-F0a-01`이 이미
+    쓰는 구간 정의)을 **세그먼트 앵커**로 승격해, 마커 이전 선두부를 직전 세션이 아니라
+    **그 세그먼트 자신의 sid로 소급 귀속**한다. `BeginPlay` 발화 순서(엔진 비보장)와 무관하게
+    세션 키가 불변이 되고, `init_ordinal`의 "0 = 그 sid의 첫 INIT 이전 예비 구간" 의미가
+    원설계대로 복원된다. 상세 계약 문구·의사코드는 `assign_sessions()` 함수 docstring과
+    `FT1-S2_04판정.md` §3-1 참고. 하위호환: `up for play` 라인이 없는 입력(합성 픽스처 등)은
+    이 앵커 분기가 발화하지 않아 개정 전과 출력이 100% 동일하다.
 """
 from __future__ import annotations
 
@@ -45,22 +58,65 @@ def derive_sid(ts: str) -> str:
     return ts
 
 
+# ★세그먼트 앵커(AU-F0a-04 세그먼트 순방향 귀속, FT1-S2_04판정.md §3-1). 이 리터럴은 BP
+# PrintString 토큰이 아니라 엔진(`LogWorld`) 발화 라인이므로 tokens.py(게이트③: BP 토큰
+# 프리픽스의 SSOT) 밖에 모듈 상수로 둔다. 실측 원문(`projectTP.log` L17289):
+#   [2026.08.13-03.11.56:600][326]LogWorld: Bringing World
+#   /Game/Stages/UEDPIE_0_map_battle_octopath.map_battle_octopath up for play
+#   (max tick rate 3) at 2026.08.13-12.11.56
+_WORLD_UP_FOR_PLAY = (" up for play (", "]LogWorld: Bringing World ")
+
+
 def assign_sessions(raw_lines):
     """raw_lines(프리픽스 포함)를 세션 경계로 분할해 [(sid_or_None, raw_line), ...]를 반환.
 
-    `sid_or_None`: 첫 `SessionBoundary|` 라인 이전 구간은 **None**으로 명시 라벨링한다
-    (직전 세션에 조용히 병합하지 않는다 — FT1-0 AU-F0a-05 롤오버 내성 계약).
+    ★세그먼트 순방향 귀속(AU-F0a-04 조건부 PASS 이행 — FT1-S2_04판정.md §3):
+    세그먼트 = 엔진 `up for play` 라인에서 다음 `up for play` 라인까지(`AU-F0a-01`이 이미
+    쓰는 구간 정의를 파서에 승격한 것). 세그먼트의 sid = 그 세그먼트 안 첫
+    `SessionBoundary|` 마커의 프리픽스 ts이며, ★마커 이전 선두부(BeginPlay 경합 구간 —
+    SpawnPoint 8기가 Manager보다 레벨 액터 순서상 먼저 도는 구조 때문에 생긴다. 엔진이
+    액터 간 BeginPlay 순서를 보장하지 않으므로 파서 좌표계에서 흡수한다)도 **소급하여 그
+    세그먼트 자신의 sid로 귀속**한다 — 직전 세그먼트로 새지 않는다.
+
+    마커가 없는 세그먼트(EOF까지 또는 다음 `up for play`까지 마커 미발화)는 전체 `None`으로
+    라벨링한다(직전 세션에 조용히 병합하지 않는다 — `AU-F0a-05` 롤오버 내성 계약 계승,
+    fail-loud 유지). 파일 선두에 `up for play` 라인 자체가 없으면(첫 세그먼트 이전 잡음 등)
+    첫 `SessionBoundary|` 이전 구간도 동일하게 **None**이다.
+
+    `init_ordinal`(→ `assign_session_keys`)의 의미는 불변("그 sid 구간 안 INIT 카운트")이나,
+    ★마커 라인 자신은 발화 순서에 따라 ordinal 0 또는 1에 앉을 수 있다 — 마커의 역할은 sid
+    공급뿐, ordinal 판정에는 쓰지 않는다.
+
+    ★하위호환: 입력에 `up for play` 라인이 없으면(합성 픽스처 등 엔진 라인이 없는 입력)
+    첫 분기가 한 번도 발화하지 않아 개정 전 로직과 출력이 100% 동일하다.
     """
     boundary_prefix = _session_boundary_prefix()
     out = []
     current_sid = None
+    pending = None  # None = 버퍼링 비활성 / list = `up for play` 이후 마커 대기 중(세그먼트 선두부)
     for raw in raw_lines:
+        if all(marker in raw for marker in _WORLD_UP_FOR_PLAY):
+            if pending is not None:            # 직전 세그먼트가 마커 없이 끝남 — fail-safe
+                out.extend((None, r) for r in pending)
+            pending = [raw]                    # 새 세그먼트 개시(이 줄 자신도 선두부에 포함)
+            current_sid = None                 # ★직전 sid 전파 차단 지점
+            continue
         meta = parser.parse_line_meta(raw)
         if meta is not None:
             ts, _frame, content = meta
             if content.startswith(boundary_prefix):
                 current_sid = derive_sid(ts)
-        out.append((current_sid, raw))
+                if pending is not None:        # ★세그먼트 선두부(BeginPlay 경합 구간) 소급 귀속
+                    out.extend((current_sid, r) for r in pending)
+                    pending = None
+                out.append((current_sid, raw))
+                continue
+        if pending is not None:
+            pending.append(raw)
+        else:
+            out.append((current_sid, raw))
+    if pending is not None:                    # EOF까지 마커 없음 — fail-safe(전체 None)
+        out.extend((None, r) for r in pending)
     return out
 
 

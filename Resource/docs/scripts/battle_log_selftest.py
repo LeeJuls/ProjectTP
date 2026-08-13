@@ -402,6 +402,71 @@ record("AU-F0a-05ⓑ(실측 재현 — 마커 이전 3줄은 sid=None, 마커부
 
 
 # ---------------------------------------------------------------------------
+# ★세그먼트 순방향 귀속 — 신규 3케이스 (FT1-S2_04판정.md §3-3 N1~N3, AU-F0a-04 조건부
+# PASS 이행). 위의 기존 36건은 무수정 — 이 섹션 위로는 한 글자도 고치지 않았다.
+# ---------------------------------------------------------------------------
+
+def _up_for_play_raw(ts: str, frame: int) -> str:
+    """엔진 `up for play` 세그먼트 앵커 라인을 합성(session.py `_WORLD_UP_FOR_PLAY` 매칭 대상)."""
+    return (f"[{ts}][{frame:3d}]LogWorld: Bringing World "
+            f"/Game/Stages/UEDPIE_0_map_fake.map_fake up for play (max tick rate 3) at {ts}")
+
+
+# --- N1(★핵심) — 실측 2세션 축약본(projectTP.log L17289/17294/17316/17317/17322,
+#     L17388/17393/17415/17416/17421 원문 그대로 — AU-F0a-05ⓑ 픽스처 방식 계승).
+#     세션2 pre-marker 라인이 세션1로 bleed되지 않고 자기 sid로 귀속되는지 확인
+#     (FT1-S2_04판정.md §1-1 실측 재현 — 개정 전에는 이 5줄 전체가 real_sid1로 새었다).
+N1_RAW_LINES = [
+    "[2026.08.13-03.11.56:600][326]LogWorld: Bringing World /Game/Stages/UEDPIE_0_map_battle_octopath.map_battle_octopath up for play (max tick rate 3) at 2026.08.13-12.11.56",
+    "[2026.08.13-03.11.56:608][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] Registered:1",
+    "[2026.08.13-03.11.56:612][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] State|event=INIT|mode=FRESH",
+    "[2026.08.13-03.11.56:614][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] State:Init:t=0",
+    REAL_MARKER_LINE_1,
+    "[2026.08.13-03.12.06:234][355]LogWorld: Bringing World /Game/Stages/UEDPIE_0_map_battle_octopath.map_battle_octopath up for play (max tick rate 3) at 2026.08.13-12.12.06",
+    "[2026.08.13-03.12.06:241][355]LogBlueprintUserMessages: [BP_BattleManager_C_0] Registered:1",
+    "[2026.08.13-03.12.06:245][355]LogBlueprintUserMessages: [BP_BattleManager_C_0] State|event=INIT|mode=FRESH",
+    "[2026.08.13-03.12.06:247][355]LogBlueprintUserMessages: [BP_BattleManager_C_0] State:Init:t=0",
+    REAL_MARKER_LINE_2,
+]
+n1_sids = [s for s, _ in session.assign_sessions(N1_RAW_LINES)]
+n1_keys = session.assign_session_keys(N1_RAW_LINES)
+registered2_key = n1_keys[6][0]  # 세션2 INIT 이전 Registered 라인
+init2_key = n1_keys[7][0]        # 세션2 State|event=INIT 라인
+ok = (n1_sids[:5] == [real_sid1] * 5 and n1_sids[5:] == [real_sid2] * 5
+      and registered2_key == (real_sid2, 0) and init2_key == (real_sid2, 1))
+record("N1(세그먼트 순방향 귀속 — 세션2 pre-marker 5줄 자기 sid 귀속·유령 없음 ∧ 첫 전투 좌표 (sid2,1) 복원)",
+       ok, f"n1_sids={n1_sids}, registered2_key={registered2_key}, init2_key={init2_key}")
+
+
+# --- N2 — up for play → 라인 몇 개 → 마커 없이 EOF → 그 세그먼트 전체 sid=None(fail-safe)
+N2_RAW_LINES = [
+    _up_for_play_raw("2026.08.11-15.00.00:000", 1),
+    _raw("2026.08.11-15.00.00:100", 2, registered_prefix + "1"),
+    _raw("2026.08.11-15.00.00:200", 3, registered_prefix + "2"),
+]
+n2_sids = [s for s, _ in session.assign_sessions(N2_RAW_LINES)]
+ok = n2_sids == [None, None, None]
+record("N2(up for play 후 마커 없이 EOF — 세그먼트 전체 None, fail-safe 유지)", ok, f"n2_sids={n2_sids}")
+
+
+# --- N3 — up for play → 마커(sid=A) → up for play → 마커 없는 라인들 → EOF.
+#     후반 세그먼트는 전체 None이어야 하며, sid=A로 bleed되면 회귀(개정 전 파서가
+#     실제로 틀리던 바로 그 지점 — FT1-S2_04판정.md §3-3 표 N3).
+N3_RAW_LINES = [
+    _up_for_play_raw("2026.08.11-16.00.00:000", 1),
+    _raw("2026.08.11-16.00.00:100", 2, sb_prefix + "event=BeginPlay"),  # sid=A
+    _up_for_play_raw("2026.08.11-16.05.00:000", 3),                     # 세그먼트 B 개시
+    _raw("2026.08.11-16.05.00:100", 4, registered_prefix + "1"),        # 마커 없음
+    _raw("2026.08.11-16.05.00:200", 5, registered_prefix + "2"),        # 마커 없음, EOF까지
+]
+n3_sids = [s for s, _ in session.assign_sessions(N3_RAW_LINES)]
+sid_a = n3_sids[1]
+ok = (sid_a is not None and n3_sids[0] == sid_a and n3_sids[2:] == [None, None, None])
+record("N3(다음 세그먼트가 마커 없이 EOF — 후반 전체 None, sid=A로 bleed 안 됨/회귀 방어)",
+       ok, f"n3_sids={n3_sids}, sid_a={sid_a}")
+
+
+# ---------------------------------------------------------------------------
 # ★천 단위 쉼표 내성 (2026-08-12 실측 함정 — 전투로그.md §1-6)
 # UE float->string이 1000 초과에서 로케일 쉼표를 붙인다(실측 t=6,915.2).
 # int->string은 안 붙인다(실측 FXLAB:FXNOROW:63009999) — 그래서 한 로그에 둘이 공존한다.
