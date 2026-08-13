@@ -3,9 +3,9 @@ type: test
 project: projectTP
 feature: 스킬연출구조
 stage: FT1-0
-updated: 2026-08-12
+updated: 2026-08-13
 status: WIP
-status_note: 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당)
+status_note: 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당) / ★2026-08-13 S2 갱신 — `AU-F0a-01~05`(5건) 전량 결과 기록, **전부 PASS**(04는 조건부 PASS→계약보강[[FT1-S2_04판정]]으로 조건 충족 PASS). `AU-F0p-01`은 동결(파서 유도 채택, BP측 sid 생성 불요 — [[FT1-S2_착수판정]] §1-가). 잔여(0b·0c·0x·0p 나머지)는 대기
 ---
 
 # FT1-0 TC — 로그 스캐폴드 3종 심기 (append-only 라운드)
@@ -42,7 +42,7 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 
 | ID | 절차 | PASS 기준 | 실패 시 파급 | 주체 | 상태 |
 |---|---|---|---|---|---|
-| **AU-F0p-01** ★★차단 | `find_node_types`로 **sid 생성 후보 3종**의 `create_node` 유효 문자열 탐색 — ⓐ `Now`(KismetMathLibrary/DateTime) ⓑ `RandomIntegerInRange` ⓒ `NewGuid`(KismetGuidLibrary) | **최소 1종**이 `create_node`로 실제 생성 성공(테스트용 임시 그래프 또는 생성 후 즉시 삭제) ∧ 성공 문자열 원문을 산출물에 기재 | ★**0종 성공이면 `sid` BP 생성 불가 → §3-A 폴백(파서 유도)으로 계약 변경 필수.** 선례 실재: 노하우 §"`GetRelativeRotation`은 어떤 문자열 형식으로도 생성 불가로 확정" — **API에 함수가 있다 ≠ MCP로 심을 수 있다** | M | 대기 |
+| **AU-F0p-01** ★★차단 | `find_node_types`로 **sid 생성 후보 3종**의 `create_node` 유효 문자열 탐색 — ⓐ `Now`(KismetMathLibrary/DateTime) ⓑ `RandomIntegerInRange` ⓒ `NewGuid`(KismetGuidLibrary) | **최소 1종**이 `create_node`로 실제 생성 성공(테스트용 임시 그래프 또는 생성 후 즉시 삭제) ∧ 성공 문자열 원문을 산출물에 기재 | ★**0종 성공이면 `sid` BP 생성 불가 → §3-A 폴백(파서 유도)으로 계약 변경 필수.** 선례 실재: 노하우 §"`GetRelativeRotation`은 어떤 문자열 형식으로도 생성 불가로 확정" — **API에 함수가 있다 ≠ MCP로 심을 수 있다** | M | ★**동결**(2026-08-13, S2) — create+delete 실측을 하지 않고 종결. [[전투로그]] §2-1이 파서 유도(엔진 프리픽스 벽시계에서 `derive_sid`)를 **1차 계약으로 이미 채택**했고 구현·selftest 완료라 BP측 sid 생성 자체가 불필요해짐(소비자 부재) — S2에서 sid 관련 노드 0개로 심음. 생성 가능성 판정 자체는 미실측인 채 동결(승격 필요해지는 단계의 착수 조회에서 재개). [[FT1-S2_착수판정]] §1-가 |
 | **AU-F0p-02** ★차단 | `BP_BattleManager.ReceiveBeginPlay` 핀 원문 덤프(`get_node_infos`) | exec 체인 길이와 **종단 노드의 `then` 연결 상태**가 기록됨 → *"체인 말미 추가(순수 additive)"* 또는 *"직후 splice"* 중 **어느 쪽을 쓸지 결정이 문서에 기재** | 미결정 상태로 착수하면 `AU-F0a-03`(핀 원문 "삽입 외 동일")의 PASS 기준이 정의되지 않는다 | M | 대기 |
 | **AU-F0p-03** ★★차단 | `BP_BattleSpawnPoint.PlayAttack` 그래프 형상 덤프 — ⓐ **Function Graph인가 EventGraph 커스텀 이벤트인가** ⓑ 내부에 `Delay`/`RetriggerableDelay`/`Timeline` 등 **latent 노드가 있는가** ⓒ exec 종단이 몇 갈래인가 | ⓐⓑⓒ 3항 전부 기록 ∧ **"exit 로그를 어디에 두면 무엇을 재는가"가 1문장으로 확정** | ★§2-B-High-2 참고 — latent가 있으면 `enter n ∧ exit n` 게이트가 **설계상 FAIL**할 수 있다 | M | 대기 |
 | **AU-F0p-04** ★차단 | `PrintString`(로컬라이즈 type_id 추정 `개발\|PrintText`) 노드의 **`bPrintToLog` 핀에 변수 출력을 실제로 연결**해 보는 1회 프로브 | 연결 성공 ∧ 컴파일 0 ∧ 해당 핀이 `get_node_infos`에 **연결된 것으로 표시**됨 | `bPrintToScreen`/`bPrintToLog`는 노드 디테일의 **advanced view** 핀이다. MCP 핀 API가 advanced 핀을 다루는지 **실증 기록 없음** → PLAUSIBLE 리스크. 실패 시 카테고리 체계 구현 방식 전면 재설계 | M | 대기 |
@@ -70,11 +70,11 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 
 | ID | 선행 | 절차 | PASS 기준 | 주체 | 상태 |
 |---|---|---|---|---|---|
-| **AU-F0a-01** ★게이트 | AU-F0p-01·02 | PIE 1회 기동 → 로그에서 **엔진 `up for play` 라인 사이 구간**을 잘라 `SessionBoundary\|` 카운트 | 구간당 **정확히 1줄** ∧ ★**보고서에 `max tick rate` 값 명기**(노하우 §41 실무규칙 1 — 값 자체는 PASS/FAIL 대상 아님) | V | 대기 |
-| **AU-F0a-02** ★게이트 | AU-F0a-01 | PIE 2회 연속 기동(같은 로그 파일) → 두 `SessionBoundary\|`의 `sid=` 값 대조 | **2종**(서로 다름) ∧ ★**두 PIE의 벽시계 간격을 함께 기록** — 간격이 1초 미만인데도 sid가 갈렸는지 확인(초 해상도 수단 채택 시 §3-A 위험 실증) | V | 대기 |
-| **AU-F0a-03** ★게이트(carve-out) | AU-F0p-02 | 수술 **전/후** `ReceiveBeginPlay` 핀 원문 덤프 diff | *"삽입 노드 추가 외 동일"* — 구체: (i) 삽입 노드가 `PrintString`·`FormatText`·순수 Get **뿐** (ii) 절단한 연결이 삽입 노드를 **경유해 동일 순서로 재연결** (iii) ★**핀 원문 텍스트를 보고서에 그대로 인용**. 서술만으로는 PASS 아님(`AU-A1-02` 선례 계승) | V | 대기 |
-| **AU-F0a-04** ★★순서 | AU-F0a-01 | 동일 PIE 구간에서 **`SessionBoundary\|` 이전에 등장하는 `LogBlueprintUserMessages` 줄 수**를 센다 | **0줄이면 PASS.** ★**1줄 이상이면 FAIL이 아니라 "계약 요구"로 승격** — 파서가 *"첫 마커 이전 라인"*을 어떻게 처리하는지(UNKNOWN 귀속 / fail-loud)가 계약서에 기재돼야 통과. 근거: UE는 액터 간 `BeginPlay` 순서를 보장하지 않으며, `BP_BattleSpawnPoint`도 `BeginPlay`에서 `DT_JobStats`를 읽고 `Registered:` 8줄을 유발한다(현황도 §4) | V | 대기 |
-| **AU-F0a-05** ★계약 | — | 롤오버 내성 — `SessionBoundary\|`가 **없는 상태로 시작하는 로그 파일**(에디터 재시작 직후 백업본 등)을 ingestion 모듈에 입력 | 파싱 예외 0 ∧ 마커 없는 선두 구간이 **조용히 직전 세션에 병합되지 않음**(명시 라벨 또는 fail-loud) | M | 대기 |
+| **AU-F0a-01** ★게이트 | AU-F0p-01·02 | PIE 1회 기동 → 로그에서 **엔진 `up for play` 라인 사이 구간**을 잘라 `SessionBoundary\|` 카운트 | 구간당 **정확히 1줄** ∧ ★**보고서에 `max tick rate` 값 명기**(노하우 §41 실무규칙 1 — 값 자체는 PASS/FAIL 대상 아님) | V | ★**PASS**(2026-08-13, S2) — 구간당 마커 정확 1줄(양 PIE). [[FT1-S2_착수판정]] §4 |
+| **AU-F0a-02** ★게이트 | AU-F0a-01 | PIE 2회 연속 기동(같은 로그 파일) → 두 `SessionBoundary\|`의 `sid=` 값 대조 | **2종**(서로 다름) ∧ ★**두 PIE의 벽시계 간격을 함께 기록** — 간격이 1초 미만인데도 sid가 갈렸는지 확인(초 해상도 수단 채택 시 §3-A 위험 실증) | V | ★**PASS**(2026-08-13, S2) — sid 2종 상이(`2026.08.13-03.11.56:615` / `...03.12.06:247`). [[FT1-S2_착수판정]] §4 |
+| **AU-F0a-03** ★게이트(carve-out) | AU-F0p-02 | 수술 **전/후** `ReceiveBeginPlay` 핀 원문 덤프 diff | *"삽입 노드 추가 외 동일"* — 구체: (i) 삽입 노드가 `PrintString`·`FormatText`·순수 Get **뿐** (ii) 절단한 연결이 삽입 노드를 **경유해 동일 순서로 재연결** (iii) ★**핀 원문 텍스트를 보고서에 그대로 인용**. 서술만으로는 PASS 아님(`AU-A1-02` 선례 계승) | V | ★**PASS**(2026-08-13, S2) — 핀 원문 diff = 화이트리스트(노드2·연결2·핀값1) 그것뿐. EventGraph 노드 총수 **182→184**(정확히 +2). [[FT1-S2_착수판정]] §4 |
+| **AU-F0a-04** ★★순서 | AU-F0a-01 | 동일 PIE 구간에서 **`SessionBoundary\|` 이전에 등장하는 `LogBlueprintUserMessages` 줄 수**를 센다 | **0줄이면 PASS.** ★**1줄 이상이면 FAIL이 아니라 "계약 요구"로 승격** — 파서가 *"첫 마커 이전 라인"*을 어떻게 처리하는지(UNKNOWN 귀속 / fail-loud)가 계약서에 기재돼야 통과. 근거: UE는 액터 간 `BeginPlay` 순서를 보장하지 않으며, `BP_BattleSpawnPoint`도 `BeginPlay`에서 `DT_JobStats`를 읽고 `Registered:` 8줄을 유발한다(현황도 §4) | V | ★**조건부 PASS → PASS**(2026-08-13) — 실측 26줄(0줄 아님) → "계약 요구" 경로로 승격, 처리 = 세그먼트 순방향 귀속(`session.py` 개정, 원인은 SpawnPoint 8기가 Manager BeginPlay보다 먼저 도는 레벨 액터 순서). 조건 충족(계약보강 3점 + selftest 39/39) 확인 완료로 **PASS**. 상세: [[FT1-S2_04판정]] |
+| **AU-F0a-05** ★계약 | — | 롤오버 내성 — `SessionBoundary\|`가 **없는 상태로 시작하는 로그 파일**(에디터 재시작 직후 백업본 등)을 ingestion 모듈에 입력 | 파싱 예외 0 ∧ 마커 없는 선두 구간이 **조용히 직전 세션에 병합되지 않음**(명시 라벨 또는 fail-loud) | M | ★**PASS**(2026-08-13, S2) — selftest 전량 PASS(39/39, 기존 36 무수정 + 신규 3). [[FT1-S2_04판정]] §5 |
 
 ### 2-C. FT1-0b — `PlayAttack|` enter/exit (`AU-F0b`)
 
@@ -248,7 +248,7 @@ PM이 발주서 표기를 고수한다면 일괄 치환은 1회 sed로 끝난다
 
 | 게이트 | 상태 | 닫히는 경로 |
 |---|---|---|
-| **`sid` 세션 간 유일** | ⚠ **조건부 실행 불가** — 생성 수단이 계획에 없고, MCP 생성 가능성이 미실증(선례상 생성 불가 함수 존재) | `AU-F0p-01`. 실패 시 **파서 유도 폴백**으로 구제 가능(§3-A) — **계약서에 산식 명문화 필수** |
+| **`sid` 세션 간 유일** | ⚠ ~~조건부 실행 불가~~ → ★**해소(2026-08-13, S2)** — 폴백(파서 유도)을 1차 계약으로 채택해 BP 생성 실측 자체가 불요해짐. `AU-F0p-01`은 동결 | `AU-F0p-01`. ~~실패 시 파서 유도 폴백으로 구제 가능(§3-A)~~ → ★**폴백을 채택해 문제 소멸** — [[전투로그]] §2-1 산식 명문화 완료, `derive_sid` 구현·selftest 완료. [[FT1-S2_착수판정]] §1-가 |
 | **FT1-0b 전 게이트 / FT1-0c 실증 게이트 / BPC-31 회귀** | ⚠ **에이전트 실행 불가 확정**(함정 99) | **오너 세션 신설**(세션 1c) 또는 **자동 시작 훅 별도 단계**. ⚠훅을 FT1-0 carve-out에 끼워 넣지 말 것 |
 | **FT1-0c *"취소·재선택 구분 가능"*** | ⚠ **설계 미확정으로 현재 실행 불가** — 진입점 2개·relay 이중·4역할 겸용이 미정리 | `AU-F0c-01`(설계 확정 게이트)이 선행 |
 | **LOG-A 게이트 6 *"누락 0"*** | ⚠ **모집단 오류로 공허하게 PASS한다** | `AU-F0p-05` — 모집단을 로그 → **BP `find_nodes` 전수**로 교체 |

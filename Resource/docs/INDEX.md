@@ -100,7 +100,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/스킬연출구조/raw/E-S1_레벨구축_결과\|E-S1_레벨구축_결과]] | PASS | S1 PASS — S2 착수 |
 | [[features/스킬연출구조/raw/E0_에이전트피드백_Director판정\|E0_에이전트피드백_Director판정]] | PASS | 판정 완료 — E-S0 착수 |
 | [[features/스킬연출구조/raw/FT1-S1_조회결과_2026-08-13\|FT1-S1_조회결과_2026-08-13]] | PASS | S1 조회 프로브 완료 — 조회 전용(F0p-04 예외 1건만 연결+즉시원복). |
-| [[features/스킬연출구조/raw/FT1-S2_04판정\|FT1-S2_04판정]] | WIP | director 04판정 — AU-F0a-04는 조건부 PASS(TC 원문의 '계약 요구' 경로). |
+| [[features/스킬연출구조/raw/FT1-S2_04판정\|FT1-S2_04판정]] | PASS | director 04판정 — AU-F0a-04는 조건부 PASS(TC 원문의 '계약 요구' 경로). |
 | [[features/스킬연출구조/raw/FT1-S2_착수판정\|FT1-S2_착수판정]] | PASS | director 착수판정 — S2 착수 승인. |
 | [[features/스킬연출구조/raw/T1_잔상절단_결과\|T1_잔상절단_결과]] | WIP | 구현 완료 — verifier 실증 대기 / 오너 육안 비차단 대기. |
 | [[features/스킬연출구조/raw/내장트레일_director판정\|내장트레일_director판정]] | PASS | director 판정 완료 — T0 착수 가능 / T1은 오너 게이트 |
@@ -120,7 +120,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/공격버튼데모/raw/D3_게이트기록\|D3_게이트기록]] |  | 실행: verifier(haiku, Phase A/B) + Director(Windows 실클릭). |
 | [[features/스킬연출구조/raw/D3_TC_확정\|D3_TC_확정]] | PASS | TC 확정 — D4 게이트 대기 |
 | [[features/스킬연출구조/raw/E_TC\|E_TC]] | WIP | TC 확정 — E-S0 진행 중 |
-| [[features/스킬연출구조/raw/FT1-0_TC\|FT1-0_TC]] | WIP | 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당) |
+| [[features/스킬연출구조/raw/FT1-0_TC\|FT1-0_TC]] | WIP | 신설 — TC 20건 설계 완료 / 적대 검토 15건(Critical 1 · High 6) / ★실행 불가 판정 2건(sid 생성수단 · 0b·0c 오너세션 미할당) / ★2026-08-13 S2 갱신 — `AU-F0a-01~05`(5건) 전량 결과 기록, **전부 PASS**(04는 조건부 PASS→계약보강[[FT1-S2_04판정]]으로 조건 충족 PA… |
 | [[features/스킬연출구조/raw/자율진행_TC\|자율진행_TC]] | DRAFT | TC 초판 — plan v1(초안) 대상. |
 | [[features/턴제전투MVP/TC\|TC]] | ARCHIVED | E3 자가검증 완료 (verifier 실증 대기) — [director 판정] E3 실증 미완인 채 동결 |
 
@@ -240,7 +240,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[features/스킬연출구조/_기능허브\|_기능허브]] | PASS | 설계 완료 — 구현 대기 (★E단계 전제 재검토 중 — 아래 경고 참조) · ★AT4 전 구간(pre·a·b·b-2) 완료, AT5 대기(FT1 선행), AT6-a/b/c 보류(HOLD) · ★2026-08-13 갱신 — FT1 트랙 착수: P0(번호정합)·S1(조회프로브 5건) 완료, S2(SessionBoundary\| 마커, 라이브 BP 수술 시작) … |
+| [[features/스킬연출구조/_기능허브\|_기능허브]] | PASS | 설계 완료 — 구현 대기 (★E단계 전제 재검토 중 — 아래 경고 참조) · ★AT4 전 구간(pre·a·b·b-2) 완료, AT5 대기(FT1 선행), AT6-a/b/c 보류(HOLD) · ★2026-08-13 갱신 — FT1 트랙 착수: P0(번호정합)·S1(조회프로브 5건) 완료 · ★★S2(SessionBoundary\| 마커, 라이브 BP 첫 수술… |
 | [[INDEX\|INDEX]] | PASS | docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동생성 — 손으로 편집하지 않는다 |
 | [[projectTP_허브\|projectTP_허브]] |  | UE 5.8 HD-2D 정면 대치 배틀 프로젝트의 **문서 진입점(MOC)**. |
 | [[오너_대기목록\|오너_대기목록]] | WIP | active — ★0군(일괄 확인 세션) 신설 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — 0군 #4(S1 20턴 런)의 성격이 "FT트랙 전체 차단 요인" → "사후 확인(비차단)"으로 강등, 0군 전체가 비차단임을 명시 · ★2026-08-13 현행화 대조 — [[records/야간작업_2026-08-13\|야간작업_202… |
