@@ -89,6 +89,13 @@
 - **서브에이전트 지시서에 문서 갱신을 포함**한다. Director는 산출물과 **함께 문서 갱신도** 검증한다 — 구현만 보고 통과시키면 이 부채가 쌓인다.
 - 이월(deferred)은 **사유·검증 예정 단계·승인자**를 같이 적는다. 사유 없는 이월은 잊혀진다.
 - 문서 정리 자체는 **sonnet 위임**(Director는 기준·방향만).
+- ⚠ ★**문서를 고쳤으면 커밋 전에 볼트 린터를 돌려라.** 서브에이전트 지시서에도 게이트로 넣는다.
+  ```bash
+  cd "D:/unreal/Resource" && node docs/scripts/vaultlint/vaultlint.ts docs
+  ```
+  기준선은 **0 errors**다(warning 5건은 동명 파일 5그룹 — 알려진 정상). 깨진 링크·앵커·고아를 잡는다.
+  > 실제 발생(2026-08-13): PM이 `FT1_plan.md`를 커밋하며 린터를 **안 돌려** `[[약칭_충돌_규약]]`(존재하지 않는 노트) 깨진 링크 1건이 들어갔다. *"0 errors 기준선"*이라 보고했으나 **부정확**했고, 다음 에이전트가 잡았다.
+- ★**볼트 상태 조회는 `docs/INDEX.md`부터**(전 문서 `type`·`status`·요약 1행). `status`는 **enum 7종**(`PASS|WIP|DRAFT|BLOCKED|AWAIT_OWNER|SUPERSEDED|ARCHIVED`)이라 ★`Grep "^status: BLOCKED"` 한 번으로 *"지금 막힌 것"*이 나온다. 긴 서술은 `status_note`에 있다. 규약 상세는 `docs/guides/문서화_규칙.md` **§6**.
 
 ## 저장소 배치 (사고 재발 방지 — 상세: `docs/guides/저장소_구조_규약.md`)
 

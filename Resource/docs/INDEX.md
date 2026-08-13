@@ -33,7 +33,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[features/기본전투무대/청사진\|청사진]] | PASS | 상위: [[projectTP_허브]] · 프로세스: [[개발_워크플로우]] · 세부: [[features/기본전투무대/plan\|plan]] · 로그: [[진행로그]] |
 | [[features/스킬연출구조/E_스파이크_plan\|E_스파이크_plan]] | WIP | S0/S1/S2' PASS · S4a-0 완료(스크립트 경로) · S4a 완료(2026-08-12, 스팟검증) — S2 진행 중 · R2 취소(2026-08-12, H18 블록 부재 확정) — [director 판정] S2 진행 중 · S3~S6 재검토 대기 |
 | [[features/스킬연출구조/plan\|plan]] | PASS | D5 PASS(2026-08-11) — 설계 트랙 종료. |
-| [[features/스킬연출구조/raw/FT1_plan\|FT1_plan]] | DRAFT | director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. |
+| [[features/스킬연출구조/raw/FT1_plan\|FT1_plan]] | WIP | director 설계(2026-08-13) — FT1 자동 재생 하네스 plan. |
 | [[features/스킬연출구조/청사진\|청사진]] | SUPERSEDED | plan 승인(2026-08-11) — 4슬롯으로 구조 변경됨. |
 | [[features/옥토패스대치/plan\|plan]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
 | [[features/옥토패스대치/청사진\|청사진]] | ARCHIVED | 진행중 — [director 판정] 기능 동결 — 아래 원문의 '진행중'은 스테일 |
@@ -48,7 +48,7 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 | [[plans/LOG-A_실행계획\|LOG-A_실행계획]] | PASS | 오너 승인 완료 — 착수 |
 | [[plans/로그시스템_개선_plan\|로그시스템_개선_plan]] | PASS | 확정 — LOG-A 즉시 착수 / FT1-0은 S1 봉인 후 |
 | [[plans/로드맵_버전계획\|로드맵_버전계획]] | PASS | 방향성2 반영 재작성 완료 (2026-07-13) — 다음: 알파 단계별 상세화(A1 전투완성부터). |
-| [[plans/문서구조_개선plan\|문서구조_개선plan]] | DRAFT | v4 — 범위를 전투(92) → docs 전역(209)으로 확대. |
+| [[plans/문서구조_개선plan\|문서구조_개선plan]] | WIP | v4 — 범위를 전투(92) → docs 전역(209)으로 확대. |
 | [[plans/알파_개발계획\|알파_개발계획]] | WIP | 방향성2 반영 재작성 (2026-07-13) — 승인 후 단계별 features/ 상세화. |
 | [[plans/자율작업배치_2026-07-17\|자율작업배치_2026-07-17]] | PASS | v2 — qa 적대 피드백 반영(H1~H3·M1~M4·L1~L3 전 수용) — **전 트랙 실행 완료**(2026-07-17). |
 | [[plans/자율작업배치_2026-07-31\|자율작업배치_2026-07-31]] | PASS | 완료 (2026-07-31 야간) — 오프라인 목업 트랙 종료. |
@@ -238,10 +238,10 @@ status_note: docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동
 
 | 문서 | status | 요약 |
 |---|---|---|
-| [[features/스킬연출구조/_기능허브\|_기능허브]] | PASS | 설계 완료 — 구현 대기 (★E단계 전제 재검토 중 — 아래 경고 참조) · ★AT4 전 구간(pre·a·b·b-2) 완료, AT5 대기(FT1 선행), AT6-a/b/c 보류(HOLD) |
+| [[features/스킬연출구조/_기능허브\|_기능허브]] | PASS | 설계 완료 — 구현 대기 (★E단계 전제 재검토 중 — 아래 경고 참조) · ★AT4 전 구간(pre·a·b·b-2) 완료, AT5 대기(FT1 선행), AT6-a/b/c 보류(HOLD) · ★2026-08-13 갱신 — FT1 트랙 착수: P0(번호정합)·S1(조회프로브 5건) 완료, S2(SessionBoundary\| 마커, 라이브 BP 수술 시작) … |
 | [[INDEX\|INDEX]] | PASS | docs/scripts/vaultfix/generate_index.py로 frontmatter에서 자동생성 — 손으로 편집하지 않는다 |
 | [[projectTP_허브\|projectTP_허브]] |  | UE 5.8 HD-2D 정면 대치 배틀 프로젝트의 **문서 진입점(MOC)**. |
-| [[오너_대기목록\|오너_대기목록]] | WIP | active — ★0군(일괄 확인 세션) 신설 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — 0군 #4(S1 20턴 런)의 성격이 "FT트랙 전체 차단 요인" → "사후 확인(비차단)"으로 강등, 0군 전체가 비차단임을 명시 — [director 판정] 상시 롤링 문서 |
+| [[오너_대기목록\|오너_대기목록]] | WIP | active — ★0군(일괄 확인 세션) 신설 · ★★2026-08-12 재갱신(director 6차 + 오너 승인) — 0군 #4(S1 20턴 런)의 성격이 "FT트랙 전체 차단 요인" → "사후 확인(비차단)"으로 강등, 0군 전체가 비차단임을 명시 · ★2026-08-13 현행화 대조 — [[records/야간작업_2026-08-13\|야간작업_202… |
 
 ## 참고자료 (reference) (18)
 
