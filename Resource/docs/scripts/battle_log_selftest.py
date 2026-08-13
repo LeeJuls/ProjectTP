@@ -356,6 +356,52 @@ record("PM지시④(assign_session_keys — sid=B 내 init_ordinal 0,1,1, 새 si
 
 
 # ---------------------------------------------------------------------------
+# AU-F0a-05ⓑ — 실측 SessionBoundary| 마커 라인 원문 1건을 픽스처로 추가
+# (FT1-S2 수술 스모크 PIE 2회, 2026-08-13 실측 그대로 — 합성 포맷과의 괴리 방어)
+# ---------------------------------------------------------------------------
+REAL_MARKER_LINE_1 = ("[2026.08.13-03.11.56:615][326]LogBlueprintUserMessages: "
+                       "[BP_BattleManager_C_0] SessionBoundary|event=BeginPlay")
+REAL_MARKER_LINE_2 = ("[2026.08.13-03.12.06:247][355]LogBlueprintUserMessages: "
+                       "[BP_BattleManager_C_0] SessionBoundary|event=BeginPlay")
+
+meta_real1 = parser.parse_line_meta(REAL_MARKER_LINE_1)
+meta_real2 = parser.parse_line_meta(REAL_MARKER_LINE_2)
+ok = (meta_real1 is not None and meta_real2 is not None
+      and meta_real1[2] == "SessionBoundary|event=BeginPlay"
+      and meta_real2[2] == "SessionBoundary|event=BeginPlay")
+record("AU-F0a-05ⓑ(실측 마커 라인 원문 파싱 — parse_line_meta)", ok,
+       f"meta_real1={meta_real1}, meta_real2={meta_real2}")
+
+row_real = tokens.match_row(meta_real1[2]) if meta_real1 else None
+ok = (row_real is not None and row_real.row == "16" and row_real.category == tokens.UNAFFILIATED)
+record("AU-F0a-05ⓑ(실측 마커 라인 — match_row가 순번16/UNAFFILIATED로 분류)", ok,
+       f"row={row_real}")
+
+real_sid1 = session.derive_sid(meta_real1[0])
+real_sid2 = session.derive_sid(meta_real2[0])
+ok = (real_sid1 == "2026.08.13-03.11.56:615" and real_sid2 == "2026.08.13-03.12.06:247"
+      and real_sid1 != real_sid2)
+record("AU-F0a-05ⓑ(실측 마커 2건 — derive_sid 2종, 서로 다름)", ok,
+       f"real_sid1={real_sid1}, real_sid2={real_sid2}")
+
+# 실측 세션 전체(마커 이전 26줄 LogBlueprintUserMessages 포함, FT1-S2 AU-F0a-04 ⓒ 실측 그대로)를
+# assign_sessions에 통과시켜 파서가 예외 없이 처리하는지 확인(마커 이전 구간은 sid=None 라벨).
+REAL_SESSION_RAW_LINES = [
+    "[2026.08.13-03.11.56:608][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] Registered:1",
+    "[2026.08.13-03.11.56:612][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] State|event=INIT|mode=FRESH",
+    "[2026.08.13-03.11.56:614][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] State:Init:t=0",
+    REAL_MARKER_LINE_1,
+    "[2026.08.13-03.11.56:620][326]LogBlueprintUserMessages: [BP_BattleManager_C_0] Registered:1",
+]
+real_sessions = session.assign_sessions(REAL_SESSION_RAW_LINES)
+real_sids = [s for s, _ in real_sessions]
+ok = (real_sids[0] is None and real_sids[1] is None and real_sids[2] is None
+      and real_sids[3] == real_sid1 and real_sids[4] == real_sid1)
+record("AU-F0a-05ⓑ(실측 재현 — 마커 이전 3줄은 sid=None, 마커부터 sid=real_sid1)",
+       ok, f"real_sids={real_sids}")
+
+
+# ---------------------------------------------------------------------------
 # ★천 단위 쉼표 내성 (2026-08-12 실측 함정 — 전투로그.md §1-6)
 # UE float->string이 1000 초과에서 로케일 쉼표를 붙인다(실측 t=6,915.2).
 # int->string은 안 붙인다(실측 FXLAB:FXNOROW:63009999) — 그래서 한 로그에 둘이 공존한다.
